@@ -1,4 +1,4 @@
-package com.laponhcet.itemcategory;
+package com.laponhcet.mediatype;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,45 +6,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.mytechnopal.ActionResponse;
 import com.mytechnopal.base.DAOBase;
 import com.mytechnopal.base.DTOBase;
 import com.mysql.jdbc.Statement;
 
-public class ItemCategoryDAO extends DAOBase {
+public class MediaTypeDAO extends DAOBase {
     private static final long serialVersionUID = 1L;
 
-    private String qryItemCategoryAdd = "ITEM_CATEGORY_ADD";
-    private String qryItemCategoryList = "ITEM_CATEGORY_LIST";
-    private String qryItemCategoryUpdate = "ITEM_CATEGORY_UPDATE";
-    private String qryItemCategoryDelete = "ITEM_CATEGORY_DELETE";
-    private String qryItemCategoryLast = "ITEM_CATEGORY_LAST";
+    private String qryMediaTypeAdd = "MEDIA_TYPE_ADD";
+    private String qryMediaTypeUpdate = "MEDIA_TYPE_UPDATE";
+    private String qryMediaTypeDelete = "MEDIA_TYPE_DELETE";
+    private String qryMediaTypeList = "MEDIA_TYPE_LIST";
+    private String qryMediaTypeLast = "MEDIA_TYPE_LAST";
 
+    
     @Override
     public void executeAdd(DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
-        String generatedCode = getGeneratedCode(qryItemCategoryLast, 3);
-        itemCategory.setCode(generatedCode);
-        itemCategory.setBaseDataOnInsert();
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
+        String generatedCode = getGeneratedCode(qryMediaTypeLast, 3);
+        mediaType.setCode(generatedCode);
+        mediaType.setBaseDataOnInsert();
 
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
 
-        add(conn, prepStmntList, itemCategory);
+        add(conn, prepStmntList, mediaType);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
 
     public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
         PreparedStatement prepStmnt = null;
-
         try {
-            prepStmnt = conn.prepareStatement(getQueryStatement(qryItemCategoryAdd), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemCategory.getCode());
-            prepStmnt.setString(2, itemCategory.getName());
-            prepStmnt.setString(3, itemCategory.getAddedBy());
-            prepStmnt.setString(4, itemCategory.getUpdatedBy());
+            prepStmnt = conn.prepareStatement(getQueryStatement(qryMediaTypeAdd), Statement.RETURN_GENERATED_KEYS);
+            prepStmnt.setString(1, mediaType.getCode());
+            prepStmnt.setString(2, mediaType.getName());
+            prepStmnt.setString(3, mediaType.getAddedBy());
+            prepStmnt.setString(4, mediaType.getUpdatedBy());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -59,25 +58,24 @@ public class ItemCategoryDAO extends DAOBase {
    
     @Override
     public void executeUpdate(DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
-        itemCategory.setBaseDataOnUpdate();
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
+        mediaType.setBaseDataOnUpdate();
 
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
 
-        update(conn, prepStmntList, itemCategory);
+        update(conn, prepStmntList, mediaType);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
 
     public void update(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
         PreparedStatement prepStmnt = null;
-
         try {
-            prepStmnt = conn.prepareStatement(getQueryStatement(qryItemCategoryUpdate), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemCategory.getName());
-            prepStmnt.setString(2, itemCategory.getUpdatedBy());
-            prepStmnt.setString(3, itemCategory.getCode());
+            prepStmnt = conn.prepareStatement(getQueryStatement(qryMediaTypeUpdate), Statement.RETURN_GENERATED_KEYS);
+            prepStmnt.setString(1, mediaType.getName());
+            prepStmnt.setString(2, mediaType.getUpdatedBy());
+            prepStmnt.setString(3, mediaType.getCode());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -89,24 +87,23 @@ public class ItemCategoryDAO extends DAOBase {
         // TODO Auto-generated method stub
     }
 
- 
+    
     @Override
     public void executeDelete(DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
 
-        delete(conn, prepStmntList, itemCategory);
+        delete(conn, prepStmntList, mediaType);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
 
     public void delete(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-        ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
+        MediaTypeDTO mediaType = (MediaTypeDTO) obj;
         PreparedStatement prepStmnt = null;
-
         try {
-            prepStmnt = conn.prepareStatement(getQueryStatement(qryItemCategoryDelete), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemCategory.getCode());
+            prepStmnt = conn.prepareStatement(getQueryStatement(qryMediaTypeDelete), Statement.RETURN_GENERATED_KEYS);
+            prepStmnt.setString(1, mediaType.getCode());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -119,23 +116,23 @@ public class ItemCategoryDAO extends DAOBase {
     }
 
   
-    public List<DTOBase> getItemCategoryList() {
-        return getDTOList(qryItemCategoryList);
+    public List<DTOBase> getMediaTypeList() {
+        return getDTOList(qryMediaTypeList);
     }
 
     
     @Override
     protected DTOBase rsToObj(ResultSet resultSet) {
-        ItemCategoryDTO itemCategory = new ItemCategoryDTO();
+        MediaTypeDTO mediaType = new MediaTypeDTO();
         try {
-            itemCategory.setId(resultSet.getInt("id"));
-            itemCategory.setCode(resultSet.getString("code"));
-            itemCategory.setName(resultSet.getString("name"));
-            itemCategory.setAddedBy(resultSet.getString("added_by"));
-            itemCategory.setUpdatedBy(resultSet.getString("updated_by"));
+            mediaType.setId(resultSet.getInt("id"));
+            mediaType.setCode(resultSet.getString("code"));
+            mediaType.setName(resultSet.getString("name"));
+            mediaType.setAddedBy(resultSet.getString("added_by"));
+            mediaType.setUpdatedBy(resultSet.getString("updated_by"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return itemCategory;
+        return mediaType;
     }
 }

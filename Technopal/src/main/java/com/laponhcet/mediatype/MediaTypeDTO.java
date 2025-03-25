@@ -1,20 +1,20 @@
-package com.laponhcet.itemcategory;
+package com.laponhcet.mediatype;
 
 import com.mytechnopal.base.DTOBase;
 
-public class ItemCategoryDTO extends DTOBase {
+public class MediaTypeDTO extends DTOBase {
     private static final long serialVersionUID = 1L;
 
-    public static final String SESSION_ITEM_CATEGORY = "SESSION_ITEM_CATEGORY";
-    public static final String SESSION_ITEM_CATEGORY_LIST = "SESSION_ITEM_CATEGORY_LIST";
-    public static final String SESSION_ITEM_CATEGORY_DATA_TABLE = "SESSION_ITEM_CATEGORY_DATA_TABLE";
+    public static final String SESSION_MEDIA_TYPE = "SESSION_MEDIA_TYPE";
+    public static final String SESSION_MEDIA_TYPE_LIST = "SESSION_MEDIA_TYPE_LIST";
+    public static final String SESSION_MEDIA_TYPE_DATA_TABLE = "SESSION_MEDIA_TYPE_DATA_TABLE";
 
     private String code;
     private String name;
     private String addedBy;
     private String updatedBy;
 
-    public ItemCategoryDTO() {
+    public MediaTypeDTO() {
         super();
         this.code = "";
         this.name = "";
@@ -22,14 +22,14 @@ public class ItemCategoryDTO extends DTOBase {
         this.updatedBy = "";
     }
 
-    public ItemCategoryDTO getItemCategory() {
-        ItemCategoryDTO category = new ItemCategoryDTO();
-        category.setId(super.getId());  // ID comes from DTOBase
-        category.setCode(this.code);
-        category.setName(this.name);
-        category.setAddedBy(this.addedBy);
-        category.setUpdatedBy(this.updatedBy);
-        return category;
+    public MediaTypeDTO getMediaType() {
+        MediaTypeDTO mediaType = new MediaTypeDTO();
+        mediaType.setId(super.getId());
+        mediaType.setCode(this.code);
+        mediaType.setName(this.name);
+        mediaType.setAddedBy(this.addedBy);
+        mediaType.setUpdatedBy(this.updatedBy);
+        return mediaType;
     }
 
     public String getCode() {

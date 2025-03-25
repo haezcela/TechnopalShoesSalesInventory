@@ -6,7 +6,7 @@
 <%@ page import="com.mytechnopal.util.*"%>
 <%@ page import="com.mytechnopal.dao.*"%>
 <%@ page import="com.mytechnopal.webcontrol.*" %>
-
+<%@ page import="com.mytechnopal.SessionInfo, com.mytechnopal.DataTable" %>
 <%@ page import="com.laponhcet.itemunit.*" %>
 
 <%
@@ -15,45 +15,20 @@ DataTable dataTable = (DataTable) session.getAttribute(ItemUnitDTO.SESSION_ITEM_
 String dataInput = "txtCode: $('#txtCode').val(), txtName: $('#txtName').val()"; 
 %>
 
-<div class="container" id='<%=dataTable.getId()%>'></div>
+<div class="container" id='<%=dataTable != null ? dataTable.getId() : "dataTableNull"%>'></div>
 
 <script>
-	setTimeout(function (){
-		list<%=sessionInfo.getCurrentLink().getCode()%>();
-	}, 100); 
+    setTimeout(function () {
+            list<%=sessionInfo.getCurrentLink().getCode()%>();
+    }, 100);
 
-	<%=WebUtil.getJSList(sessionInfo, dataTable)%>
-	<%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
-	<%=WebUtil.getJSAddSave(sessionInfo, dataTable, dataInput)%>
-	<%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
-	<%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
-	
-	
-
-	function uploadFile(action, fileId, cFunction, label, fileType) {
-		$.ajax({
-			url: 'UploadFileAjaxController?txtAction=' + action + '&txtFileId=' + fileId + '&txtLabel=' + label + '&txtFileType=' + fileType, 
-		  	type: 'POST',
-		  	data: new FormData($('#frmMain')[0]), // The form with the file inputs.
-		  	processData: false,
-		  	contentType: false,                   // Using FormData, no need to process data.
-		  	dataType: 'JSON',
-		  	success: function(response) {  
-		  		if(response.MESSAGE_TYPE === "<%=ActionResponse.MESSAGE_SWAL_TYPE_SUCCESS%>") {
-		  			$("#divUploadedFilePict" + fileId).html(response.uploadedFileContent);
-			  		$("#divUploadedFileRemarks" + fileId).html(response.uploadedFileRemarks);
-			  		if(cFunction !== "") {
-		  				cFunction;
-					}
-				}
-				else {
-					Swal.fire({
-						title: "ERROR",
-						text: response.<%=ActionResponse.MESSAGE_STR%>,
-						icon: "error"
-					});
-				}
-			}
-		});	
-	}
+    <% if (dataTable != null) { %>
+        <%=WebUtil.getJSList(sessionInfo, dataTable)%>
+        <%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
+        <%=WebUtil.getJSAddSave(sessionInfo, dataTable, dataInput)%>
+        <%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
+        <%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
+    <% } else { %>
+        console.error("DataTable is null, JS functions cannot be executed.");
+    <% } %>
 </script>

@@ -1,10 +1,6 @@
-
 package com.laponhcet.itemunit;
 
-import com.laponhcet.itemcategory.ItemCategoryDTO;
-
 import com.mytechnopal.base.DTOBase;
-import java.sql.Timestamp;
 
 public class ItemUnitDTO extends DTOBase {
     private static final long serialVersionUID = 1L;
@@ -12,22 +8,39 @@ public class ItemUnitDTO extends DTOBase {
     public static final String SESSION_ITEM_UNIT = "SESSION_ITEM_UNIT";
     public static final String SESSION_ITEM_UNIT_LIST = "SESSION_ITEM_UNIT_LIST";
     public static final String SESSION_ITEM_UNIT_DATA_TABLE = "SESSION_ITEM_UNIT_DATA_TABLE";
-    
-    public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
-    
-    private String name;
 
+    private String code;
+    private String name;
+    private String addedBy;
+    private String updatedBy;
 
     public ItemUnitDTO() {
         super();
+        this.code = "";
         this.name = "";
+        this.addedBy = "";
+        this.updatedBy = "";
     }
 
-    public ItemUnitDTO(String string) {
-		// TODO Auto-generated constructor stub
-	}
+    public ItemUnitDTO getItemUnit() {
+        ItemUnitDTO unit = new ItemUnitDTO();
+//        unit.setId(super.getId());  // ID comes from DTOBase
+        unit.setCode(this.code);
+        unit.setName(this.name);
+        unit.setAddedBy(this.addedBy);
+        unit.setUpdatedBy(this.updatedBy);
+        return unit;
+    }
 
-	public String getName() {
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
         return name;
     }
 
@@ -35,23 +48,19 @@ public class ItemUnitDTO extends DTOBase {
         this.name = name;
     }
 
-    public ItemUnitDTO getItemUnit() {
-    	ItemUnitDTO itemUnit = new ItemUnitDTO();
-    	itemUnit.setId(super.getId());
-    	itemUnit.setCode(String.valueOf(itemUnit.getCode()));
-        itemUnit.setName(this.name);
-        
-        return itemUnit;
+    public String getAddedBy() {
+        return addedBy;
     }
 
-    public void display() {
-        System.out.println("Id: " + getId());
-        System.out.println("Code: " + getCode());
-        System.out.println("Name: " + name);
-        System.out.println("Added By: " + getAddedBy());
-        System.out.println("Added Timestamp: " + getAddedTimestamp());
-        System.out.println("Updated By: " + getUpdatedBy());
-        System.out.println("Updated Timestamp: " + getUpdatedTimestamp());
+    public void setAddedBy(String addedBy) {
+        this.addedBy = addedBy;
+    }
 
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

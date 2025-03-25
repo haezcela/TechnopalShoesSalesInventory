@@ -1,16 +1,12 @@
 package com.laponhcet.itemunit;
 
 import java.io.Serializable;
+import java.util.List;
 
-
-
-import com.laponhcet.item.ItemDTO;
-import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
-import com.mytechnopal.UploadedFile;
+import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.base.WebControlBase;
-import com.mytechnopal.util.DateTimeUtil;
 import com.mytechnopal.webcontrol.DataTableWebControl;
 import com.mytechnopal.webcontrol.TextBoxWebControl;
 
@@ -30,36 +26,44 @@ public class ItemUnitUtil implements Serializable {
 
     private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
         String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
-        for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {            
-        	ItemUnitDTO itemUnit = (ItemUnitDTO) dataTable.getRecordListCurrentPage().get(row);
-            strArr[row][0] = itemUnit.getCode();
-            strArr[row][1] = itemUnit.getName();
-            strArr[row][2] = dataTable.getRecordButtonStr(sessionInfo, itemUnit.getCode());
+        for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
+            ItemUnitDTO itemUnit = (ItemUnitDTO) dataTable.getRecordListCurrentPage().get(row);
+
+            strArr[row][0] = String.valueOf(itemUnit.getId());
+            strArr[row][1] = itemUnit.getCode();
+            strArr[row][2] = itemUnit.getName();
+            strArr[row][3] = itemUnit.getAddedBy();
+            strArr[row][4] = itemUnit.getUpdatedBy();
+            strArr[row][5] = dataTable.getRecordButtonStr(sessionInfo, itemUnit.getCode());
         }
         return strArr;
     }
 
-    public static String getDataEntryStr(SessionInfo sessionInfo, ItemUnitDTO unit, UploadedFile uploadedFile) {
+    public static String getDataEntryStr(SessionInfo sessionInfo, ItemUnitDTO itemUnit) {
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append(new TextBoxWebControl().getTextBoxWebControl( "form-group col-lg-8", false, "Add New Unit", "Add New Unit", "Name", unit.getName(), 45, WebControlBase.DATA_TYPE_STRING, "" ));
+        strBuff.append(new TextBoxWebControl().getTextBoxWebControl("form-group col-lg-4", true, "Code", "Code", "Code", itemUnit.getCode(), 10, WebControlBase.DATA_TYPE_STRING, ""));
+        strBuff.append(new TextBoxWebControl().getTextBoxWebControl("form-group col-lg-4", true, "Unit Name", "Name", "Name", itemUnit.getName(), 50, WebControlBase.DATA_TYPE_STRING, ""));
         return strBuff.toString();
     }
 
-    public static String getDataViewStr(SessionInfo sessionInfo, ItemUnitDTO unit) {
+    public static String getDataViewStr(SessionInfo sessionInfo, ItemUnitDTO itemUnit) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("<div class='col-lg-12'>");
-        strBuff.append("<p>Code: " + unit.getCode() + "</p>");
-        strBuff.append("<p>Name: " + unit.getName() + "</p>");
-        strBuff.append("<p>Added By: " + unit.getAddedBy() + "</p>");
-        strBuff.append("<p>Added Timestamp: " + DateTimeUtil.getDateTimeToStr(unit.getAddedTimestamp(), "MMM dd, yyyy hh:mm a") + "</p>");
-        strBuff.append("<p>Updated By: " + unit.getUpdatedBy() + "</p>");
-        strBuff.append("<p>Updated Timestamp: " + DateTimeUtil.getDateTimeToStr(unit.getUpdatedTimestamp(), "MMM dd, yyyy hh:mm a") + "</p>");
+        strBuff.append("<p>Code: " + itemUnit.getCode() + "</p>");
+        strBuff.append("<p>Unit Name: " + itemUnit.getName() + "</p>");
+        strBuff.append("<p>Added By: " + itemUnit.getAddedBy() + "</p>");
+        strBuff.append("<p>Updated By: " + itemUnit.getUpdatedBy() + "</p>");
         strBuff.append("</div>");
         return strBuff.toString();
     }
 
-    public static void setItemUnit (ItemUnitDTO itemunit) {
-		// TODO Auto-generated method stub
-		itemunit.setName(itemunit.getName());
-	}
+    public static void searchByName(DataTable dataTable, String searchValue, List<DTOBase> itemUnitList) {
+        dataTable.setRecordListInvisible();
+        for (DTOBase dto : dataTable.getRecordList()) {
+            ItemUnitDTO itemUnit = (ItemUnitDTO) dto;
+            if (itemUnit.getName().toUpperCase().contains(searchValue.toUpperCase())) {
+                itemUnit.setVisible(true);
+            }
+        }
+    }
 }
