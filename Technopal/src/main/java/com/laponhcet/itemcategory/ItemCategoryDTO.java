@@ -15,8 +15,7 @@ public class ItemCategoryDTO extends DTOBase {
     public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
 
 	
-    
-
+   
     private String name;
 
 
@@ -25,9 +24,15 @@ public class ItemCategoryDTO extends DTOBase {
         this.name = "";
     }
 
-    public ItemCategoryDTO(String string) {
-		// TODO Auto-generated constructor stub
+	public ItemCategoryDTO getItemCategory() {
+		ItemCategoryDTO itemCategory = new ItemCategoryDTO();
+		itemCategory.setId(super.getId());
+		itemCategory.setCode(super.getCode());
+		itemCategory.setName(this.name);
+		return itemCategory;
 	}
+		// TODO Auto-generated constructor stub
+	
 
 	public String getName() {
         return name;
@@ -36,23 +41,5 @@ public class ItemCategoryDTO extends DTOBase {
     public void setName(String name) {
         this.name = name;
     }
- 
-    public ItemCategoryDTO getItemCategory() {
-    	ItemCategoryDTO itemCategory = new ItemCategoryDTO();
-        itemCategory.setId(super.getId());
-        itemCategory.setCode(String.valueOf(itemCategory.getCode()));
-        itemCategory.setName(this.name);
 
-        return itemCategory;
-    }
-
-    public void display() {
-        System.out.println("Code: " + getId());
-        System.out.println("Code: " + getCode());
-        System.out.println("Name: " + name);
-        System.out.println("Added By: " + getAddedBy());
-        System.out.println("Added Timestamp: " + getAddedTimestamp());
-        System.out.println("Updated By: " + getUpdatedBy());
-        System.out.println("Updated Timestamp: " + getUpdatedTimestamp());
-    }
 }

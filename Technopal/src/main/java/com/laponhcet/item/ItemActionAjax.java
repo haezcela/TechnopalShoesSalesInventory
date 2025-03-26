@@ -24,35 +24,58 @@ import com.mytechnopal.util.StringUtil;
 
 public class ItemActionAjax extends ActionAjaxBase {
     private static final long serialVersionUID = 1L;
+    
+    
+  //METHODS TO DIPSPLAY = LIST
+    protected void dataTableAction(JSONObject jsonObj, DataTable dataTable) {
+        initDataTable(dataTable);
+        try {
+            jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataTablePage(sessionInfo, ItemUtil.getDataTableStr(sessionInfo, dataTable)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     protected void setInput(String action) {
         ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
+        
+        
+        int itemCategoryId= getRequestInt("cboItemCategory");
+                	System.out.println("Item Category ID: " + itemCategoryId);
+        List<DTOBase> itemCategoryList= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
+        ItemCategoryDTO itemCategory=(ItemCategoryDTO) DTOUtil.getObjById(itemCategoryList, itemCategoryId);
+    	System.out.println("itemCategoryId is null  :  " + itemCategory==null  );
+    	item.setItemCategory(itemCategory);
+        
         item.setName(getRequestString("txtName"));
         item.setDescription(getRequestString("txtDescription"));
+
+        
+        int itemUnitId= getRequestInt("cboItemUnit");
+    	System.out.println("Item Category ID: " + itemUnitId);
+    	List<DTOBase> itemUnitList= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+    	ItemUnitDTO itemUnit=(ItemUnitDTO) DTOUtil.getObjById(itemUnitList, itemUnitId);
+    	System.out.println("itemUnitId is null  :  " + itemUnit==null  );
+    	item.setItemUnit(itemUnit);
+
+        item.setUnitPrice(getRequestDouble("txtUnitPrice"));
         item.setQuantity(getRequestDouble("txtQuantity"));
         item.setReorderpoint(getRequestDouble("txtReorderpoint"));
         
-        //System.out.println("Search Name: " + );
-        int itemCategoryId = getRequestInt("cboItemCategory");
-        if(getRequestInt("cboCategory") > 0) {
-        	List<DTOBase> itemCategoryList = (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
-        	ItemCategoryDTO itemCategory = (ItemCategoryDTO) DTOUtil.getObjById(itemCategoryList, itemCategoryId);
-        	item.setItemCategory(itemCategory);
-		}
+        String unit = getRequestString("txtUnitPrice");
+    	System.out.println("UnitPrice SET : " + unit);
         
-        int itemUnitId = getRequestInt("cbiItemUnit");
-        if(getRequestInt("cboUnit") > 0) {
-        	List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
-        	ItemCategoryDTO itemUnit = (ItemCategoryDTO) DTOUtil.getObjById(itemUnitList, itemUnitId);
-        	item.setItemCategory(itemUnit);
-		}
+        
+//        String unitPrice = getRequestString("txtUnitPrice");
+//    	System.out.println("UnitPrice: " + unitPrice);
     }
 
     protected void validateInput(String action) {
     	ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
         if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
         	        	
-        	if(StringUtil.isEmpty(item.getItemCategory().getName())) {
+        	if(StringUtil.isEmpty(getRequestString("cboItemCategory"))) {
 				actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Category");
 			}
    
@@ -63,45 +86,73 @@ public class ItemActionAjax extends ActionAjaxBase {
         	if (StringUtil.isEmpty(getRequestString("txtDescription"))) {
                 actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Description");
             }
-            
-        	else if(StringUtil.isEmpty(item.getItemUnit().getName())) {
+          String unit = getRequestString("txtUnitPrice");
+        	System.out.println("UnitPrice VAlidate : " + unit);
+        	if(StringUtil.isEmpty(getRequestString("cboItemUnit"))) {
 				actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Unit");
 			}
-        	if (StringUtil.isEmpty(getRequestString("txtUnitPrice"))) {
-                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Unit Price");
+        	
+        	if (StringUtil.isEmpty(Double.toString(getRequestDouble("txtUnitPrice")))) {
+                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "UnitPrice");
             }
 
-        	if (StringUtil.isEmpty(getRequestString("txtQuantity"))) {
+        	if (StringUtil.isEmpty(Double.toString(getRequestDouble("txtQuantity")))) {
                 actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Quantity");
             }
-        	if (StringUtil.isEmpty(getRequestString("txtReorderpoint"))) {
-                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Reorder Point");
+        	if (StringUtil.isEmpty(Double.toString(getRequestDouble("txtReorderpoint")))) {
+                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "ReorderPoint");
             }
         }
     }
 
     protected void executeLogic(JSONObject jsonObj, DataTable dataTable, String action) {
-    	List<DTOBase> itemCategoryList = (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
-    	List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
-            ItemDTO itemSelected = (ItemDTO) dataTable.getSelectedRecord();
+        	
+            ItemDTO item = (ItemDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUtil.getDataViewStr(sessionInfo, itemSelected, itemCategoryList, itemUnitList), action));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+    	        jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUtil.getDataViewStr(sessionInfo, item), "")); //Title and Buttons
+    	    } catch (JSONException e) {
+    	        e.printStackTrace();
+    	    }
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
-            ItemDTO item = new ItemDTO();
+        	ItemDTO item = new ItemDTO();
+            List<DTOBase> itemCategoryList= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
+            
+            System.out.println("ItemCategoryList size "+ itemCategoryList.size());
+            
+            for (DTOBase obj:itemCategoryList) {
+          		ItemCategoryDTO itemCategory= (ItemCategoryDTO) obj;
+          		System.out.println("itemCategoryId" + itemCategory.getId());
+          		System.out.println("itemCategoryCode" + itemCategory.getCode());
+          		System.out.println("itemCategoryName" + itemCategory.getName());
+          		System.out.println("display" + itemCategory.getDisplayStr());
+          	 }
+            
+            List<DTOBase> itemUnitList= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+            
+            System.out.println("itemUnitList size "+ itemUnitList.size());
+            
+            for (DTOBase obj:itemUnitList) {
+            	ItemUnitDTO itemUnit= (ItemUnitDTO) obj;
+          		System.out.println("itemCategoryId" + itemUnit.getId());
+          		System.out.println("itemCategoryCode" + itemUnit.getCode());
+          		System.out.println("itemCategoryName" + itemUnit.getName());
+          		System.out.println("display" + itemUnit.getDisplayStr());
+          	 }
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, item, itemCategoryList, itemUnitList), action));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, item, itemCategoryList, itemUnitList), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             setSessionAttribute(ItemDTO.SESSION_ITEM, item);
+        
         } else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_VIEW)) {
             ItemDTO itemSelected = (ItemDTO) dataTable.getSelectedRecord();
+            List<DTOBase> itemCategoryList= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
+            List<DTOBase> itemUnitList= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, itemSelected, itemCategoryList,itemUnitList), action));
+            	jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, itemSelected, itemCategoryList, itemUnitList), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -109,7 +160,7 @@ public class ItemActionAjax extends ActionAjaxBase {
         } else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
             ItemDTO itemSelected = (ItemDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUtil.getDataViewStr(sessionInfo, itemSelected, itemCategoryList,itemUnitList), action));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUtil.getDataViewStr(sessionInfo, itemSelected), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -147,16 +198,6 @@ public class ItemActionAjax extends ActionAjaxBase {
     }
 
     
-    
-    protected void dataTableAction(JSONObject jsonObj, DataTable dataTable) {
-        initDataTable(dataTable);
-        try {
-            jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataTablePage(sessionInfo, ItemUtil.getDataTableStr(sessionInfo, dataTable)));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-    
     protected void search(DataTable dataTable) {
 	    String searchValue = dataTable.getSearchValue();
 	    String searchCriteria = ItemDTO.ACTION_SEARCH_BY_NAME;
@@ -170,19 +211,9 @@ public class ItemActionAjax extends ActionAjaxBase {
 	    }
     }                                                                               
     
-    protected void initDataTable(DataTable dataTable) {
-       List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
-       List<DTOBase> itemCategoryList = (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
-       List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
-        
-        dataTable.setRecordList(itemList);
-        dataTable.setCurrentPageRecordList();
-       
-			for(int row=0; row < dataTable.getRecordListCurrentPage().size(); row++) {			
-				
-			ItemDTO item = (ItemDTO) dataTable.getRecordListCurrentPage().get(row);
-					item.setItemCategory((ItemCategoryDTO) DTOUtil.getObjByCode(itemCategoryList, item.getItemCategory().getCode()));
-					item.setItemUnit((ItemUnitDTO) DTOUtil.getObjByCode(itemUnitList, item.getItemUnit().getCode()));
-		}
-         }
+	protected void initDataTable(DataTable dataTable) {
+		List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
+		dataTable.setRecordList(itemList);
+		dataTable.setCurrentPageRecordList();
+	}
     }

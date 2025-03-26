@@ -17,9 +17,10 @@ public class ItemAction extends ActionBase {
     protected void setSessionVars() {
         List<DTOBase> itemList = new ItemDAO().getItemList();
         
-        DataTable dataTable = new DataTable(ItemDTO.SESSION_ITEM_DATA_TABLE, itemList, new String[] {ItemDTO.ACTION_SEARCH_BY_NAME}, new String[] {"Name"});
-        dataTable.setColumnNameArr(new String[] {"Code", "Category", "Name", "Description", "Unit", "Unit Price", "Quantity", "Reorderpoint", "Actions"});
-        dataTable.setColumnWidthArr(new String[] {"10","20", "10", "10", "10", "10" , "15","10", "15"}); 
+		DataTable dataTable = new DataTable(ItemDTO.SESSION_ITEM_DATA_TABLE, itemList,
+				new String[] { ItemDTO.ACTION_SEARCH_BY_NAME }, new String[] { "Name" });
+        dataTable.setColumnNameArr(new String[] {"ID", "Code", "Category", "Name", "Description", "Unit", "Unit Price", "Quantity", "Reorderpoint", "Actions"});
+        dataTable.setColumnWidthArr(new String[] {"5", "5","20", "10", "10", "10", "10" , "15","10", "15"}); 
 
         setSessionAttribute(ItemDTO.SESSION_ITEM_DATA_TABLE, dataTable);
         setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, itemList);
@@ -27,17 +28,6 @@ public class ItemAction extends ActionBase {
         setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, new ItemUnitDAO().getItemUnitList());
         
         
-        List<DTOBase> itemCategoryList = new ItemCategoryDAO().getItemCategoryList();
-        for (DTOBase obj:itemCategoryList) {
-        	ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
-        		itemCategory.display();
-        }
         
-        setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, new ItemUnitDAO().getItemUnitList());
-        List<DTOBase> itemUnitList = new ItemUnitDAO().getItemUnitList();
-        for (DTOBase obj:itemUnitList) {
-        	ItemUnitDTO itemUnit = (ItemUnitDTO) obj;
-        		itemUnit.display();
-        }
     }
 }

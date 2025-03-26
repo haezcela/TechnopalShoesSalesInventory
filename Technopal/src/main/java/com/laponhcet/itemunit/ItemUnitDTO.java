@@ -22,9 +22,13 @@ public class ItemUnitDTO extends DTOBase {
         super();
         this.name = "";
     }
-
-    public ItemUnitDTO(String string) {
-		// TODO Auto-generated constructor stub
+    
+	public ItemUnitDTO getItemUnit() {
+		ItemUnitDTO itemUnit = new ItemUnitDTO();
+		itemUnit.setId(super.getId());
+		itemUnit.setCode(super.getCode());
+		itemUnit.setName(this.name);
+		return itemUnit;
 	}
 
 	public String getName() {
@@ -35,23 +39,4 @@ public class ItemUnitDTO extends DTOBase {
         this.name = name;
     }
 
-    public ItemUnitDTO getItemUnit() {
-    	ItemUnitDTO itemUnit = new ItemUnitDTO();
-    	itemUnit.setId(super.getId());
-    	itemUnit.setCode(String.valueOf(itemUnit.getCode()));
-        itemUnit.setName(this.name);
-        
-        return itemUnit;
-    }
-
-    public void display() {
-        System.out.println("Id: " + getId());
-        System.out.println("Code: " + getCode());
-        System.out.println("Name: " + name);
-        System.out.println("Added By: " + getAddedBy());
-        System.out.println("Added Timestamp: " + getAddedTimestamp());
-        System.out.println("Updated By: " + getUpdatedBy());
-        System.out.println("Updated Timestamp: " + getUpdatedTimestamp());
-
-    }
 }

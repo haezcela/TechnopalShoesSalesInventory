@@ -13,7 +13,7 @@
 <%
 SessionInfo sessionInfo = (SessionInfo) session.getAttribute(SessionInfo.SESSION_INFO);
 DataTable dataTable = (DataTable)session.getAttribute(ItemDTO.SESSION_ITEM_DATA_TABLE);
-String dataInput = "txtName: $('#txtName').val(), txtDescription: $('#txtDescription').val(), txtQuantity: $('#txtQuantity').val(), txtReorderpoint: $('#txtReorderpoint').val(), cboCategory: $('#txtcboCategory').val(), cboUnit: $('#txtcboUnit').val()"; 
+String dataInput = "txtName: $('#txtName').val(), txtDescription: $('#txtDescription').val(), txtUnitPrice: $('#txtUnitPrice').val(), txtQuantity: $('#txtQuantity').val(), txtReorderpoint: $('#txtReorderpoint').val(), cboItemCategory: $('#cboItemCategory').val(), cboItemUnit: $('#cboItemUnit').val()"; 
 %>
 
 <div class="container" id='<%=dataTable.getId()%>'></div>

@@ -42,14 +42,14 @@ public class ItemRequestActionAjax extends ActionAjaxBase {
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
             ItemRequestDetailsDTO itemSelected = (ItemRequestDetailsDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemRequestUtil.getDataViewStr(sessionInfo, itemSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemRequestUtil.getDataViewStr(sessionInfo, itemSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
         	  ItemRequestDetailsDTO item = new ItemRequestDetailsDTO();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemRequestUtil.getDataEntryStr(sessionInfo, item)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemRequestUtil.getDataEntryStr(sessionInfo, item),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -57,7 +57,7 @@ public class ItemRequestActionAjax extends ActionAjaxBase {
         } else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_VIEW)) {
         	ItemRequestDetailsDTO itemSelected = (ItemRequestDetailsDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemRequestUtil.getDataEntryStr(sessionInfo, itemSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemRequestUtil.getDataEntryStr(sessionInfo, itemSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -65,7 +65,7 @@ public class ItemRequestActionAjax extends ActionAjaxBase {
         } else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
         	ItemRequestDetailsDTO itemSelected = (ItemRequestDetailsDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemRequestUtil.getDataViewStr(sessionInfo, itemSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemRequestUtil.getDataViewStr(sessionInfo, itemSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

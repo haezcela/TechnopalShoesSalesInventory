@@ -159,25 +159,35 @@ public class ItemDAO extends DAOBase {
         // TODO Auto-generated method stub
     }
 
-
 public List<DTOBase> getItemList() {
-    System.out.println("Fetching item list");
-    return new ArrayList<>(); // Return an empty list for now
+	System.out.println("Fetching item list");
+	return getDTOList(qryItemList);
 }
 
     
     @Override
     protected DTOBase rsToObj(ResultSet resultSet) {
         ItemDTO item = new ItemDTO();
+        ItemCategoryDTO itemCategory = new ItemCategoryDTO();
+        ItemUnitDTO itemUnit = new ItemUnitDTO();
+        
         item.setId(getDBValInt(resultSet, "id"));
         item.setCode(getDBValStr(resultSet, "code"));
-        item.getItemCategory().setCode(getDBValStr(resultSet, "item_category_code"));
+        
+        
+        itemCategory.setCode(getDBValStr(resultSet, "code"));
+        itemCategory.setName(getDBValStr(resultSet, "name"));
+        
         item.setName(getDBValStr(resultSet, "name"));
         item.setDescription(getDBValStr(resultSet, "description")); 
-        item.getItemUnit().setCode(getDBValStr(resultSet, "item_unit_code"));
+        
+        
+        itemUnit.setCode(getDBValStr(resultSet, "code"));
+        itemUnit.setName(getDBValStr(resultSet, "name"));
+        
+        item.setUnitPrice(getDBValDouble(resultSet, "unit_price"));
         item.setQuantity(getDBValDouble(resultSet, "quantity"));
         item.setReorderpoint(getDBValDouble(resultSet, "reorder_point"));
-       
         return item;
     }
     
@@ -189,11 +199,11 @@ public List<DTOBase> getItemList() {
 
 public void testAddItem() {
     ItemDTO item = new ItemDTO();
-    item.setCode("ITEM001");
+    item.setCode("ITEM002");
     //item.setItemCategory(new ItemCategoryDTO("CAT001"));
     item.setName("Test Item");
     item.setDescription("This is a test item.");
-    item.setItemUnit(new ItemUnitDTO("UNIT001"));
+    //item.setItemUnit(new ItemUnitDTO("UNIT001"));
     item.setUnitPrice(100.0);
     item.setQuantity(10.0);
     item.setReorderpoint(5.0);

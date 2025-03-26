@@ -4,9 +4,11 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import com.laponhcet.itemcategory.ItemCategoryDAO;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemcategory.ItemCategoryUtil;
 import com.laponhcet.itemunit.ItemUnitDTO;
+import com.laponhcet.itemunit.ItemUnitDAO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
 import com.mytechnopal.base.DTOBase;
@@ -33,40 +35,78 @@ public class ItemUtil implements Serializable {
 
 	private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
 		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
-		 DecimalFormat df = new DecimalFormat("0.##");
+//		 DecimalFormat df = new DecimalFormat("0.##");
 		for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
 			ItemDTO item = (ItemDTO) dataTable.getRecordListCurrentPage().get(row);
-			strArr[row][0] = item.getCode();
-			strArr[row][1] = item.getItemCategory().getName(); 
-			strArr[row][2] = item.getName();
-			strArr[row][3] = item.getDescription();
-			strArr[row][4] = item.getItemUnit().getName(); 
-			strArr[row][5] = df.format(item.getUnitPrice());
-			strArr[row][6] = df.format(item.getQuantity()); 
-		    strArr[row][7] = df.format(item.getReorderpoint()); 
-			strArr[row][8] = dataTable.getRecordButtonStr(sessionInfo, item.getCode());
+			strArr[row][0] = String.valueOf(item.getId());
+			strArr[row][1] = item.getCode();
+			strArr[row][2] = item.getItemCategory().getName(); 
+			strArr[row][3] = item.getName();
+			strArr[row][4] = item.getDescription();
+			strArr[row][5] = item.getItemUnit().getName(); 
+			strArr[row][6] = String.valueOf(item.getUnitPrice());
+			strArr[row][7] = String.valueOf(item.getQuantity()); 
+		    strArr[row][8] = String.valueOf(item.getReorderpoint()); 
+			strArr[row][9] = dataTable.getRecordButtonStr(sessionInfo, item.getCode());
 		}
 		return strArr;
 	}
 	public static String getDataEntryStr(SessionInfo sessionInfo, ItemDTO item, List<DTOBase> itemCategoryList, List<DTOBase> itemUnitList) {
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", false, "Category", "ItemCategory", itemCategoryList, item.getItemCategory(), "Select", "0", ""));
+		
+		for (DTOBase obj:itemCategoryList) {
+			ItemCategoryDTO itemCategory= (ItemCategoryDTO) obj;
+      		System.out.println("itemCategoryId" + itemCategory.getId());
+      		System.out.println("itemCategoryCode" + itemCategory.getCode());
+      		System.out.println("itemCategoryName" + itemCategory.getName());
+      		System.out.println("itemCategorydisplay" + itemCategory.getDisplayStr());
+      		 
+      	 }
+		
+		for (DTOBase obj:itemUnitList) {
+			ItemUnitDTO itemUnit= (ItemUnitDTO) obj;
+      		System.out.println("itemUnitId" + itemUnit.getId());
+      		System.out.println("itemUnitCode" + itemUnit.getCode());
+      		System.out.println("itemUnitName" + itemUnit.getName());
+      		System.out.println("itemUnitdisplay" + itemUnit.getDisplayStr());
+      		 
+      	 }
+		
+		
+		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", true, "ItemCategory", "ItemCategory", itemCategoryList, item.getItemCategory(),"Select", "", ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", true, "Name", "Name", "Name", item.getName(), 45, WebControlBase.DATA_TYPE_STRING, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-8", false, "Description", "Description", "Description", item.getDescription(), 45, WebControlBase.DATA_TYPE_STRING, ""));
-		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", false, "Unit", "ItemUnit", itemUnitList, item.getItemUnit(), "Select", "0", ""));
+		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", true, "ItemUnit", "ItemUnit", itemUnitList, item.getItemUnit(), "Select", "", ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "UnitPrice", "UnitPrice", "UnitPrice", String.valueOf(item.getUnitPrice()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "Quantity", "Quantity", "Quantity", String.valueOf(item.getQuantity()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "Reorder Point", "Reorderpoint", "Reorderpoint", String.valueOf(item.getReorderpoint()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
 		return strBuff.toString();
 	}
+	private static String[] getItemCategory() {
+        ItemCategoryDAO itemCategoryDAO = new ItemCategoryDAO();
+        List<DTOBase> itemCategories = itemCategoryDAO.getItemCategoryList();
 
-	public static String getDataViewStr(SessionInfo sessionInfo, ItemDTO item, List<DTOBase> itemUnitList, List<DTOBase> itemCategoryList) {
+        return itemCategories.stream()
+            .map(dto -> ((ItemCategoryDTO) dto).getCode())
+            .toArray(String[]::new);
+    }
+	
+	private static String[] getItemUnit() {
+        ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
+        List<DTOBase> itemCategories = itemUnitDAO.getItemUnitList();
+
+        return itemCategories.stream()
+            .map(dto -> ((ItemUnitDTO) dto).getCode())
+            .toArray(String[]::new);
+	}
+
+	public static String getDataViewStr(SessionInfo sessionInfo, ItemDTO item) {
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("<p>Category: " + item.getItemCategory() + "</p>");
+		strBuff.append("<p>Category: " + item.getItemCategory().getName() + "</p>");
 		strBuff.append("<p>Name: " + item.getName() + "</p>");
 		strBuff.append("<p>Description: " + item.getDescription() + "</p>");
-		strBuff.append("<p>Unit: " + item.getItemUnit() + "</p>");
-		strBuff.append("<p>Quantity: " + item.getUnitPrice() + "</p>");
+		strBuff.append("<p>Unit: " + item.getItemUnit().getName() + "</p>");
+		strBuff.append("<p>Unit Price: " + item.getUnitPrice() + "</p>");
 		strBuff.append("<p>Quantity: " + item.getQuantity() + "</p>");
 		strBuff.append("<p>Reorder Point: " + item.getReorderpoint() + "</p>");
 		strBuff.append("</div>");

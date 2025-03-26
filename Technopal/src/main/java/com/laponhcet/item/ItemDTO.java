@@ -1,6 +1,7 @@
 package com.laponhcet.item;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
+import com.laponhcet.vehicletype.VehicleTypeDTO;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.util.StringUtil;
 
@@ -12,46 +13,73 @@ public class ItemDTO extends DTOBase {
 	public static final String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_NAME";
 	
 	private ItemCategoryDTO itemCategory;
+	private ItemUnitDTO itemUnit;
 	private String name;
 	private String description;
-	private ItemUnitDTO itemUnit;
 	private Double unitPrice;
 	private Double quantity;
 	private Double reorderPoint;
 
 	public ItemDTO() {
 		super();
-		itemCategory = new ItemCategoryDTO();
-		itemUnit = new ItemUnitDTO();
-		name = "";
-		description = "";
-		unitPrice = 0.0;
-		quantity= 0.0;
-		reorderPoint=0.0;
+//		itemCategory = new ItemCategoryDTO();
+//		itemUnit = new ItemUnitDTO();
+		this.itemCategory = new ItemCategoryDTO();
+		this.itemUnit = new ItemUnitDTO();
+		this.name = "";
+		this.description = "";
+		this.unitPrice = 0.0;
+		this.quantity= 0.0;
+		this.reorderPoint=0.0;
 	}
 	
 	public ItemDTO getItem() { 
 		ItemDTO item = new ItemDTO();
+		item.setId(super.getId());
+		item.setCode(super.getCode());
 		item.setItemCategory(this.itemCategory);
 		item.setItemUnit(this.itemUnit);
 		item.setName(this.name);
 		item.setDescription(this.description);
+		item.setUnitPrice(this.unitPrice);
 		item.setQuantity(this.quantity);
-		item.setReorderpoint(this.reorderPoint);
+        item.setAddedBy(this.getAddedBy());
+        item.setAddedTimestamp(this.getAddedTimestamp());
+        item.setUpdatedBy(this.getUpdatedBy());
+        item.setUpdatedTimestamp(this.getUpdatedTimestamp());
 		return item;
 	}
-
+	
 	public ItemCategoryDTO getItemCategory() {
-		return itemCategory;
+        if (this.itemCategory == null) {
+            this.itemCategory = new ItemCategoryDTO(); // Prevent null issues
+        }
+        return this.itemCategory;
 	 }
 	
 	public void setItemCategory(ItemCategoryDTO itemCategory) {
-		this.itemCategory = itemCategory;
-	 }
-	
+	    if (itemCategory != null) {
+	        System.out.println("Current item_category_code: " + itemCategory.getCode());
+	        
+	        if (itemCategory.getCode().length() > 3) { 
+	            System.out.println("Error: item_category_code exceeds 3 characters! Trimming...");
+	            this.itemCategory.setCode(itemCategory.getCode().substring(0, 3)); // Trim to 3 chars
+	        } else {
+	            this.itemCategory = itemCategory;
+	        }
+	    } else {
+	        System.out.println("Error: itemCategory is null!");
+	    }
+	}
+
 	public ItemUnitDTO getItemUnit() {
-		return itemUnit;
-	 }
+        if (this.itemUnit == null) {
+            this.itemUnit = new ItemUnitDTO(); // Prevent null issues
+        }
+        return this.itemUnit;
+    }
+	
+
 	public void setItemUnit(ItemUnitDTO itemUnit) {
 		this.itemUnit = itemUnit;
 	 }
