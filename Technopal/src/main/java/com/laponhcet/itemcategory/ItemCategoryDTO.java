@@ -23,13 +23,13 @@ public class ItemCategoryDTO extends DTOBase {
     }
 
     public ItemCategoryDTO getItemCategory() {
-        ItemCategoryDTO category = new ItemCategoryDTO();
-        category.setId(super.getId());  // ID comes from DTOBase
-        category.setCode(this.code);
-        category.setName(this.name);
-        category.setAddedBy(this.addedBy);
-        category.setUpdatedBy(this.updatedBy);
-        return category;
+        ItemCategoryDTO itemCategory = new ItemCategoryDTO();
+        itemCategory.setId(super.getId()); 
+        itemCategory.setCode(this.code);
+        itemCategory.setName(this.name);
+        itemCategory.setAddedBy(this.addedBy);
+        itemCategory.setUpdatedBy(this.updatedBy);
+        return itemCategory;
     }
 
     public String getCode() {

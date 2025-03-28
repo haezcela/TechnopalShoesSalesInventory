@@ -24,9 +24,9 @@ public class MediaTypeDAO extends DAOBase {
     @Override
     public void executeAdd(DTOBase obj) {
         MediaTypeDTO mediaType = (MediaTypeDTO) obj;
-        String generatedCode = getGeneratedCode(qryMediaTypeLast, 3);
-        mediaType.setCode(generatedCode);
-        mediaType.setBaseDataOnInsert();
+//        String generatedCode = getGeneratedCode(qryMediaTypeLast, 3);
+//        mediaType.setCode(generatedCode);
+//        mediaType.setBaseDataOnInsert();
 
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
@@ -73,9 +73,10 @@ public class MediaTypeDAO extends DAOBase {
         PreparedStatement prepStmnt = null;
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryMediaTypeUpdate), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, mediaType.getName());
-            prepStmnt.setString(2, mediaType.getUpdatedBy());
-            prepStmnt.setString(3, mediaType.getCode());
+            prepStmnt.setString(1, mediaType.getCode());
+            prepStmnt.setString(2, mediaType.getName());
+            prepStmnt.setString(3, mediaType.getUpdatedBy());
+            prepStmnt.setInt(4, mediaType.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -103,7 +104,7 @@ public class MediaTypeDAO extends DAOBase {
         PreparedStatement prepStmnt = null;
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryMediaTypeDelete), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, mediaType.getCode());
+            prepStmnt.setInt(1, mediaType.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }

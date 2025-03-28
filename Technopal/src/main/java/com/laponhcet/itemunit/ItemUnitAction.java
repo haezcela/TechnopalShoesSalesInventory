@@ -11,13 +11,7 @@ public class ItemUnitAction extends ActionBase {
     protected void setSessionVars() {
         List<DTOBase> itemUnitList = new ItemUnitDAO().getItemUnitList();
 
-        DataTable dataTable = new DataTable(
-            ItemUnitDTO.SESSION_ITEM_UNIT_DATA_TABLE, 
-            itemUnitList, 
-            new String[] {ItemUnitDTO.SESSION_ITEM_UNIT}, 
-            new String[] {"Unit Name"}
-        );
-
+        DataTable dataTable = new DataTable(ItemUnitDTO.SESSION_ITEM_UNIT_DATA_TABLE, itemUnitList, new String[] {ItemUnitDTO.SESSION_ITEM_UNIT}, new String[] {"Unit Name"});
         dataTable.setColumnNameArr(new String[] {"ID", "CODE", "UNIT NAME", "ADDED BY", "UPDATED BY", ""});
         dataTable.setColumnWidthArr(new String[] {"5", "10", "30", "20", "20", "5"});
 

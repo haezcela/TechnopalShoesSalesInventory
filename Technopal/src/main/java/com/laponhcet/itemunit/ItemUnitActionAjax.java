@@ -4,11 +4,18 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.laponhcet.itemcategory.ItemCategoryDAO;
+import com.laponhcet.itemcategory.ItemCategoryDTO;
+import com.laponhcet.itemcategory.ItemCategoryUtil;
+import com.laponhcet.itemunit.ItemUnitDAO;
+import com.laponhcet.itemunit.ItemUnitDTO;
+import com.laponhcet.itemunit.ItemUnitUtil;
 import com.mytechnopal.ActionResponse;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.base.ActionAjaxBase;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.link.LinkDTO;
+import com.mytechnopal.util.DTOUtil;
 import com.mytechnopal.util.PageUtil;
 import com.mytechnopal.util.StringUtil;
 
@@ -31,25 +38,104 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
     }
 
     protected void validateInput(String action) {
+    	ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
         List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
-        ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
+        if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
+           
+            System.out.println("Action: " + action);
+            System.out.println("ItemCategory ID: " + itemUnit.getId());
 
-        if (StringUtil.isEmpty(itemUnit.getName())) {
-            actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Unit Name");
+            if (StringUtil.isEmpty(itemUnit.getCode())) {
+                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Code");
+            }
+            else if (StringUtil.isEmpty(itemUnit.getName())) {
+                actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Name");
+            }
+            
+            else {
+            	if (!isCodeUnique(itemUnit.getCode(), itemUnit.getId(), itemUnitList)) {
+                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
+                }
+                else if (!isNameUnique(itemUnit.getName(), itemUnit.getId(), itemUnitList)) {
+                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
+                }
+            }
         }
+        
+    }
+    
+    private boolean isCodeUnique(String code, int currentId, List<DTOBase> itemUnitList) {
+        for (DTOBase dto : itemUnitList) {
+        	ItemUnitDTO existingItemUnitCode = (ItemUnitDTO) dto;
+        	if (existingItemUnitCode.getId() == currentId) { 
+                continue; // Ignore the current item
+            }
+        	if (existingItemUnitCode.getCode().equalsIgnoreCase(code)) {
+                return false; 
+            }
+        }
+        return true; 
+    }
+    
+    private boolean isNameUnique(String name, int currentId, List<DTOBase> itemUnitList) {
+        for (DTOBase dto : itemUnitList) {
+        	ItemUnitDTO existingItemUnitCame = (ItemUnitDTO) dto;
+        	if (existingItemUnitCame.getId() == currentId) { 
+                continue; // Ignore the current item
+            }
+        	if (existingItemUnitCame.getName().equalsIgnoreCase(name)) {
+                return false; 
+            }
+        }
+        return true; 
     }
 
     protected void executeLogic(JSONObject jsonObj, DataTable dataTable, String action) {
-        if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
-            ItemUnitDTO itemUnit = (ItemUnitDTO) dataTable.getSelectedRecord();
-            try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUnitUtil.getDataViewStr(sessionInfo, itemUnit),""));
+    if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
+    	
+    	validateInput(action);
+    	
+    	if (actionResponse.getMessageStr() != null && !actionResponse.getMessageStr().isEmpty()) {
+            System.out.println("Validation errors found. Aborting save operation."); // Debug log
+            return; 
+        }
+    	
+    	ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
+        ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
+        
+        if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
+            itemUnit.setAddedBy(sessionInfo.getCurrentUser().getCode());
+            itemUnitDAO.executeAdd(itemUnit);
+            
+            actionResponse = (ActionResponse) itemUnitDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+            if (actionResponse.getMessageStr() == null || actionResponse.getMessageStr().isEmpty()) {
+                setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, itemUnitDAO.getItemUnitList());
+                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
+            }
+        }
+        else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
+        	 itemUnit.setUpdatedBy(sessionInfo.getCurrentUser().getCode());
+             itemUnitDAO.executeUpdate(itemUnit);
+        
+            actionResponse = (ActionResponse) itemUnitDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+            if (actionResponse.getMessageStr() == null || actionResponse.getMessageStr().isEmpty()) {
+                setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, itemUnitDAO.getItemUnitList());
+                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
+            }
+        	} 
+    	}
+        else if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
+        	ItemUnitDTO itemUnit = (ItemUnitDTO) dataTable.getSelectedRecord();
+        	try {
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUnitUtil.getDataViewStr(sessionInfo, itemUnit), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
-            ItemUnitDTO itemUnit = new ItemUnitDTO();
+        	ItemUnitDTO itemUnit = new ItemUnitDTO();
+            List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+
             try {
                 jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUnitUtil.getDataEntryStr(sessionInfo, itemUnit),""));
             } catch (JSONException e) {
@@ -57,41 +143,18 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
             }
             setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT, itemUnit);
         } 
-        else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
-            ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
-            ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
-            itemUnit.setAddedBy(sessionInfo.getCurrentUser().getCode());
-
-            itemUnitDAO.executeAdd(itemUnit);
-            actionResponse = (ActionResponse) itemUnitDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-            if (StringUtil.isEmpty(actionResponse.getType())) {
-                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
-                setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, itemUnitDAO.getItemUnitList());
-            }
-        } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_VIEW)) {
-            ItemUnitDTO itemUnitUpdate = (ItemUnitDTO) dataTable.getSelectedRecord();
+        	ItemUnitDTO itemUnit = (ItemUnitDTO) dataTable.getSelectedRecord();
+            List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUnitUtil.getDataEntryStr(sessionInfo, itemUnitUpdate),""));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUnitUtil.getDataEntryStr(sessionInfo, itemUnit),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT, itemUnitUpdate);
-        } 
-        else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
-            ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
-            ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
-            itemUnit.setUpdatedBy(sessionInfo.getCurrentUser().getCode());
-
-            itemUnitDAO.executeUpdate(itemUnit);
-            actionResponse = (ActionResponse) itemUnitDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-            if (StringUtil.isEmpty(actionResponse.getType())) {
-                setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, itemUnitDAO.getItemUnitList());
-                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
-            }
+            setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT, itemUnit);
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
-            ItemUnitDTO itemUnitSelected = (ItemUnitDTO) dataTable.getSelectedRecord();
+        	ItemUnitDTO itemUnitSelected = (ItemUnitDTO) dataTable.getSelectedRecord();
             try {
                 jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUnitUtil.getDataViewStr(sessionInfo, itemUnitSelected),""));
             } catch (JSONException e) {
@@ -100,17 +163,18 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
             setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT, itemUnitSelected);
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
-            ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
-            ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
-
+        	ItemUnitDAO itemUnitDAO = new ItemUnitDAO();
+        	ItemUnitDTO itemUnit = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT);
             itemUnitDAO.executeDelete(itemUnit);
             actionResponse = (ActionResponse) itemUnitDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-            if (StringUtil.isEmpty(actionResponse.getType())) {
+            if (actionResponse.getMessageStr() == null || actionResponse.getMessageStr().isEmpty()) {
                 setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST, itemUnitDAO.getItemUnitList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Deleted");
             }
         }
+    
     }
+
 
     protected void initDataTable(DataTable dataTable) {
         List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);

@@ -25,9 +25,9 @@ public class ItemUnitDAO extends DAOBase {
     @Override
     public void executeAdd(DTOBase obj) {
         ItemUnitDTO itemUnit = (ItemUnitDTO) obj;
-        String generatedCode = getGeneratedCode(qryItemUnitLast, 3);
-        itemUnit.setCode(generatedCode);
-        itemUnit.setBaseDataOnInsert();
+//        String generatedCode = getGeneratedCode(qryItemUnitLast, 3);
+//        itemUnit.setCode(generatedCode);
+//        itemUnit.setBaseDataOnInsert();
 
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
@@ -75,9 +75,10 @@ public class ItemUnitDAO extends DAOBase {
 
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryItemUnitUpdate), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemUnit.getName());
-            prepStmnt.setString(2, itemUnit.getUpdatedBy());
-            prepStmnt.setString(3, itemUnit.getCode());
+            prepStmnt.setString(1, itemUnit.getCode());
+            prepStmnt.setString(2, itemUnit.getName());
+            prepStmnt.setString(3, itemUnit.getUpdatedBy());
+            prepStmnt.setInt(4, itemUnit.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -106,7 +107,7 @@ public class ItemUnitDAO extends DAOBase {
 
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryItemUnitDelete), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemUnit.getCode());
+            prepStmnt.setInt(1, itemUnit.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }

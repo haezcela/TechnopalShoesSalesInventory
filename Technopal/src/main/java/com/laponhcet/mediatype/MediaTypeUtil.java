@@ -9,6 +9,7 @@ import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.base.WebControlBase;
 import com.mytechnopal.webcontrol.DataTableWebControl;
 import com.mytechnopal.webcontrol.TextBoxWebControl;
+//import com.mytechnopal.dto.MediaTypeDTO;
 
 public class MediaTypeUtil implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -48,6 +49,7 @@ public class MediaTypeUtil implements Serializable {
     public static String getDataViewStr(SessionInfo sessionInfo, MediaTypeDTO mediaType) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("<div class='col-lg-12'>");
+        strBuff.append("<p>ID: " + mediaType.getId() + "</p>");
         strBuff.append("<p>Code: " + mediaType.getCode() + "</p>");
         strBuff.append("<p>Media Type Name: " + mediaType.getName() + "</p>");
         strBuff.append("<p>Added By: " + mediaType.getAddedBy() + "</p>");

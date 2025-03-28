@@ -23,13 +23,13 @@ public class ItemUnitDTO extends DTOBase {
     }
 
     public ItemUnitDTO getItemUnit() {
-        ItemUnitDTO unit = new ItemUnitDTO();
-//        unit.setId(super.getId());  // ID comes from DTOBase
-        unit.setCode(this.code);
-        unit.setName(this.name);
-        unit.setAddedBy(this.addedBy);
-        unit.setUpdatedBy(this.updatedBy);
-        return unit;
+        ItemUnitDTO itemUnit = new ItemUnitDTO();
+        itemUnit.setId(super.getId());  
+        itemUnit.setCode(this.code);
+        itemUnit.setName(this.name);
+        itemUnit.setAddedBy(this.addedBy);
+        itemUnit.setUpdatedBy(this.updatedBy);
+        return itemUnit;
     }
 
     public String getCode() {

@@ -49,8 +49,9 @@ public class ItemCategoryUtil implements Serializable {
     public static String getDataViewStr(SessionInfo sessionInfo, ItemCategoryDTO itemCategory) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("<div class='col-lg-12'>");
+        strBuff.append("<p>ID: " + itemCategory.getId() + "</p>");
         strBuff.append("<p>Code: " + itemCategory.getCode() + "</p>");
-        strBuff.append("<p>Category Name: " + itemCategory.getName() + "</p>");
+        strBuff.append("<p>Name: " + itemCategory.getName() + "</p>");
         strBuff.append("<p>Added By: " + itemCategory.getAddedBy() + "</p>");
         strBuff.append("<p>Updated By: " + itemCategory.getUpdatedBy() + "</p>");
         strBuff.append("</div>");

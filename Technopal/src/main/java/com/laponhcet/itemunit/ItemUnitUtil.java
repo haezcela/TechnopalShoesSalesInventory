@@ -49,6 +49,7 @@ public class ItemUnitUtil implements Serializable {
     public static String getDataViewStr(SessionInfo sessionInfo, ItemUnitDTO itemUnit) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("<div class='col-lg-12'>");
+        strBuff.append("<p>ID: " + itemUnit.getId() + "</p>");
         strBuff.append("<p>Code: " + itemUnit.getCode() + "</p>");
         strBuff.append("<p>Unit Name: " + itemUnit.getName() + "</p>");
         strBuff.append("<p>Added By: " + itemUnit.getAddedBy() + "</p>");

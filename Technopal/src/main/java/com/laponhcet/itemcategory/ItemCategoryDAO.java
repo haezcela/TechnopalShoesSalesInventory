@@ -24,9 +24,9 @@ public class ItemCategoryDAO extends DAOBase {
     @Override
     public void executeAdd(DTOBase obj) {
         ItemCategoryDTO itemCategory = (ItemCategoryDTO) obj;
-        String generatedCode = getGeneratedCode(qryItemCategoryLast, 3);
-        itemCategory.setCode(generatedCode);
-        itemCategory.setBaseDataOnInsert();
+//        String generatedCode = getGeneratedCode(qryItemCategoryLast, 3);
+//        itemCategory.setCode(generatedCode);
+//        itemCategory.setBaseDataOnInsert();
 
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
@@ -75,9 +75,10 @@ public class ItemCategoryDAO extends DAOBase {
 
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryItemCategoryUpdate), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemCategory.getName());
-            prepStmnt.setString(2, itemCategory.getUpdatedBy());
-            prepStmnt.setString(3, itemCategory.getCode());
+            prepStmnt.setString(1, itemCategory.getCode());
+            prepStmnt.setString(2, itemCategory.getName());
+            prepStmnt.setString(3, itemCategory.getUpdatedBy());
+            prepStmnt.setInt(4, itemCategory.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -106,7 +107,7 @@ public class ItemCategoryDAO extends DAOBase {
 
         try {
             prepStmnt = conn.prepareStatement(getQueryStatement(qryItemCategoryDelete), Statement.RETURN_GENERATED_KEYS);
-            prepStmnt.setString(1, itemCategory.getCode());
+            prepStmnt.setInt(1, itemCategory.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
