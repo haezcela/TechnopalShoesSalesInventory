@@ -55,7 +55,6 @@ public class MediaTypeDAO extends DAOBase {
         // TODO Auto-generated method stub
     }
 
-   
     @Override
     public void executeUpdate(DTOBase obj) {
         MediaTypeDTO mediaType = (MediaTypeDTO) obj;

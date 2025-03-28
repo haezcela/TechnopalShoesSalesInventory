@@ -28,7 +28,6 @@ public class ItemUnitDAO extends DAOBase {
 //        String generatedCode = getGeneratedCode(qryItemUnitLast, 3);
 //        itemUnit.setCode(generatedCode);
 //        itemUnit.setBaseDataOnInsert();
-
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
 

@@ -14,6 +14,7 @@ public class ItemUnitDTO extends DTOBase {
     private String addedBy;
     private String updatedBy;
 
+    
     public ItemUnitDTO() {
         super();
         this.code = "";

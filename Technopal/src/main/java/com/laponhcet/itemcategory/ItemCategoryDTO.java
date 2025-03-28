@@ -14,6 +14,7 @@ public class ItemCategoryDTO extends DTOBase {
     private String addedBy;
     private String updatedBy;
 
+    
     public ItemCategoryDTO() {
         super();
         this.code = "";

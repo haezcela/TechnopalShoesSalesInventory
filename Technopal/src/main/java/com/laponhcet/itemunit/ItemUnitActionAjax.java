@@ -96,7 +96,7 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
     	validateInput(action);
     	
     	if (actionResponse.getMessageStr() != null && !actionResponse.getMessageStr().isEmpty()) {
-            System.out.println("Validation errors found. Aborting save operation."); // Debug log
+            System.out.println("Validation errors found. Aborting save operation."); 
             return; 
         }
     	

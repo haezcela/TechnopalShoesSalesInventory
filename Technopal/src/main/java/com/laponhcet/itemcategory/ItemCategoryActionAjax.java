@@ -93,18 +93,6 @@ public class ItemCategoryActionAjax extends ActionAjaxBase {
         return true; 
     }
 
-//    private boolean isRecordUnchanged(ItemCategoryDTO itemCategory, int currentId, List<DTOBase> itemCategoryList) {
-//        for (DTOBase dto : itemCategoryList) {
-//            ItemCategoryDTO existingItemCategory = (ItemCategoryDTO) dto;
-//            if ( 
-//            	existingItemCategory.getCode() == (itemCategory.getCode()) &&
-//                existingItemCategory.getName() == (itemCategory.getName()))
-//            	 {
-//            	return false; // No changes were made
-//            }
-//        }
-//        return true;
-//    }  
     
     protected void executeLogic(JSONObject jsonObj, DataTable dataTable, String action) {
         if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {

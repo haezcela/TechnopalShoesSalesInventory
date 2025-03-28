@@ -46,6 +46,7 @@ public class ItemCategoryUtil implements Serializable {
         return strBuff.toString();
     }
 
+    
     public static String getDataViewStr(SessionInfo sessionInfo, ItemCategoryDTO itemCategory) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("<div class='col-lg-12'>");

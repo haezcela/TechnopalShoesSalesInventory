@@ -20,5 +20,6 @@ public class MediaTypeAction extends ActionBase {
 
         setSessionAttribute(MediaTypeDTO.SESSION_MEDIA_TYPE_DATA_TABLE, dataTable);
         setSessionAttribute(MediaTypeDTO.SESSION_MEDIA_TYPE_LIST, mediaTypeList);
+        
     }
 }

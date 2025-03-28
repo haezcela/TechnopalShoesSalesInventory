@@ -22,6 +22,7 @@ public class MediaTypeDTO extends DTOBase {
         this.updatedBy = "";
     }
 
+    
     public MediaTypeDTO getMediaType() {
         MediaTypeDTO mediaType = new MediaTypeDTO();
         mediaType.setId(super.getId());

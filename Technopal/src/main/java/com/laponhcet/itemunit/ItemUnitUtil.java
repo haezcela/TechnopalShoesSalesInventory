@@ -58,6 +58,7 @@ public class ItemUnitUtil implements Serializable {
         return strBuff.toString();
     }
 
+    
     public static void searchByName(DataTable dataTable, String searchValue, List<DTOBase> itemUnitList) {
         dataTable.setRecordListInvisible();
         for (DTOBase dto : dataTable.getRecordList()) {

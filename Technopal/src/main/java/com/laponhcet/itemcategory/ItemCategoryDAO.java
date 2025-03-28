@@ -124,8 +124,7 @@ public class ItemCategoryDAO extends DAOBase {
         return getDTOList(qryItemCategoryList);
     }
 
-    
-    @Override
+        @Override
     protected DTOBase rsToObj(ResultSet resultSet) {
         ItemCategoryDTO itemCategory = new ItemCategoryDTO();
         try {
