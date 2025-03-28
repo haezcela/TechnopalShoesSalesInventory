@@ -4,6 +4,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemunit.ItemUnitDAO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.laponhcet.itemunit.ItemUnitUtil;
@@ -47,16 +48,23 @@ public class MediaTypeActionAjax extends ActionAjaxBase {
                 actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Name");
             } 
             else {
-                if (!isCodeUnique(mediaType.getCode(), mediaType.getId(), mediaTypeList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
-                } 
-                else if (!isNameUnique(mediaType.getName(), mediaType.getId(), mediaTypeList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
-                }
+            	MediaTypeDTO mediaTypeOrig = (MediaTypeDTO) getSessionAttribute(MediaTypeDTO.SESSION_MEDIA_TYPE + "_ORIG");
+            	System.out.println("orig code: " + mediaTypeOrig.getCode());
+            	System.out.println("orig name: " + mediaTypeOrig.getName());
+            	if(mediaTypeOrig.getCode().equalsIgnoreCase(mediaType.getCode()) && mediaTypeOrig.getName().equalsIgnoreCase(mediaType.getName())) {
+            		 actionResponse.constructMessage(ActionResponse.TYPE_INFO, "No changes were made. Click Ok and then close");
+            	}
+            	else {
+	                if (!isCodeUnique(mediaType.getCode(), mediaType.getId(), mediaTypeList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
+	                } 
+	                else if (!isNameUnique(mediaType.getName(), mediaType.getId(), mediaTypeList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
+	                }
+            	}
             }
         }
     }
-
     private boolean isCodeUnique(String code, int currentId, List<DTOBase> itemUnitList) {
         for (DTOBase dto : itemUnitList) {
         	MediaTypeDTO existingMediaTypeCode = (MediaTypeDTO ) dto;
@@ -145,6 +153,7 @@ public class MediaTypeActionAjax extends ActionAjaxBase {
                 e.printStackTrace();
             }
             setSessionAttribute(MediaTypeDTO.SESSION_MEDIA_TYPE, mediaType);
+            setSessionAttribute(MediaTypeDTO.SESSION_MEDIA_TYPE + "_ORIG",  mediaType.getMediaType());
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
         	MediaTypeDTO mediaTypeSelected = (MediaTypeDTO) dataTable.getSelectedRecord();

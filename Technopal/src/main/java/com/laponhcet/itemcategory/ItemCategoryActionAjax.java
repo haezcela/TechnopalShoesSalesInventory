@@ -56,12 +56,20 @@ public class ItemCategoryActionAjax extends ActionAjaxBase {
             }
             
             else {
-            	if (!isCodeUnique(itemCategory.getCode(), itemCategory.getId(), itemCategoryList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
-                }
-                else if (!isNameUnique(itemCategory.getName(), itemCategory.getId(), itemCategoryList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
-                }
+            	ItemCategoryDTO itemCategoryOrig = (ItemCategoryDTO) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY + "_ORIG");
+            	System.out.println("orig code: " + itemCategoryOrig.getCode());
+            	System.out.println("orig name: " + itemCategoryOrig.getName());
+            	if(itemCategoryOrig.getCode().equalsIgnoreCase(itemCategory.getCode()) && itemCategoryOrig.getName().equalsIgnoreCase(itemCategory.getName())) {
+            		 actionResponse.constructMessage(ActionResponse.TYPE_INFO, "No changes were made. Click Ok and then close");
+            	}
+            	else {
+	            	if (!isCodeUnique(itemCategory.getCode(), itemCategory.getId(), itemCategoryList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
+	                }
+	                else if (!isNameUnique(itemCategory.getName(), itemCategory.getId(), itemCategoryList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
+	                }
+            	}
             }
         }
         
@@ -92,7 +100,7 @@ public class ItemCategoryActionAjax extends ActionAjaxBase {
         }
         return true; 
     }
-
+    
     
     protected void executeLogic(JSONObject jsonObj, DataTable dataTable, String action) {
         if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
@@ -161,6 +169,7 @@ public class ItemCategoryActionAjax extends ActionAjaxBase {
                 e.printStackTrace();
             }
             setSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY, itemCategory);
+            setSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY + "_ORIG",  itemCategory.getItemCategory());
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
         	ItemCategoryDTO itemCategorySelected = (ItemCategoryDTO) dataTable.getSelectedRecord();

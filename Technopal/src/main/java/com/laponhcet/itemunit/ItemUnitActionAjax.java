@@ -53,16 +53,23 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
             }
             
             else {
-            	if (!isCodeUnique(itemUnit.getCode(), itemUnit.getId(), itemUnitList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
-                }
-                else if (!isNameUnique(itemUnit.getName(), itemUnit.getId(), itemUnitList)) {
-                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
+            	ItemUnitDTO itemUnitOrig = (ItemUnitDTO) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT + "_ORIG");
+            	System.out.println("orig code: " + itemUnitOrig.getCode());
+            	System.out.println("orig name: " + itemUnitOrig.getName());
+            	if(itemUnitOrig.getCode().equalsIgnoreCase(itemUnit.getCode()) && itemUnitOrig.getName().equalsIgnoreCase(itemUnit.getName())) {
+            		 actionResponse.constructMessage(ActionResponse.TYPE_INFO, "No changes were made. Click Ok and then close");
+            	}
+            	else {
+	            	if (!isCodeUnique(itemUnit.getCode(), itemUnit.getId(), itemUnitList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Code");
+	                }
+	                else if (!isNameUnique(itemUnit.getName(), itemUnit.getId(), itemUnitList)) {
+	                    actionResponse.constructMessage(ActionResponse.TYPE_EXIST, "Name");
                 }
             }
-        }
-        
-    }
+         }
+      }
+ }
     
     private boolean isCodeUnique(String code, int currentId, List<DTOBase> itemUnitList) {
         for (DTOBase dto : itemUnitList) {
@@ -152,6 +159,7 @@ public class ItemUnitActionAjax extends ActionAjaxBase {
                 e.printStackTrace();
             }
             setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT, itemUnit);
+            setSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT + "_ORIG",  itemUnit.getItemUnit());
         } 
         else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
         	ItemUnitDTO itemUnitSelected = (ItemUnitDTO) dataTable.getSelectedRecord();
