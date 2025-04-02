@@ -11,11 +11,13 @@ import com.laponhcet.itemunit.ItemUnitDTO;
 import com.laponhcet.itemunit.ItemUnitDAO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
+import com.mytechnopal.UploadedFile;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.base.WebControlBase;
 import com.mytechnopal.dto.UserDTO;
 import com.mytechnopal.util.DTOUtil;
 import com.mytechnopal.webcontrol.DataTableWebControl;
+import com.mytechnopal.webcontrol.FileInputWebControl;
 import com.mytechnopal.webcontrol.SelectWebControl;
 import com.mytechnopal.webcontrol.TextBoxWebControl;
 
@@ -51,7 +53,7 @@ public class ItemUtil implements Serializable {
 		}
 		return strArr;
 	}
-	public static String getDataEntryStr(SessionInfo sessionInfo, ItemDTO item, List<DTOBase> itemCategoryList, List<DTOBase> itemUnitList) {
+	public static String getDataEntryStr(SessionInfo sessionInfo, ItemDTO item, List<DTOBase> itemCategoryList, List<DTOBase> itemUnitList, UploadedFile uploadedFile) {
 		StringBuffer strBuff = new StringBuffer();
 		
 		for (DTOBase obj:itemCategoryList) {
@@ -60,7 +62,6 @@ public class ItemUtil implements Serializable {
       		System.out.println("itemCategoryCode" + itemCategory.getCode());
       		System.out.println("itemCategoryName" + itemCategory.getName());
       		System.out.println("itemCategorydisplay" + itemCategory.getDisplayStr());
-      		 
       	 }
 		
 		for (DTOBase obj:itemUnitList) {
@@ -69,17 +70,29 @@ public class ItemUtil implements Serializable {
       		System.out.println("itemUnitCode" + itemUnit.getCode());
       		System.out.println("itemUnitName" + itemUnit.getName());
       		System.out.println("itemUnitdisplay" + itemUnit.getDisplayStr());
-      		 
       	 }
 		
-		
-		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", true, "ItemCategory", "ItemCategory", itemCategoryList, item.getItemCategory(),"Select", "", ""));
-		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", true, "Name", "Name", "Name", item.getName(), 45, WebControlBase.DATA_TYPE_STRING, ""));
+		strBuff.append("<div class='row p-1'>");
+		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-6", true, "ItemCategory", "ItemCategory", itemCategoryList, item.getItemCategory(), "Select", "", ""));
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-6", true, "Name", "Name", "Name", item.getName(), 45, WebControlBase.DATA_TYPE_STRING, ""));
+		strBuff.append("</div>");
+
+		strBuff.append("<div class='row p-1'>");
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-8", false, "Description", "Description", "Description", item.getDescription(), 45, WebControlBase.DATA_TYPE_STRING, ""));
-		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-2", true, "ItemUnit", "ItemUnit", itemUnitList, item.getItemUnit(), "Select", "", ""));
+		strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "ItemUnit", "ItemUnit", itemUnitList, item.getItemUnit(), "Select", "", ""));
+		strBuff.append("</div>");
+
+		strBuff.append("<div class='row p-1'>");
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "UnitPrice", "UnitPrice", "UnitPrice", String.valueOf(item.getUnitPrice()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "Quantity", "Quantity", "Quantity", String.valueOf(item.getQuantity()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", false, "Reorder Point", "Reorderpoint", "Reorderpoint", String.valueOf(item.getReorderpoint()), 45, WebControlBase.DATA_TYPE_DOUBLE, ""));
+		strBuff.append("</div>");
+
+		//File Input
+		strBuff.append("<div class='d-flex justify-content-center p-1'>"); 
+		strBuff.append(new FileInputWebControl().getFileInputWebControl("form-group col-lg-6", true, "", "File", uploadedFile));
+		strBuff.append("</div>");
+		System.out.println("Uploaded file: " + (uploadedFile != null ? uploadedFile.getFile() : "No file uploaded"));
 		return strBuff.toString();
 	}
 	private static String[] getItemCategory() {
@@ -102,6 +115,7 @@ public class ItemUtil implements Serializable {
 
 	public static String getDataViewStr(SessionInfo sessionInfo, ItemDTO item) {
 		StringBuffer strBuff = new StringBuffer();
+		strBuff.append("<div class='col-lg-12'>");
 		strBuff.append("<p>Category: " + item.getItemCategory().getName() + "</p>");
 		strBuff.append("<p>Name: " + item.getName() + "</p>");
 		strBuff.append("<p>Description: " + item.getDescription() + "</p>");
@@ -109,6 +123,13 @@ public class ItemUtil implements Serializable {
 		strBuff.append("<p>Unit Price: " + item.getUnitPrice() + "</p>");
 		strBuff.append("<p>Quantity: " + item.getQuantity() + "</p>");
 		strBuff.append("<p>Reorder Point: " + item.getReorderpoint() + "</p>");
+		
+		strBuff.append("<p> Picture: </p>");
+		if (item.getPicture() != null && !item.getPicture().isEmpty()) {
+		    strBuff.append("<img src='/static/" + sessionInfo.getSettings().getCode() + "/images/" + item.getPicture() + "' style='width: 300px; height: auto;'>");
+		} else {
+		    strBuff.append("<p>No picture uploaded</p>");
+		}
 		strBuff.append("</div>");
 		return strBuff.toString();
 }

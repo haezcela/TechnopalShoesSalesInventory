@@ -1,8 +1,11 @@
 package com.laponhcet.item;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,14 +14,21 @@ import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemcategory.ItemCategoryUtil;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.laponhcet.itemunit.ItemUnitUtil;
-
+import com.laponhcet.person.PersonUtil;
+import com.laponhcet.vehicle.VehicleDTO;
+import com.laponhcet.vehicletype.VehicleTypeDTO;
 import com.mytechnopal.ActionResponse;
 import com.mytechnopal.DataTable;
+import com.mytechnopal.UploadedFile;
+import com.mytechnopal.banner.BannerDAO;
+import com.mytechnopal.banner.BannerDTO;
+import com.mytechnopal.banner.BannerUtil;
 import com.mytechnopal.base.ActionAjaxBase;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.link.LinkDTO;
 
 import com.mytechnopal.util.DTOUtil;
+import com.mytechnopal.util.FileUtil;
 import com.mytechnopal.util.PageUtil;
 import com.mytechnopal.util.StringUtil;
 
@@ -65,10 +75,39 @@ public class ItemActionAjax extends ActionAjaxBase {
         
         String unit = getRequestString("txtUnitPrice");
     	System.out.println("UnitPrice SET : " + unit);
+    	
+    	// Handle File Upload Debugging
+    	System.out.println("DEBUG: Attempting to retrieve uploaded file from session...");
+
+    	UploadedFile uploadedFile = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE);
+
+    	if (uploadedFile != null) {
+    	    System.out.println("DEBUG: UploadedFile object retrieved -> " + uploadedFile);
+    	    System.out.println("DEBUG: UploadedFile Name: " + uploadedFile.getName());
+    	    System.out.println("DEBUG: UploadedFile Max Size Allowed: " + uploadedFile.getMaxSize());
+
+    	    if (uploadedFile.getFile() != null) {
+    	        File file = uploadedFile.getFile();
+    	        System.out.println("DEBUG: Uploaded file path -> " + file.getAbsolutePath());
+    	        System.out.println("DEBUG: Uploaded file size -> " + file.length() + " bytes");
+
+    	        if (file.exists()) {
+    	            System.out.println("DEBUG: File exists on disk.");
+    	            item.setPicture(file.getName());
+    	        } else {
+    	            System.out.println("ERROR: File does not exist on the specified path! Possible upload failure.");
+    	            item.setPicture("");
+    	        }
+    	    } else {
+    	        System.out.println("ERROR: uploadedFile.getFile() is NULL! Possible missing Apache Commons FileUpload.");
+    	        item.setPicture("");
+    	    }
+    	} else {
+    	    System.out.println("ERROR: UploadedFile is NULL! Ensure Apache Commons FileUpload is installed and configured correctly.");
+    	    item.setPicture(""); // Default if no image uploaded
+    	}
+
         
-        
-//        String unitPrice = getRequestString("txtUnitPrice");
-//    	System.out.println("UnitPrice: " + unitPrice);
     }
 
     protected void validateInput(String action) {
@@ -116,32 +155,21 @@ public class ItemActionAjax extends ActionAjaxBase {
     	        e.printStackTrace();
     	    }
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
+        	UploadedFile uploadedFile = new UploadedFile(); //no need to specify id for the default id is 0
+			uploadedFile.setSettings(sessionInfo.getSettings());
+			uploadedFile.setValidFileExt(new String[] {"png", "jpg"});
+			uploadedFile.setMaxSize(3072000); //3Mb 
+			setSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0", uploadedFile);
+        	
         	ItemDTO item = new ItemDTO();
             List<DTOBase> itemCategoryList= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
             
-            System.out.println("ItemCategoryList size "+ itemCategoryList.size());
-            
-            for (DTOBase obj:itemCategoryList) {
-          		ItemCategoryDTO itemCategory= (ItemCategoryDTO) obj;
-          		System.out.println("itemCategoryId" + itemCategory.getId());
-          		System.out.println("itemCategoryCode" + itemCategory.getCode());
-          		System.out.println("itemCategoryName" + itemCategory.getName());
-          		System.out.println("display" + itemCategory.getDisplayStr());
-          	 }
-            
             List<DTOBase> itemUnitList= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
             
-            System.out.println("itemUnitList size "+ itemUnitList.size());
-            
-            for (DTOBase obj:itemUnitList) {
-            	ItemUnitDTO itemUnit= (ItemUnitDTO) obj;
-          		System.out.println("itemCategoryId" + itemUnit.getId());
-          		System.out.println("itemCategoryCode" + itemUnit.getCode());
-          		System.out.println("itemCategoryName" + itemUnit.getName());
-          		System.out.println("display" + itemUnit.getDisplayStr());
-          	 }
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, item, itemCategoryList, itemUnitList), ""));
+                //jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, item, itemCategoryList, itemUnitList, uploadedFile), ""));
+            	jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, "Item", ItemUtil.getDataEntryStr(sessionInfo, item, itemCategoryList, itemUnitList,  uploadedFile)));
+    			
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -151,8 +179,13 @@ public class ItemActionAjax extends ActionAjaxBase {
             ItemDTO itemSelected = (ItemDTO) dataTable.getSelectedRecord();
             List<DTOBase> itemCategoryList= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
             List<DTOBase> itemUnitList= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+            UploadedFile uploadedFile = new UploadedFile();
+            uploadedFile.setSettings(sessionInfo.getSettings());
+            uploadedFile.setValidFileExt(new String[]{"png", "jpg", "jpeg"});
+            uploadedFile.setMaxSize(3072000); // 3MB
+            setSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0", uploadedFile);
             try {
-            	jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, itemSelected, itemCategoryList, itemUnitList), ""));
+            	jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, ItemUtil.getDataEntryStr(sessionInfo, itemSelected, itemCategoryList, itemUnitList, uploadedFile), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -166,15 +199,35 @@ public class ItemActionAjax extends ActionAjaxBase {
             }
             setSessionAttribute(ItemDTO.SESSION_ITEM, itemSelected);
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
-            ItemDAO itemDAO = new ItemDAO();
+        	UploadedFile uploadedFile= (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
+			
+        	ItemDAO itemDAO = new ItemDAO();
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
             item.setAddedBy(sessionInfo.getCurrentUser().getCode());
             itemDAO.executeAdd(item);
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
+            	if(uploadedFile.getFile() != null) {
+					File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
+					File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/banner/" + uploadedFile.getFile().getName());
+					try {
+						FileUtils.copyFile(fileFrom, fileTo);
+						FileUtil.setFileAccessRights(fileTo);
+						fileFrom.delete(); 
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was successfully saved but failed  to upload the picture.");
+					}
+					
+					actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
+					setSessionAttribute(BannerDTO.SESSION_BANNER_LIST, new BannerDAO().getBannerList());
+				}
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
             }
+            
+            
+            
         } else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
             ItemDAO itemDAO = new ItemDAO();
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
@@ -213,7 +266,34 @@ public class ItemActionAjax extends ActionAjaxBase {
     
 	protected void initDataTable(DataTable dataTable) {
 		List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
+		List<DTOBase> itemCategoryList = (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
+		List<DTOBase> itemUnitList = (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
 		dataTable.setRecordList(itemList);
 		dataTable.setCurrentPageRecordList();
+		
+		for (DTOBase obj:itemCategoryList) {
+			ItemCategoryDTO itemCategory= (ItemCategoryDTO) obj;
+      		System.out.println("itemCategoryId: " + itemCategory.getId());
+      		System.out.println("itemCategoryCode: " + itemCategory.getCode());
+      		System.out.println("itemCategoryName: " + itemCategory.getName());
+      		System.out.println("itemCategorydisplay: " + itemCategory.getDisplayStr());
+      	 }
+		
+		for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
+            ItemDTO item = (ItemDTO) dataTable.getRecordListCurrentPage().get(row);
+            
+            System.out.println(" Inside ITEM itemCategory: " + item.getItemCategory().getCode());
+            
+            ItemCategoryDTO itemCategory = (ItemCategoryDTO) DTOUtil.getObjByCode(itemCategoryList, item.getItemCategory().getCode());
+            item.setItemCategory(itemCategory);
+            
+            System.out.println("itemCategory: " + itemCategory);
+            
+            ItemUnitDTO itemUnit = (ItemUnitDTO) DTOUtil.getObjByCode(itemUnitList, item.getItemUnit().getCode());
+            item.setItemUnit(itemUnit);
+            System.out.println("itemUnit: " + itemUnit);
+        }
+		
+		
 	}
     }

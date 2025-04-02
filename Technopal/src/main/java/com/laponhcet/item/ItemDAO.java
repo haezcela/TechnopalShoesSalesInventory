@@ -85,6 +85,7 @@ public class ItemDAO extends DAOBase {
             prepStmnt.setTimestamp(10, item.getAddedTimestamp());
             prepStmnt.setString(11, item.getUpdatedBy());
             prepStmnt.setTimestamp(12, item.getUpdatedTimestamp());
+            prepStmnt.setString(13, item.getPicture().isEmpty() ? "default.jpg" : item.getPicture());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -146,7 +147,8 @@ public class ItemDAO extends DAOBase {
         	prepStmnt.setDouble(7, item.getReorderpoint());        
         	prepStmnt.setString(8, item.getUpdatedBy());           
         	prepStmnt.setTimestamp(9, item.getUpdatedTimestamp()); 
-        	prepStmnt.setInt(10, item.getId());                     
+        	prepStmnt.setInt(10, item.getId());   
+        	prepStmnt.setString(11, item.getPicture().isEmpty() ? "default.jpg" : item.getPicture());
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -168,22 +170,18 @@ public List<DTOBase> getItemList() {
     @Override
     protected DTOBase rsToObj(ResultSet resultSet) {
         ItemDTO item = new ItemDTO();
-        ItemCategoryDTO itemCategory = new ItemCategoryDTO();
-        ItemUnitDTO itemUnit = new ItemUnitDTO();
         
         item.setId(getDBValInt(resultSet, "id"));
         item.setCode(getDBValStr(resultSet, "code"));
         
         
-        itemCategory.setCode(getDBValStr(resultSet, "code"));
-        itemCategory.setName(getDBValStr(resultSet, "name"));
+        item.getItemCategory().setCode(getDBValStr(resultSet, "item_category_code"));
         
         item.setName(getDBValStr(resultSet, "name"));
         item.setDescription(getDBValStr(resultSet, "description")); 
         
         
-        itemUnit.setCode(getDBValStr(resultSet, "code"));
-        itemUnit.setName(getDBValStr(resultSet, "name"));
+        item.getItemUnit().setCode(getDBValStr(resultSet, "item_unit_code"));
         
         item.setUnitPrice(getDBValDouble(resultSet, "unit_price"));
         item.setQuantity(getDBValDouble(resultSet, "quantity"));

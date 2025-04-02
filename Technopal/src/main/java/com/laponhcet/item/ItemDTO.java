@@ -7,10 +7,11 @@ import com.mytechnopal.util.StringUtil;
 
 public class ItemDTO extends DTOBase {
 	private static final long serialVersionUID = 1L;
-	public static final String SESSION_ITEM = "SESSION_ITEM";
-	public static final String SESSION_ITEM_LIST = "SESSION_ITEM_LIST";
-	public static final String SESSION_ITEM_DATA_TABLE = "SESSION_ITEM_DATA_TABLE";
-	public static final String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_NAME";
+	public static String SESSION_ITEM = "SESSION_ITEM";
+	public static String SESSION_ITEM_LIST = "SESSION_ITEM_LIST";
+	public static String SESSION_ITEM_DATA_TABLE = "SESSION_ITEM_DATA_TABLE";
+	public static String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_NAME";
+	public static String SESSION_UPLOADED_FILE = "SESSION_UPLOADED_FILE";
 	
 	private ItemCategoryDTO itemCategory;
 	private ItemUnitDTO itemUnit;
@@ -19,6 +20,7 @@ public class ItemDTO extends DTOBase {
 	private Double unitPrice;
 	private Double quantity;
 	private Double reorderPoint;
+	private String picture;
 
 	public ItemDTO() {
 		super();
@@ -31,6 +33,7 @@ public class ItemDTO extends DTOBase {
 		this.unitPrice = 0.0;
 		this.quantity= 0.0;
 		this.reorderPoint=0.0;
+		this.picture = "";
 	}
 	
 	public ItemDTO getItem() { 
@@ -43,10 +46,13 @@ public class ItemDTO extends DTOBase {
 		item.setDescription(this.description);
 		item.setUnitPrice(this.unitPrice);
 		item.setQuantity(this.quantity);
+		item.setReorderpoint(this.reorderPoint);
         item.setAddedBy(this.getAddedBy());
         item.setAddedTimestamp(this.getAddedTimestamp());
         item.setUpdatedBy(this.getUpdatedBy());
         item.setUpdatedTimestamp(this.getUpdatedTimestamp());
+        item.setPicture(this.picture);
+        
 		return item;
 	}
 	
@@ -58,18 +64,7 @@ public class ItemDTO extends DTOBase {
 	 }
 	
 	public void setItemCategory(ItemCategoryDTO itemCategory) {
-	    if (itemCategory != null) {
-	        System.out.println("Current item_category_code: " + itemCategory.getCode());
-	        
-	        if (itemCategory.getCode().length() > 3) { 
-	            System.out.println("Error: item_category_code exceeds 3 characters! Trimming...");
-	            this.itemCategory.setCode(itemCategory.getCode().substring(0, 3)); // Trim to 3 chars
-	        } else {
-	            this.itemCategory = itemCategory;
-	        }
-	    } else {
-	        System.out.println("Error: itemCategory is null!");
-	    }
+	    this.itemCategory = itemCategory;
 	}
 
 	public ItemUnitDTO getItemUnit() {
@@ -79,7 +74,6 @@ public class ItemDTO extends DTOBase {
         return this.itemUnit;
     }
 	
-
 	public void setItemUnit(ItemUnitDTO itemUnit) {
 		this.itemUnit = itemUnit;
 	 }
@@ -124,6 +118,15 @@ public class ItemDTO extends DTOBase {
 		this.unitPrice = unitPrice;
 	}
 	
+	public String getPicture() {
+		return picture;
+	}
+
+	public void setPicture(String picture) {
+		this.picture = picture;
+	}
+
+
 	
 	//add list of itemmedia DTO
 	

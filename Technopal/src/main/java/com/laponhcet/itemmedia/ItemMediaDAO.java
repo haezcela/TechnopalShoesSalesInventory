@@ -1,6 +1,7 @@
 package com.laponhcet.itemmedia;
 
 import java.sql.Connection; import java.sql.PreparedStatement; import java.sql.ResultSet; import java.sql.SQLException; import java.util.ArrayList; import java.util.List; import com.mysql.jdbc.Statement; import com.mytechnopal.ActionResponse; import com.mytechnopal.base.DAOBase; import com.mytechnopal.base.DTOBase;
+import com.mytechnopal.dto.MediaDTO;
 public class ItemMediaDAO extends DAOBase { private static final long serialVersionUID = 1L;
 
 private String qryItemMediaAdd = "ITEM_MEDIA_ADD";
@@ -16,9 +17,6 @@ public void executeAdd(DTOBase obj) {
     try {
         conn = daoConnectorUtil.getConnection();
         ItemMediaDTO itemMedia = (ItemMediaDTO) obj;
-
-        String generatedCode = getGeneratedCode(qryItemMediaLast);
-        itemMedia.setCode(generatedCode);
 
         itemMedia.setBaseDataOnInsert();
 
@@ -48,32 +46,18 @@ private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
     }
 }
 
-protected String getGeneratedCode(String qryName) {
-    String baseCode = "00001";
-    DTOBase dto = getLast(qryName);
-
-    if (dto != null && dto.getCode() != null && !dto.getCode().isEmpty()) {
-        String lastCode = dto.getCode();
-        try {
-            int nextNum = Integer.parseInt(lastCode) + 1;
-            baseCode = String.format("%05d", nextNum);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
-    return baseCode;
-}
-
 public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
     ItemMediaDTO itemMedia = (ItemMediaDTO) obj;
+    
+    MediaDTO media = new MediaDTO();
 
     PreparedStatement prepStmnt = null;
     try {
         prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaAdd), Statement.RETURN_GENERATED_KEYS);
         prepStmnt.setString(1, itemMedia.getItemCode());
-        prepStmnt.setString(2, itemMedia.getFileName());
-        prepStmnt.setString(3, itemMedia.getBase64());
-        prepStmnt.setString(4, itemMedia.getMediaTypeCode());
+        prepStmnt.setString(2, media.getFilename());
+        prepStmnt.setString(3, media.getBase64Data());
+        prepStmnt.setString(4, media.getMediaType().getCode());
         prepStmnt.setString(5, itemMedia.getAddedBy());
         prepStmnt.setTimestamp(6, itemMedia.getAddedTimestamp());
         prepStmnt.setString(7, itemMedia.getUpdatedBy());
@@ -190,7 +174,7 @@ protected DTOBase getLast(String qryName) {
          ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {
             dto = new ItemMediaDTO();
-            dto.setCode(rs.getString("item_code")); // Use "item_code" instead of "code"
+            dto.setCode(rs.getString("item_code")); 
         }
     } catch (SQLException e) {
         e.printStackTrace();
@@ -220,31 +204,31 @@ protected DTOBase rsToObj(ResultSet arg0) {
 }
 
 public static void main(String[] args) {
-	
 	testCRUD();
-	
 }
 
 public static void testCRUD() {
     ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
 
-    // Create a new ItemMediaDTO
+    // Create a new MediaDTO
+    MediaDTO newMedia = new MediaDTO();
     ItemMediaDTO newItemMedia = new ItemMediaDTO();
     newItemMedia.setItemCode("002");
-    newItemMedia.setMediaTypeCode("IMG");
-    newItemMedia.setFileName("image2.jpg");
+    newItemMedia.setMediaTypeCode("001");
+    newMedia.setFilename("image2.jpg");
+    newMedia.setBase64Data("iVBORw0KGgoAAAANSUhEUgAAAAUA");
 
-    // Add the new ItemMediaDTO
-    itemMediaDAO.executeAdd(newItemMedia);
-    System.out.println("Added: " + newItemMedia);
+    // Add the new MediaDTO
+    itemMediaDAO.executeAdd(newMedia);
+    System.out.println("Added: " + newMedia);
 
-
- // List all ItemMediaDTOs
- List<DTOBase> itemMediaList = itemMediaDAO.getList();
- System.out.println("List of ItemMedia filenames:");
- for (DTOBase dto : itemMediaList) {
-     ItemMediaDTO itemMedia = (ItemMediaDTO) dto;
-     System.out.println(itemMedia.getFileName());
- }
+    // List all MediaDTOs
+    List<DTOBase> mediaList = itemMediaDAO.getList();
+    System.out.println("List of Media filenames:");
+    for (DTOBase dto : mediaList) {
+        MediaDTO media = (MediaDTO) dto;
+        System.out.println(media.getFilename());
+    }
 }
+
 }

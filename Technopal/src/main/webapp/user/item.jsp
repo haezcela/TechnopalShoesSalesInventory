@@ -19,15 +19,82 @@ String dataInput = "txtName: $('#txtName').val(), txtDescription: $('#txtDescrip
 <div class="container" id='<%=dataTable.getId()%>'></div>
 
 <script>
-setTimeout(function (){
-list<%=sessionInfo.getCurrentLink().getCode()%>();
-}, 100); 
+	setTimeout(function (){
+		list<%=sessionInfo.getCurrentLink().getCode()%>();
+	}, 100); 
 
-<%=WebUtil.getJSList(sessionInfo, dataTable)%>
-<%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
-<%=WebUtil.getJSAddSave(sessionInfo, dataTable, dataInput)%>
-<%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
-<%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
+	<%=WebUtil.getJSList(sessionInfo, dataTable)%>
+	<%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
+	<%=WebUtil.getJSAddSave(sessionInfo, dataTable, dataInput)%>
+	<%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
+	<%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
+	
+	function uploadFileReset(action, fileId, label, fileType) {
+        console.log("Debug: uploadFileReset called");
+        console.log("Action:", action);
+        console.log("FileId:", fileId);
+        console.log("Label:", label);
+        console.log("FileType:", fileType);
 
+        $.ajax({
+            url: 'UploadFileAjaxController?txtAction=' + action + '&txtFileId=' + fileId + '&txtLabel=' + label + '&txtFileType=' + fileType, 
+            type: 'POST',
+            dataType: 'JSON',
+            success: function(response) {  
+                console.log("Success Response:", response);
+                $("#divUploadedFilePict" + fileId).html(response.uploadedFileContent);
+                $("#divUploadedFileRemarks" + fileId).html(response.uploadedFileRemarks);
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+                console.error("Status:", status);
+                console.error("Response Text:", xhr.responseText);
+            }
+        });    
+    }
 
-</script> 
+    function uploadFile(action, fileId, cFunction, label, fileType) {
+        console.log("Debug: uploadFile called");
+        console.log(" Action:", action);
+        console.log(" FileId:", fileId);
+        console.log(" Label:", label);
+        console.log(" FileType:", fileType);
+        console.log(" Function Callback:", cFunction);
+
+        var formData = new FormData();
+        var fileInput = $("#file" + fileId)[0];
+
+        if (fileInput.files.length === 0) {
+            console.warn(" No file selected!");
+            return;
+        }
+
+        formData.append("file", fileInput.files[0]);
+        formData.append("txtAction", action);
+        formData.append("txtFileId", fileId);
+        formData.append("txtLabel", label);
+        formData.append("txtFileType", fileType);
+
+        $.ajax({
+            url: 'UploadFileAjaxController',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: 'JSON',
+            success: function(response) {
+                console.log("Success Response:", response);
+                $("#divUploadedFilePict" + fileId).html(response.uploadedFileContent);
+                $("#divUploadedFileRemarks" + fileId).html(response.uploadedFileRemarks);
+                if (cFunction) {
+                    cFunction();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+                console.error("Status:", status);
+                console.error("Response Text:", xhr.responseText);
+            }
+        });
+    }
+</script>	
