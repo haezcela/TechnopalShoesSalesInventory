@@ -81,6 +81,9 @@ public class SalesActionAjax extends ActionAjaxBase {
         if (amountPaid > 0 && amountPaid < total) {
             return "PARTIALLY PAID";
         }
+        if (amountPaid > 0 && amountPaid > total) {
+            return "ERROR";
+        }
         return ""; // Optional case if amountPaid > total
     }
 
@@ -93,6 +96,9 @@ public class SalesActionAjax extends ActionAjaxBase {
     	double total = getRequestDouble("txtHiddenTotal");
        	double amountPaid = getRequestDouble("txtAmountPaid");
        	String paymentStatus = getPaymentStatus(total, amountPaid);
+       	if (paymentStatus.equals("ERROR")) {
+       		actionResponse.constructMessage(ActionResponse.TYPE_INVALID, "Amount paid cannot be greater than the total amount");
+       	}
     	double[] quantityValues = convertToDoubleArray(quantity);
         
         // Convert unitPrice to double array
@@ -248,6 +254,10 @@ public class SalesActionAjax extends ActionAjaxBase {
                 setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Deleted");
             }
+        }else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW+"_PAYMENT")) {
+            System.out.println("ayyyyy");
+
+
         }
     }
 

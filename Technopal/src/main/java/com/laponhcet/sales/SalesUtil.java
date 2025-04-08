@@ -36,22 +36,20 @@ public class SalesUtil implements Serializable {
 
 	private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
 		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
+		int row1 = 0;
 		 DecimalFormat df = new DecimalFormat("0.##");
 		for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
-			
+			row1++;
 			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
 			strArr[row][0] = sales.getCode();
 			strArr[row][1] = sales.getUser().getFirstName()+" "+sales.getUser().getLastName();
-//			strArr[row][2] = sales.getSalesDetails().getItem().getName();
-//			strArr[row][3] = String.valueOf(sales.getSalesDetails().getQuantity());
-//			strArr[row][4] = String.valueOf(sales.getSalesDetails().getUnitPrice());
 			strArr[row][2] = String.valueOf(sales.getTotal());
 			strArr[row][3] = String.valueOf(sales.getPaymentStatus());
 			strArr[row][4] = sales.getStatus();
 			strArr[row][5] = sales.getSalesPayment().getPaymentMethod();
 			strArr[row][6] = String.valueOf(sales.getSalesPayment().getAmountPaid());
 			strArr[row][7] = sales.getSalesPayment().getReference();
-			strArr[row][8] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode());
+			strArr[row][8] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode())+"<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Record\" onclick=\"dataTableRecordActionSESSION_SALES_DATA_TABLE('ACTION_ADD_VIEW_PAYMENT', " + row1 + ", '" + sales.getCode() + "')\"><i class=\"fa fa-money-bill\"></i></button>";
 			
 		}
 		return strArr;
@@ -81,7 +79,7 @@ public class SalesUtil implements Serializable {
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Total", "Total", "HiddenTotal", String.valueOf(sales.getTotal()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "hiddenItems", "hiddenItems", "HiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "Item", "Item", itemList, sales.getItem(), "-Select-", "0", ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "	", String.valueOf(sales.getSalesDetails().getQuantity()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "Quantity", String.valueOf(sales.getSalesDetails().getQuantity()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "UnitPrice", String.valueOf(sales.getSalesDetails().getUnitPrice()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 	    strBuff.append("</div>");	
 	    strBuff.append("<button type='button' id='btnAddItem' class='btn btn-primary' style='width: 150px; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;'>Add Item</button>");

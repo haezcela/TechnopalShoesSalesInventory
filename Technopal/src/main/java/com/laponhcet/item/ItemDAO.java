@@ -24,7 +24,7 @@ public class ItemDAO extends DAOBase {
     private String qryItemDelete = "ITEM_DELETE";
     private String qryItemUpdate = "ITEM_UPDATE";
     private String qryItemList = "ITEM_LIST";
-    
+    private String qryCodeById = "ITEM_CODE_BY_ID";
     private String qryItemLast = "ITEM_LAST";
 
     protected String getGeneratedCode(String qryName) {
@@ -155,6 +155,25 @@ public class ItemDAO extends DAOBase {
         }
         prepStmntList.add(prepStmnt);
     }
+    public String executeGetCodeById(int id) {
+  	  Connection conn = daoConnectorUtil.getConnection();
+  	  return getCodeById(conn, id);
+  }
+  public String getCodeById(Connection conn, int id) {
+      PreparedStatement prepStmnt = null;
+      try {
+      	prepStmnt = conn.prepareStatement(getQueryStatement(qryCodeById), Statement.RETURN_GENERATED_KEYS);
+      	prepStmnt.setInt(1, id);
+          try (ResultSet rs = prepStmnt.executeQuery()) {
+              if (rs.next()) {
+                  return rs.getString("code"); // Fetching the name
+              }
+          }
+      } catch (SQLException e) {
+          e.printStackTrace(); // Log or handle exception properly
+      }
+      return null; // Return null if not found or an error occurs
+  }
 
     @Override
     public void executeUpdateList(List<DTOBase> arg0) {
