@@ -16,9 +16,8 @@ import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemcategory.ItemCategoryUtil;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.laponhcet.itemunit.ItemUnitUtil;
-
-
-
+import com.laponhcet.vehicle.VehicleDTO;
+import com.laponhcet.vehicle.VehicleUtil;
 import com.laponhcet.itemmedia.ItemMediaDAO;
 import com.laponhcet.itemmedia.ItemMediaDTO;
 
@@ -235,25 +234,59 @@ public class ItemActionAjax extends ActionAjaxBase {
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
             }
             
-        } else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
+        }else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_VIEW)) {
+            ItemDTO itemUpdate = (ItemDTO) dataTable.getSelectedRecord();
+            List<DTOBase> itemCategoryListUpdate= (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
+            
+            List<DTOBase> itemUnitListUpdate= (List<DTOBase>) getSessionAttribute(ItemUnitDTO.SESSION_ITEM_UNIT_LIST);
+            UploadedFile uploadedFileUpdate = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
+            
+            
+            try {
+            	jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, "Item", ItemUtil.getDataEntryStr(sessionInfo, itemUpdate, itemCategoryListUpdate, itemUnitListUpdate,  uploadedFileUpdate)));
+    			
+            
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            setSessionAttribute(ItemDTO.SESSION_ITEM, itemUpdate);
+        }
+    	else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
             ItemDAO itemDAO = new ItemDAO();
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
-            item.setAddedBy(sessionInfo.getCurrentUser().getCode());
+            item.setUpdatedBy(sessionInfo.getCurrentUser().getCode());
+            
             itemDAO.executeUpdate(item);
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
             }
+        
         } else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
             ItemDAO itemDAO = new ItemDAO();
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
             itemDAO.executeDelete(item);
+            
+            ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+            ItemMediaDTO itemMedia = (ItemMediaDTO) getSessionAttribute(ItemMediaDTO.SESSION_ITEM_MEDIA);
+            itemMediaDAO.executeDelete(itemMedia);
+            
+            
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Deleted");
             }
+        }
+        else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
+            ItemDTO itemSelected = (ItemDTO) dataTable.getSelectedRecord();
+            try {
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, ItemUtil.getDataViewStr(sessionInfo, itemSelected), ""));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            setSessionAttribute(ItemDTO.SESSION_ITEM, itemSelected);
         }
     }
 

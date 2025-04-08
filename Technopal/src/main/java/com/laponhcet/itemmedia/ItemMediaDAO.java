@@ -96,7 +96,9 @@ public void executeDelete(DTOBase obj) {
 }
 
 public void delete(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-	ItemMediaDTO itemMedia = (ItemMediaDTO) obj;
+	ItemDTO item = (ItemDTO) obj;
+	ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());
     PreparedStatement prepStmnt = null;
     try {
         prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaDelete), Statement.RETURN_GENERATED_KEYS);

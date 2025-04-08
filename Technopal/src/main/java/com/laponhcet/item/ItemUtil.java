@@ -128,7 +128,7 @@ public class ItemUtil implements Serializable {
 
 	    // Load the media based on item code
 	    ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
-	    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());  // <-- Get by code
+	    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());  // Get by item code
 
 	    strBuff.append("<p>Picture:</p>");
 	    if (itemMedia != null && itemMedia.getFileName() != null && !itemMedia.getFileName().isEmpty()) {
@@ -139,14 +139,10 @@ public class ItemUtil implements Serializable {
 	    } else {
 	        strBuff.append("<p>No picture uploaded</p>");
 	    }
-
 	    strBuff.append("</div>");
 	    return strBuff.toString();
 	}
 
-
-
-	
 	public static void searchByItemName(DataTable dataTable, String searchValue, List<DTOBase> itemList) {
     	System.out.println("Search Value" + searchValue);
     	dataTable.setRecordListInvisible();
