@@ -7,6 +7,8 @@ import java.util.List;
 import com.laponhcet.itemcategory.ItemCategoryDAO;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemcategory.ItemCategoryUtil;
+import com.laponhcet.itemmedia.ItemMediaDAO;
+import com.laponhcet.itemmedia.ItemMediaDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.laponhcet.itemunit.ItemUnitDAO;
 import com.mytechnopal.DataTable;
@@ -114,25 +116,36 @@ public class ItemUtil implements Serializable {
 	}
 
 	public static String getDataViewStr(SessionInfo sessionInfo, ItemDTO item) {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("<div class='col-lg-12'>");
-		strBuff.append("<p>Category: " + item.getItemCategory().getName() + "</p>");
-		strBuff.append("<p>Name: " + item.getName() + "</p>");
-		strBuff.append("<p>Description: " + item.getDescription() + "</p>");
-		strBuff.append("<p>Unit: " + item.getItemUnit().getName() + "</p>");
-		strBuff.append("<p>Unit Price: " + item.getUnitPrice() + "</p>");
-		strBuff.append("<p>Quantity: " + item.getQuantity() + "</p>");
-		strBuff.append("<p>Reorder Point: " + item.getReorderpoint() + "</p>");
-		
-		strBuff.append("<p> Picture: </p>");
-		if (item.getPicture() != null && !item.getPicture().isEmpty()) {
-		    strBuff.append("<img src='/static/" + sessionInfo.getSettings().getCode() + "/images/" + item.getPicture() + "' style='width: 300px; height: auto;'>");
-		} else {
-		    strBuff.append("<p>No picture uploaded</p>");
-		}
-		strBuff.append("</div>");
-		return strBuff.toString();
-}
+	    StringBuffer strBuff = new StringBuffer();
+	    strBuff.append("<div class='col-lg-12'>");
+	    strBuff.append("<p>Category: " + item.getItemCategory().getName() + "</p>");
+	    strBuff.append("<p>Name: " + item.getName() + "</p>");
+	    strBuff.append("<p>Description: " + item.getDescription() + "</p>");
+	    strBuff.append("<p>Unit: " + item.getItemUnit().getName() + "</p>");
+	    strBuff.append("<p>Unit Price: " + item.getUnitPrice() + "</p>");
+	    strBuff.append("<p>Quantity: " + item.getQuantity() + "</p>");
+	    strBuff.append("<p>Reorder Point: " + item.getReorderpoint() + "</p>");
+
+	    // Load the media based on item code
+	    ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+	    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());  // <-- Get by code
+
+	    strBuff.append("<p>Picture:</p>");
+	    if (itemMedia != null && itemMedia.getFileName() != null && !itemMedia.getFileName().isEmpty()) {
+	        // Print filename to console
+	        System.out.println("Item Media File Name: " + itemMedia.getFileName());
+
+	        strBuff.append("<img src='/static/" + sessionInfo.getSettings().getCode() + "/media/item/" + itemMedia.getFileName() + "' style='width: 300px; height: auto;'>");
+	    } else {
+	        strBuff.append("<p>No picture uploaded</p>");
+	    }
+
+	    strBuff.append("</div>");
+	    return strBuff.toString();
+	}
+
+
+
 	
 	public static void searchByItemName(DataTable dataTable, String searchValue, List<DTOBase> itemList) {
     	System.out.println("Search Value" + searchValue);

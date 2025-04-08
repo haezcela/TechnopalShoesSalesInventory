@@ -1,6 +1,6 @@
 package com.laponhcet.mediatype;
 
-import com.laponhcet.vehicletype.VehicleTypeDTO;
+
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.dto.MediaDTO;
 
@@ -43,5 +43,7 @@ public String getName() {
 public void setName(String name) {
  this.name = name;
 }
+
+
 
 }

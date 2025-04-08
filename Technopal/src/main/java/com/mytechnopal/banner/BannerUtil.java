@@ -2,13 +2,11 @@ package com.mytechnopal.banner;
 
 import java.io.Serializable;
 
-import com.laponhcet.enrollment.EnrollmentDTO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
 import com.mytechnopal.UploadedFile;
 import com.mytechnopal.base.WebControlBase;
 import com.mytechnopal.util.DateTimeUtil;
-import com.mytechnopal.util.QRCodeUtil;
 import com.mytechnopal.webcontrol.DataTableWebControl;
 import com.mytechnopal.webcontrol.FileInputWebControl;
 import com.mytechnopal.webcontrol.TextBoxWebControl;

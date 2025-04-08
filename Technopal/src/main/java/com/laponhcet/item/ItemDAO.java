@@ -85,7 +85,7 @@ public class ItemDAO extends DAOBase {
             prepStmnt.setTimestamp(10, item.getAddedTimestamp());
             prepStmnt.setString(11, item.getUpdatedBy());
             prepStmnt.setTimestamp(12, item.getUpdatedTimestamp());
-            prepStmnt.setString(13, item.getPicture().isEmpty() ? "default.jpg" : item.getPicture());
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -148,7 +148,7 @@ public class ItemDAO extends DAOBase {
         	prepStmnt.setString(8, item.getUpdatedBy());           
         	prepStmnt.setTimestamp(9, item.getUpdatedTimestamp()); 
         	prepStmnt.setInt(10, item.getId());   
-        	prepStmnt.setString(11, item.getPicture().isEmpty() ? "default.jpg" : item.getPicture());
+        	
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -173,7 +173,6 @@ public List<DTOBase> getItemList() {
         
         item.setId(getDBValInt(resultSet, "id"));
         item.setCode(getDBValStr(resultSet, "code"));
-        
         
         item.getItemCategory().setCode(getDBValStr(resultSet, "item_category_code"));
         
