@@ -268,10 +268,10 @@ public class ItemActionAjax extends ActionAjaxBase {
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
             itemDAO.executeDelete(item);
             
-            ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
-            ItemMediaDTO itemMedia = (ItemMediaDTO) getSessionAttribute(ItemMediaDTO.SESSION_ITEM_MEDIA);
-            itemMediaDAO.executeDelete(itemMedia);
-            
+//            ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+//            ItemMediaDTO itemMedia = (ItemMediaDTO) getSessionAttribute(ItemMediaDTO.SESSION_ITEM_MEDIA);
+//            itemMediaDAO.executeDelete(itemMedia);
+//            
             
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
