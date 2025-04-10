@@ -3,6 +3,7 @@ package com.laponhcet.sales;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 
@@ -37,6 +38,7 @@ public class SalesUtil implements Serializable {
 		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
 		int row1 = 0;
 		 DecimalFormat df = new DecimalFormat("0.##");
+		 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 		for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
 			row1++;
 			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
