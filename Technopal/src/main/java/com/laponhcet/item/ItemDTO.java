@@ -1,8 +1,6 @@
 package com.laponhcet.item;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
-import com.laponhcet.itemmedia.ItemMediaDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
-import com.laponhcet.vehicletype.VehicleTypeDTO;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.util.StringUtil;
 
@@ -16,7 +14,6 @@ public class ItemDTO extends DTOBase {
 	
 	private ItemCategoryDTO itemCategory;
 	private ItemUnitDTO itemUnit;
-	private ItemMediaDTO itemMedia;
 	private String name;
 	private String description;
 	private Double unitPrice;
@@ -30,12 +27,11 @@ public class ItemDTO extends DTOBase {
 //		itemUnit = new ItemUnitDTO();
 		this.itemCategory = new ItemCategoryDTO();
 		this.itemUnit = new ItemUnitDTO();
-		this.itemMedia = new ItemMediaDTO();
 		this.name = "";
 		this.description = "";
-		this.unitPrice = 0.0;
-		this.quantity= 0.0;
-		this.reorderPoint=0.0;
+		this.unitPrice = 0.00;
+		this.quantity= 0.00;
+		this.reorderPoint=0.00;
 		this.picture = "";
 	}
 	
@@ -80,19 +76,6 @@ public class ItemDTO extends DTOBase {
 	public void setItemUnit(ItemUnitDTO itemUnit) {
 		this.itemUnit = itemUnit;
 	 }
-	
-	public ItemMediaDTO getItemMedia() {
-        if (this.itemMedia == null) {
-            this.itemMedia = new ItemMediaDTO(); // Prevent null issues
-        }
-        return this.itemMedia;
-    }
-	
-	public void setItemMedia(ItemMediaDTO itemMedia) {
-		this.itemMedia = itemMedia;
-	 }
-	
-	
 	
 	public String getName() {
 		return name;
@@ -142,6 +125,18 @@ public class ItemDTO extends DTOBase {
 		this.picture = picture;
 	}
 
+//	
+//	public ItemMediaDTO getItemMedia() {
+//        if (this.itemMedia == null) {
+//            this.itemMedia = new ItemMediaDTO(); // Prevent null issues
+//        }
+//        return this.itemMedia;
+//    }
+//	
+//	public void setItemMedia(ItemMediaDTO itemMedia) {
+//		this.itemMedia = itemMedia;
+//	 }
+//	
 
 	
 	//add list of itemmedia DTO

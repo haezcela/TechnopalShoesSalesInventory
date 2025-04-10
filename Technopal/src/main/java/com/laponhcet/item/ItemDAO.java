@@ -104,7 +104,7 @@ public class ItemDAO extends DAOBase {
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
         
-        new ItemMediaDAO().delete(conn, prepStmntList, item.getItemMedia());
+        //new ItemMediaDAO().delete(conn, prepStmntList, item.getItemMedia());
         delete(conn, prepStmntList, item);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
@@ -209,6 +209,8 @@ public String getCodeById(Connection conn, int id) {
         item.setUnitPrice(getDBValDouble(resultSet, "unit_price"));
         item.setQuantity(getDBValDouble(resultSet, "quantity"));
         item.setReorderpoint(getDBValDouble(resultSet, "reorder_point"));
+        
+        item.setDisplayStr(item.getName());
         return item;
     }
     
@@ -228,7 +230,7 @@ public void testAddItem() {
     item.setUnitPrice(100.0);
     item.setQuantity(10.0);
     item.setReorderpoint(5.0);
-
+    
     executeAdd(item);
 }
 

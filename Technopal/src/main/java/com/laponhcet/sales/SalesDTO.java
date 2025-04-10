@@ -26,6 +26,32 @@ public class SalesDTO extends DTOBase {
 	private double total;
 	private String paymentStatus;
 	private String customerCode;
+	
+	public SalesDTO() {
+		super();
+		this.code = "";
+		this.name = "";
+		this.salesPaymentDTO = new SalesPaymentDTO();
+		this.user = new UserDTO();
+		this.item = new ItemDTO();
+		this.salesDetails = new SalesDetailsDTO();
+	}
+	
+	  public SalesDTO getSales() {
+		  	SalesDTO sales = new SalesDTO();
+		  	sales.setId(super.getId());
+		  	sales.setName(this.name);
+		  	sales.setDate(this.date);
+		  	sales.setPaymentStatus(this.paymentStatus);
+		  	sales.setTotal(this.total);
+		  	sales.setStatus(this.status);
+		  	sales.setCode(super.getCode());
+		  	sales.setUser(this.user);
+		  	sales.setItem(this.item);
+		  	sales.setSalesDetails(this.salesDetails);
+		  	sales.setCustomerCode(this.customerCode);
+	        return sales;
+	    }
 
 	public String getCustomerCode() {
 		return customerCode;
@@ -67,15 +93,7 @@ public class SalesDTO extends DTOBase {
 	    this.item = item;
 	}
 
-	public SalesDTO() {
-		super();
-		code = "";
-		name = "";
-		salesPaymentDTO = new SalesPaymentDTO();
-		user = new UserDTO();
-		item = new ItemDTO();
-		salesDetails = new SalesDetailsDTO();
-	}
+
 	
 	public SalesPaymentDTO getSalesPayment() {
 		return salesPaymentDTO;
@@ -142,21 +160,7 @@ public class SalesDTO extends DTOBase {
 		this.code = code;
 	}
 
-	  public SalesDTO getSales() {
-		  	SalesDTO sales = new SalesDTO();
-		  	sales.setId(super.getId());
-		  	sales.setName(this.name);
-		  	sales.setDate(this.date);
-		  	sales.setPaymentStatus(this.paymentStatus);
-		  	sales.setTotal(this.total);
-		  	sales.setStatus(this.status);
-		  	sales.setCode(super.getCode());
-		  	sales.setUser(this.user);
-		  	sales.setItem(this.item);
-		  	sales.setSalesDetails(this.salesDetails);
-		  	sales.setCustomerCode(this.customerCode);
-	        return sales;
-	    }
+
 }
 	
 

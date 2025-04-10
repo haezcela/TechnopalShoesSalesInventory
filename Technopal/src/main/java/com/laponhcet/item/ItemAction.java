@@ -20,8 +20,8 @@ public class ItemAction extends ActionBase {
         
 		DataTable dataTable = new DataTable(ItemDTO.SESSION_ITEM_DATA_TABLE, itemList,
 				new String[] { ItemDTO.ACTION_SEARCH_BY_NAME }, new String[] { "Name" });
-        dataTable.setColumnNameArr(new String[] {"ID", "Code", "Category", "Name", "Description", "Unit", "Unit Price", "Quantity", "Reorderpoint", "Picture", "Actions"});
-        dataTable.setColumnWidthArr(new String[] {"5", "5","10", "10", "10", "10", "10" , "15","10", "10", "15"}); 
+        dataTable.setColumnNameArr(new String[] {"ID", "Code", "Category", "Name", "Description", "Unit", "Unit Price", "Quantity", "Reorderpoint", "Actions"});
+        dataTable.setColumnWidthArr(new String[] {"10", "10","10", "10", "10", "10", "10" , "15","10", "15"}); 
 
         setSessionAttribute(ItemDTO.SESSION_ITEM, new ItemDTO());
         setSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST, new ItemCategoryDAO().getItemCategoryList());

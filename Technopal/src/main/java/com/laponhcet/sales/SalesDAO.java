@@ -166,6 +166,8 @@ public class SalesDAO extends DAOBase {
         return getDTOList(qrySalesList);
         
     }
+    
+    
 //    public List<DTOBase> getSalesList2() {
 //        Connection conn = daoConnectorUtil.getConnection();
 //        return getSalesListMethod(conn);
