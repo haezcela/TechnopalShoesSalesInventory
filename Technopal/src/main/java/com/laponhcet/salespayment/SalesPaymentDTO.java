@@ -5,6 +5,7 @@ import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.dto.UserDTO;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class SalesPaymentDTO extends DTOBase {
     private static final long serialVersionUID = 1L;
@@ -19,7 +20,18 @@ public class SalesPaymentDTO extends DTOBase {
     
 
     private String name;
-    private double amountPaid;
+    private Date date;
+
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	private double amountPaid;
     private String paymentMethod;
     private String reference;
     private String salesCode;
@@ -90,5 +102,6 @@ public class SalesPaymentDTO extends DTOBase {
         salesPayment.setUser(this.user);
         return salesPayment;
     }
+
 
 }

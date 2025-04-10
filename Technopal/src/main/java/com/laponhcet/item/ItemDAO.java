@@ -206,6 +206,8 @@ public String getCodeById(Connection conn, int id) {
         item.setUnitPrice(getDBValDouble(resultSet, "unit_price"));
         item.setQuantity(getDBValDouble(resultSet, "quantity"));
         item.setReorderpoint(getDBValDouble(resultSet, "reorder_point"));
+        
+        item.setDisplayStr(getDBValStr(resultSet, "name"));
         return item;
     }
     

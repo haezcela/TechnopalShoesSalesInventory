@@ -1,7 +1,9 @@
 package com.laponhcet.sales;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -38,7 +40,7 @@ import com.mytechnopal.usermedia.UserMediaUtil;
 import com.mytechnopal.util.DTOUtil;
 import com.mytechnopal.util.PageUtil;
 import com.mytechnopal.util.StringUtil;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
+
 
 public class SalesActionAjax extends ActionAjaxBase {
     private static final long serialVersionUID = 1L;
@@ -151,8 +153,6 @@ public class SalesActionAjax extends ActionAjaxBase {
       	try {
       	    Date parsedDate = formatter.parse(date);
       	    sales.setDate(parsedDate); 
-      	} catch (ParseException e) {
-      	    e.printStackTrace();
       	} catch (java.text.ParseException e) {
 			e.printStackTrace();
 		}
@@ -215,14 +215,14 @@ public class SalesActionAjax extends ActionAjaxBase {
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
             SalesDTO salesSelected = (SalesDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
             SalesDTO sales = new SalesDTO();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, SalesUtil.getDataEntryStr(sessionInfo, sales, userList, itemList)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, SalesUtil.getDataEntryStr(sessionInfo, sales, userList, itemList),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -248,7 +248,7 @@ public class SalesActionAjax extends ActionAjaxBase {
         } else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
             SalesDTO salesSelected = (SalesDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT,  PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT,  PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected),""));
 //                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, EventCriteriaUtil.getDataViewStr(sessionInfo, criteriaSelected), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
