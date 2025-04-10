@@ -15,7 +15,7 @@ import com.mytechnopal.util.WebUtil;
 import com.mytechnopal.webcontrol.DataTableWebControl;
 
 public class QRCodeUtil implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVerssionUID = 1L;
 	
 	private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable, List<DTOBase> enrollmentList, List<DTOBase> academicSectionList) {
 		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
