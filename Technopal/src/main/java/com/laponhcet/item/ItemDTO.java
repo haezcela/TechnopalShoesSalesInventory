@@ -1,7 +1,6 @@
 package com.laponhcet.item;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
-import com.laponhcet.vehicletype.VehicleTypeDTO;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.util.StringUtil;
 

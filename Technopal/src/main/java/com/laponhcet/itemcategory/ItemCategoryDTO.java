@@ -13,8 +13,6 @@ public class ItemCategoryDTO extends DTOBase {
     public static final String SESSION_ITEM_CATEGORY_DATA_TABLE = "SESSION_ITEM_CATEGORY_DATA_TABLE";
     
     public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
-
-	
    
     private String name;
 

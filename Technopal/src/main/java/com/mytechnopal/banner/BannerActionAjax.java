@@ -46,20 +46,30 @@ public class BannerActionAjax extends ActionAjaxBase {
 			}
 		}
 		else if(action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
-			UploadedFile uploadedFile = new UploadedFile(); //no need to specify id for the default id is 0
-			uploadedFile.setSettings(sessionInfo.getSettings());
-			uploadedFile.setValidFileExt(new String[] {"png", "jpg"});
-			uploadedFile.setMaxSize(3072000); //3Mb 
-			setSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0", uploadedFile);
-			
-			BannerDTO banner = new BannerDTO();
-			try {
-				jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, "Banner", BannerUtil.getDataEntryStr(sessionInfo, banner, uploadedFile)));
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			setSessionAttribute(BannerDTO.SESSION_BANNER, banner);
-		}
+			   UploadedFile uploadedFile = new UploadedFile(); //no need to specify id for the default id is 0
+			   uploadedFile.setSettings(sessionInfo.getSettings());
+			   uploadedFile.setValidFileExt(new String[] {"png", "jpg"});
+			   uploadedFile.setMaxSize(3072000); //3Mb
+			   setSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0", uploadedFile);
+
+			   BannerDTO banner = new BannerDTO();
+			   try {
+			    jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, "Banner", BannerUtil.getDataEntryStr(sessionInfo, banner, uploadedFile)));
+			   } catch (JSONException e) {
+			    e.printStackTrace();
+			   }
+			   setSessionAttribute(BannerDTO.SESSION_BANNER, banner);
+
+			   // Debugging code to check if the file is saved in the session
+			   debugUploadedFile(uploadedFile);
+
+			   // Print if there is an uploaded file
+			   if (uploadedFile.getFile() != null) {
+			       System.out.println("Uploaded file: " + uploadedFile.getFile().getName());
+			   } else {
+			       System.out.println("No file uploaded.");
+			   }
+			  }
 		else if(action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
 			BannerDTO bannerSelected = (BannerDTO) dataTable.getSelectedRecord();
 			try {
@@ -69,33 +79,37 @@ public class BannerActionAjax extends ActionAjaxBase {
 			}
 			setSessionAttribute(BannerDTO.SESSION_BANNER, bannerSelected);
 		}
-		else  if(action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
-			UploadedFile uploadedFile= (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
-			BannerDAO bannerDAO = new BannerDAO();
-			BannerDTO banner = (BannerDTO) getSessionAttribute(BannerDTO.SESSION_BANNER);
-			banner.setFilename(uploadedFile.getFile().getName());
-			banner.setAddedBy(sessionInfo.getCurrentUser().getCode());
-			bannerDAO.executeAdd(banner);
-			actionResponse = (ActionResponse) bannerDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-			if(StringUtil.isEmpty(actionResponse.getType())) {
-				if(uploadedFile.getFile() != null) {
-					File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
-					File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/banner/" + uploadedFile.getFile().getName());
-					try {
-						FileUtils.copyFile(fileFrom, fileTo);
-						FileUtil.setFileAccessRights(fileTo);
-						fileFrom.delete(); 
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was successfully saved but failed  to upload the picture.");
-					}
-					
-					actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
-					setSessionAttribute(BannerDTO.SESSION_BANNER_LIST, new BannerDAO().getBannerList());
-				}
+		  else  if(action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
+			   UploadedFile uploadedFile= (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
+			   BannerDAO bannerDAO = new BannerDAO();
+			   BannerDTO banner = (BannerDTO) getSessionAttribute(BannerDTO.SESSION_BANNER);
+			   banner.setFilename(uploadedFile.getFile().getName());
+			   banner.setAddedBy(sessionInfo.getCurrentUser().getCode());
+			   bannerDAO.executeAdd(banner);
+			   actionResponse = (ActionResponse) bannerDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+			   if(StringUtil.isEmpty(actionResponse.getType())) {
+			    if(uploadedFile.getFile() != null) {
+			     File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
+			     File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/banner/" + uploadedFile.getFile().getName());
+			     try {
+			      System.out.println("Copying file from: " + fileFrom.getAbsolutePath());
+			      System.out.println("Copying file to: " + fileTo.getAbsolutePath());
+			      FileUtils.copyFile(fileFrom, fileTo);
+			      FileUtil.setFileAccessRights(fileTo);
+			      fileFrom.delete();
+			      System.out.println("File copied and original deleted.");
+			     } catch (IOException e) {
+			      // TODO Auto-generated catch block
+			      actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was successfully saved but failed to upload the picture.");
+			      System.out.println("Failed to copy file: " + e.getMessage());
+			     }
 
-			}
-		}
+			     actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
+			     setSessionAttribute(BannerDTO.SESSION_BANNER_LIST, new BannerDAO().getBannerList());
+			    }
+
+			   }
+			  }
 		else  if(action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
 			BannerDAO bannerDAO = new BannerDAO();
 			BannerDTO banner = (BannerDTO) getSessionAttribute(BannerDTO.SESSION_BANNER);
@@ -128,4 +142,19 @@ public class BannerActionAjax extends ActionAjaxBase {
 		dataTable.setRecordList(bannerList);
 		dataTable.setCurrentPageRecordList();
 	}
+	
+	 private void debugUploadedFile(UploadedFile uploadedFile) {
+		  if (uploadedFile != null && uploadedFile.getFile() != null) {
+		   String filePath = "C:\\Users\\User\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp2\\wtpwebapps\\ROOT\\static\\tmp\\" + uploadedFile.getFile().getName();
+		   File file = new File(filePath);
+		   if (file.exists()) {
+		    System.out.println("File exists: " + filePath);
+		   } else {
+		    System.out.println("File does not exist: " + filePath);
+		   }
+		  } else {
+		   System.out.println("No file uploaded.");
+		  }
+		 }
+		
 }
