@@ -292,9 +292,9 @@ public class SalesActionAjax extends ActionAjaxBase {
    		for(int row=0; row < dataTable.getRecordListCurrentPage().size(); row++) {			
    			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
    			sales.setSalesPayment((SalesPaymentDTO) DTOUtil.getObjByCode(salesPaymentList, sales.getSalesPayment().getCode()));
-   			sales.setSalesDetails((SalesDetailsDTO) DTOUtil.getObjByCode(salesDetailsList, sales.getSalesDetails().getCode()));
+   			//sales.setSalesDetails((SalesDetailsDTO) DTOUtil.getObjByCode(salesDetailsList, sales.getSalesDetails().getCode()));
    			sales.setUser((UserDTO) DTOUtil.getObjByCode(userList, sales.getUser().getCode()));
-   			sales.getSalesDetails().setItem((ItemDTO) DTOUtil.getObjByCode(itemList, sales.getSalesDetails().getItem().getCode()));
+   			//sales.getSalesDetails().setItem((ItemDTO) DTOUtil.getObjByCode(itemList, sales.getSalesDetails().getItem().getCode()));
    		}
       }
    }
