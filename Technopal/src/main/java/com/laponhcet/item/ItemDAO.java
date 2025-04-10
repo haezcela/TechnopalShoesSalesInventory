@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.laponhcet.itemcategory.ItemCategoryDTO;
+import com.laponhcet.itemmedia.ItemMediaDAO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.mysql.jdbc.Statement;
 import com.mytechnopal.ActionResponse;
@@ -102,6 +103,8 @@ public class ItemDAO extends DAOBase {
         ItemDTO item = (ItemDTO) obj;
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
+        
+        new ItemMediaDAO().delete(conn, prepStmntList, item.getItemMedia());
         delete(conn, prepStmntList, item);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }

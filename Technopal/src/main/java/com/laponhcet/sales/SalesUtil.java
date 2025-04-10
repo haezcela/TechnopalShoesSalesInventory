@@ -5,7 +5,8 @@ import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.util.List;
 
-
+import com.laponhcet.item.ItemDTO;
+import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
 import com.mytechnopal.base.DTOBase;
@@ -56,6 +57,11 @@ public class SalesUtil implements Serializable {
 	}
 	public static String getDataEntryStr(SessionInfo sessionInfo, SalesDTO sales, List<DTOBase> userList, List<DTOBase> itemList) {
 	    StringBuffer strBuff = new StringBuffer();
+	    
+	    for (DTOBase obj:itemList) {
+			ItemDTO item= (ItemDTO) obj;
+      		System.out.println("itemName" + item.getName());
+      	 }
 
 	    // Date Input
 	    strBuff.append("<div class='col-lg-3'>");

@@ -2,6 +2,7 @@ package com.laponhcet.sales;
 import java.util.Date;
 
 import com.laponhcet.item.ItemDTO;
+import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.sales.SalesDTO;
 import com.laponhcet.salesdetails.SalesDetailsDTO;
 import com.laponhcet.salespayment.SalesPaymentDTO;
@@ -21,6 +22,7 @@ public class SalesDTO extends DTOBase {
 	private String code;
 	private String name;
 	private Date date;
+	private ItemDTO item;
 	private double total;
 	private String paymentStatus;
 	private String customerCode;
@@ -53,13 +55,16 @@ public class SalesDTO extends DTOBase {
 	public void setUser(UserDTO user) {
 		this.user = user;
 	}
-	private ItemDTO item;
+	
 	public ItemDTO getItem() {
-		return item;
-	}
-
+        if (this.item == null) {
+            this.item = new ItemDTO(); // Prevent null issues
+        }
+        return this.item;
+	 }
+	
 	public void setItem(ItemDTO item) {
-		this.item = item;
+	    this.item = item;
 	}
 
 	public SalesDTO() {
