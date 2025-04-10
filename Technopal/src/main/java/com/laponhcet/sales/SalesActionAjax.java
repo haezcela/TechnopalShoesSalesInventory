@@ -96,6 +96,9 @@ public class SalesActionAjax extends ActionAjaxBase {
     	double total = getRequestDouble("txtHiddenTotal");
        	double amountPaid = getRequestDouble("txtAmountPaid");
        	String paymentStatus = getPaymentStatus(total, amountPaid);
+      	String date = getRequestString("txtDate");
+
+      	SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
        	if (paymentStatus.equals("ERROR")) {
        		actionResponse.constructMessage(ActionResponse.TYPE_INVALID, "Amount paid cannot be greater than the total amount");
        	}
@@ -144,7 +147,14 @@ public class SalesActionAjax extends ActionAjaxBase {
             }
         }
 
-
+      	try {
+      	    Date parsedDate = formatter.parse(date);
+      	    sales.setDate(parsedDate); 
+      	} catch (ParseException e) {
+      	    e.printStackTrace();
+      	} catch (java.text.ParseException e) {
+			e.printStackTrace();
+		}
     	sales.getSalesDetails().setSalesDetailsList(salesDetailsList);
     	sales.setTotal(total);
     	sales.setPaymentStatus(paymentStatus);

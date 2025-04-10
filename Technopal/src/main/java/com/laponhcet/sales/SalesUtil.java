@@ -48,7 +48,8 @@ public class SalesUtil implements Serializable {
 			strArr[row][5] = sales.getSalesPayment().getPaymentMethod();
 			strArr[row][6] = String.valueOf(sales.getSalesPayment().getAmountPaid());
 			strArr[row][7] = sales.getSalesPayment().getReference();
-			strArr[row][8] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode())+"<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Record\" onclick=\"dataTableRecordActionSESSION_SALES_DATA_TABLE('ACTION_ADD_VIEW_PAYMENT', " + row1 + ", '" + sales.getCode() + "')\"><i class=\"fa fa-money-bill\"></i></button>";
+			strArr[row][8] = formatter.format(sales.getDate());
+			strArr[row][9] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode())+"<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Record\" onclick=\"dataTableRecordActionSESSION_SALES_DATA_TABLE('ACTION_ADD_VIEW_PAYMENT', " + row1 + ", '" + sales.getCode() + "')\"><i class=\"fa fa-money-bill\"></i></button>";
 			
 		}
 		return strArr;

@@ -13,7 +13,7 @@
 <%
 SessionInfo sessionInfo = (SessionInfo) session.getAttribute(SessionInfo.SESSION_INFO);
 DataTable dataTable = (DataTable)session.getAttribute(SalesDTO.SESSION_SALES_DATA_TABLE);
-String dataInput = "txtHiddenTotal: $('#txtHiddenTotal').val(), txtHiddenItems: $('#txtHiddenItems').val(), cboItem: $('#cboItem').val(), txtQuantity: $('#txtQuantity').val(), txtUnitPrice: $('#txtUnitPrice').val(), cboPaymentStatus: $('#cboPaymentStatus').val(), cboStatus: $('#cboStatus').val(), txtAmountPaid: $('#txtAmountPaid').val(), cboPaymentMethod: $('#cboPaymentMethod').val(), txtReference: $('#txtReference').val(), cboCustomer: $('#cboCustomer').val()"; 
+String dataInput = "txtHiddenTotal: $('#txtHiddenTotal').val(), txtHiddenItems: $('#txtHiddenItems').val(), cboItem: $('#cboItem').val(), txtQuantity: $('#txtQuantity').val(), txtUnitPrice: $('#txtUnitPrice').val(), cboPaymentStatus: $('#cboPaymentStatus').val(), cboStatus: $('#cboStatus').val(), txtAmountPaid: $('#txtAmountPaid').val(), cboPaymentMethod: $('#cboPaymentMethod').val(), txtReference: $('#txtReference').val(), cboCustomer: $('#cboCustomer').val(), txtDate: $('#txtDate').val()"; 
 %>
 
 <div class="container" id='<%=dataTable.getId()%>'></div>

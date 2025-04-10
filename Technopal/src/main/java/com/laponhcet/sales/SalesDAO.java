@@ -73,7 +73,7 @@ public class SalesDAO extends DAOBase {
         salesPayment.setAmountPaid(sales.getSalesPayment().getAmountPaid());
         salesPayment.setSalesCode(generatedCodeSales);
         salesPayment.setCode(generatedCodeSalesPayment);
-
+        salesPayment.setDate(sales.getDate());
  
         List<SalesDetailsDTO> salesDetailsList = sales.getSalesDetails().getSalesDetailsList();
         for (SalesDetailsDTO detail : salesDetailsList) {
@@ -95,6 +95,7 @@ public class SalesDAO extends DAOBase {
 
 
 	public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
+		
 		SalesDTO sales = (SalesDTO) obj;
 		PreparedStatement prepStmnt = null;
 		Random random = new Random();
@@ -109,7 +110,8 @@ public class SalesDAO extends DAOBase {
 			prepStmnt.setDouble(3, sales.getTotal());
 			prepStmnt.setString(4, sales.getPaymentStatus());
 			prepStmnt.setString(5, sales.getStatus());
-			prepStmnt.setString(6, sales.getAddedBy());
+			prepStmnt.setDate(6, new java.sql.Date(sales.getDate().getTime()));
+			prepStmnt.setString(7, sales.getAddedBy());
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -117,7 +119,6 @@ public class SalesDAO extends DAOBase {
 		prepStmntList.add(prepStmnt);
 	}
     
-
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
 		// TODO Auto-generated method stub
 		
@@ -179,6 +180,7 @@ public class SalesDAO extends DAOBase {
 	}
 
 
+
 	@Override
 	protected DTOBase rsToObj(ResultSet resultSet) {
 		SalesDTO sales = new SalesDTO();
@@ -189,8 +191,10 @@ public class SalesDAO extends DAOBase {
 		sales.setPaymentStatus(getDBValStr(resultSet, "payment_status"));
 		sales.setStatus(getDBValStr(resultSet, "status"));
 		sales.getUser().setCode(getDBValStr(resultSet, "customer_code"));
+		sales.setDate(getDBValDate(resultSet, "date"));
 		sales.getSalesPayment().setCode(getDBValStr(resultSet, "code"));
 		sales.getSalesDetails().setCode(getDBValStr(resultSet, "code"));
+		
 		return sales;
 	}
     

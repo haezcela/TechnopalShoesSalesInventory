@@ -44,25 +44,27 @@ public class SalesPaymentDAO extends DAOBase {
         return baseCode;
     }
     public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-		SalesPaymentDTO salesPayment = (SalesPaymentDTO) obj;
-		PreparedStatement prepStmnt = null;
-		Random random = new Random();
-		int code = 100 + random.nextInt(900); // Ensures a 3-digit number (100-999)
-		String codeString = String.valueOf(code);
-		try {
-			prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesPaymentAdd), Statement.RETURN_GENERATED_KEYS);
-			prepStmnt.setString(1, salesPayment.getCode());
-			prepStmnt.setString(2, salesPayment.getSalesCode());
-			prepStmnt.setDouble(3, salesPayment.getAmountPaid());
-			prepStmnt.setString(4, salesPayment.getPaymentMethod());
-			prepStmnt.setString(5, salesPayment.getReference());
-			prepStmnt.setString(6, salesPayment.getAddedBy());
-;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		prepStmntList.add(prepStmnt);
-	}
+  		SalesPaymentDTO salesPayment = (SalesPaymentDTO) obj;
+  		PreparedStatement prepStmnt = null;
+  		Random random = new Random();
+  		int code = 100 + random.nextInt(900); // Ensures a 3-digit number (100-999)
+  		String codeString = String.valueOf(code);
+  		try {
+  			prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesPaymentAdd), Statement.RETURN_GENERATED_KEYS);
+  			prepStmnt.setString(1, salesPayment.getCode());
+  			prepStmnt.setString(2, salesPayment.getSalesCode());
+  			prepStmnt.setDouble(3, salesPayment.getAmountPaid());
+  			prepStmnt.setString(4, salesPayment.getPaymentMethod());
+  			prepStmnt.setString(5, salesPayment.getReference());
+  			prepStmnt.setDate(6, new java.sql.Date(salesPayment.getDate().getTime()));
+  			prepStmnt.setString(7, salesPayment.getAddedBy());
+  ;
+  		} catch (SQLException e) {
+  			e.printStackTrace();
+  		}
+  		prepStmntList.add(prepStmnt);
+  	}
+      
     
 
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {

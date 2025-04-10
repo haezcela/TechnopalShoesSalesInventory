@@ -25,8 +25,8 @@ public class SalesAction extends ActionBase {
         List<DTOBase> userList = new UserDAO().getUserList();
         List<DTOBase> itemList = new ItemDAO().getItemList();
         DataTable dataTable = new DataTable(SalesDTO.SESSION_SALES_DATA_TABLE, salesList, new String[] {SalesDTO.ACTION_SEARCH_BY_NAME}, new String[] {"Name"});
-        dataTable.setColumnNameArr(new String[] {"Code", "Customer","Total", "Payment Status", "Status", "Payment Method", "Amount Paid", "Reference", "Actions"});
-        dataTable.setColumnWidthArr(new String[] {"10","10", "10", "10", "10", "10", "10", "10", "10", "10"}); 
+        dataTable.setColumnNameArr(new String[] {"Code", "Customer","Total", "Payment Status", "Status", "Payment Method", "Amount Paid", "Reference", "Date", "Actions"});
+        dataTable.setColumnWidthArr(new String[] {"9","9", "9", "9", "9", "9", "9", "9", "9", "9", "11"}); 
 
         setSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE, dataTable);
         setSessionAttribute(SalesDTO.SESSION_SALES_LIST, salesList);
