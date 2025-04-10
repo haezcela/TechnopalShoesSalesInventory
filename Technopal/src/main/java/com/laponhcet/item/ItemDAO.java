@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.laponhcet.itemcategory.ItemCategoryDTO;
+import com.laponhcet.itemmedia.ItemMediaDAO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.mysql.jdbc.Statement;
 import com.mytechnopal.ActionResponse;
@@ -102,6 +103,7 @@ public class ItemDAO extends DAOBase {
         ItemDTO item = (ItemDTO) obj;
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
+        new ItemMediaDAO().deleteByItem(item, conn, prepStmntList); 
         delete(conn, prepStmntList, item);
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
@@ -137,24 +139,27 @@ public class ItemDAO extends DAOBase {
         ItemDTO item = (ItemDTO) obj;
         PreparedStatement prepStmnt = null;
         try {
-        	prepStmnt = conn.prepareStatement(getQueryStatement(qryItemUpdate), Statement.RETURN_GENERATED_KEYS);
-        	prepStmnt.setString(1, item.getItemCategory().getCode());
-        	prepStmnt.setString(2, item.getName());                
-        	prepStmnt.setString(3, item.getDescription()); 
-        	prepStmnt.setString(4, item.getItemUnit().getCode()); 
-        	prepStmnt.setDouble(5, item.getUnitPrice()); 
-        	prepStmnt.setDouble(6, item.getQuantity());            
-        	prepStmnt.setDouble(7, item.getReorderpoint());        
-        	prepStmnt.setString(8, item.getUpdatedBy());           
-        	prepStmnt.setTimestamp(9, item.getUpdatedTimestamp()); 
-        	prepStmnt.setInt(10, item.getId());   
-        	
+            prepStmnt = conn.prepareStatement(getQueryStatement(qryItemUpdate), Statement.RETURN_GENERATED_KEYS);
+            prepStmnt.setString(1, item.getCode());
+            prepStmnt.setString(2, item.getItemCategory().getCode());
+            prepStmnt.setString(3, item.getName());
+            prepStmnt.setString(4, item.getDescription());
+            prepStmnt.setString(5, item.getItemUnit().getCode());
+            prepStmnt.setDouble(6, item.getUnitPrice());
+            prepStmnt.setDouble(7, item.getQuantity());
+            prepStmnt.setDouble(8, item.getReorderpoint());
+            prepStmnt.setString(9, item.getAddedBy());
+            prepStmnt.setTimestamp(10, item.getAddedTimestamp());
+            prepStmnt.setString(11, item.getUpdatedBy());
+            prepStmnt.setTimestamp(12, item.getUpdatedTimestamp());
+            prepStmnt.setInt(13, item.getId()); // WHERE id = ?
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         prepStmntList.add(prepStmnt);
     }
+
 
     @Override
     public void executeUpdateList(List<DTOBase> arg0) {

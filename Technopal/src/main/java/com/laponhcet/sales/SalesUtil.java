@@ -58,9 +58,10 @@ public class SalesUtil implements Serializable {
 	}
 	public static String getDataEntryStr(SessionInfo sessionInfo, SalesDTO sales, List<DTOBase> userList, List<DTOBase> itemList) {
 	    StringBuffer strBuff = new StringBuffer();
-
-	    // Date Input
-	    strBuff.append("<div class='col-lg-3'>");
+	    
+	    strBuff.append("<div class='row p-1'>");
+	 // Date Input
+	    strBuff.append("<div class='col-lg-6'>");
 	    strBuff.append("    Date <font color='red' style='font-weight:700'>*</font>");
 	    strBuff.append("    <input type='text' class='form-control' id='txtDate' name='txtDate' value='" + DateTimeUtil.getDateTimeToStr(sales.getDate(), "MM/dd/yyyy") + "'>");
 	    strBuff.append("    <script>");
@@ -71,8 +72,14 @@ public class SalesUtil implements Serializable {
 	    strBuff.append("        });");
 	    strBuff.append("    </script>");
 	    strBuff.append("</div>");
+	    
+	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-6", true, "Customer", "Customer", userList, sales.getUser(), "-Select-", "0", ""));
+	    
+		strBuff.append("</div>");
 
-	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "Customer", "Customer", userList, sales.getUser(), "-Select-", "0", ""));
+	    
+
+	    
 
 	    strBuff.append("<div id='salesEntryContainer' style='display: flex; flex-wrap: wrap; gap: 10px;'>");
 
@@ -137,13 +144,20 @@ public class SalesUtil implements Serializable {
 	    strBuff.append("});");
 	    strBuff.append("</script>");
 
-	    // Total Field with Label and Adjusted Width
-	    strBuff.append("<label>Total:</label>");
-	    strBuff.append("<input type='text' class='form-control col-lg-3 dynamic-total' name='total' placeholder='' style='width: 150px;' />");
+	    
+	    strBuff.append("<div class='row p-1'>");
 
+	 // Total Field with Label and Adjusted Width
+	 strBuff.append("<div class='col-lg-4'>");
+	 strBuff.append("<label>Total</label>");
+	 strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' />");
+
+	 strBuff.append("</div>");
 	    
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "PaymentMethod", "PaymentMethod", new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, sales.getSalesPayment().getPaymentMethod(), new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, "NA", "", ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+		strBuff.append("</div>");
+	    
 	    return strBuff.toString();
 	}
 

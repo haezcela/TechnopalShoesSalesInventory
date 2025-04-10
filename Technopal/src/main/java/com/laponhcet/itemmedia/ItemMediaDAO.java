@@ -86,27 +86,47 @@ public void executeAddList(List<DTOBase> arg0) {
     // TODO Auto-generated method stub
 }
 
-@Override
-public void executeDelete(DTOBase obj) {
-	ItemMediaDTO itemMedia = (ItemMediaDTO) obj;
-    Connection conn = daoConnectorUtil.getConnection();
-    List<PreparedStatement> prepStmntList = new ArrayList<>();
-    delete(conn, prepStmntList, itemMedia);
-    result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+//@Override
+//public void executeDelete(DTOBase obj) {
+//	ItemMediaDTO itemMedia = (ItemMediaDTO) obj;
+//    Connection conn = daoConnectorUtil.getConnection();
+//    List<PreparedStatement> prepStmntList = new ArrayList<>();
+//    delete(conn, prepStmntList, itemMedia);
+//    result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+//}
+//
+//public void delete(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
+//	ItemDTO item = (ItemDTO) obj;
+//	ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+//    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());
+//    PreparedStatement prepStmnt = null;
+//    try {
+//        prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaDelete), Statement.RETURN_GENERATED_KEYS);
+//        prepStmnt.setInt(1, itemMedia.getId());
+//    } catch (SQLException e) {
+//        e.printStackTrace();
+//    }
+//    prepStmntList.add(prepStmnt);
+//}
+
+//For use inside ItemDAO when deleting related media
+public void deleteByItem(ItemDTO item, Connection conn, List<PreparedStatement> prepStmntList) {
+ ItemMediaDTO itemMedia = getByItemCode(item.getCode());
+ if (itemMedia != null) {
+     deleteMediaById(itemMedia.getId(), conn, prepStmntList);
+ }
 }
 
-public void delete(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-	ItemDTO item = (ItemDTO) obj;
-	ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
-    ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(item.getCode());
-    PreparedStatement prepStmnt = null;
-    try {
-        prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaDelete), Statement.RETURN_GENERATED_KEYS);
-        prepStmnt.setInt(1, itemMedia.getId());
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    prepStmntList.add(prepStmnt);
+//General-purpose delete by ID
+public void deleteMediaById(int id, Connection conn, List<PreparedStatement> prepStmntList) {
+ PreparedStatement prepStmnt = null;
+ try {
+     prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaDelete), Statement.RETURN_GENERATED_KEYS);
+     prepStmnt.setInt(1, id);
+     prepStmntList.add(prepStmnt);
+ } catch (SQLException e) {
+     e.printStackTrace();
+ }
 }
 
 @Override
@@ -196,6 +216,12 @@ public ItemMediaDTO getByItemCode(String code) {
     }
 
     return itemMedia;
+}
+
+@Override
+public void executeDelete(DTOBase arg0) {
+	// TODO Auto-generated method stub
+	
 }
 
 
