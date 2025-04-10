@@ -33,7 +33,6 @@ public class SalesUtil implements Serializable {
 		return strBuff.toString();
 	}
 
-
 	private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
 		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
 		int row1 = 0;
@@ -169,3 +168,4 @@ public class SalesUtil implements Serializable {
 
 }
 
+//TEST PULLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
