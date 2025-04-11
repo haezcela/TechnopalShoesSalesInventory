@@ -103,18 +103,19 @@ public class ItemActionAjax extends ActionAjaxBase {
 
     	        if (file.exists()) {
     	            //System.out.println("DEBUG: File exists on disk.");
-    	            item.setPicture(file.getName());
+    	            //item.etPicture(file.getName());
+    	        	item.getPicture().setFileName(file.getName());
     	        } else {
     	            //System.out.println("ERROR: File does not exist on the specified path! Possible upload failure.");
-    	            item.setPicture("");
+    	        	item.getPicture().setFileName("");
     	        }
     	    } else {
     	        //System.out.println("ERROR: uploadedFile.getFile() is NULL! Possible missing Apache Commons FileUpload.");
-    	        item.setPicture("");
+    	    	item.getPicture().setFileName("");
     	    }
     	} else {
     	    //System.out.println("ERROR: UploadedFile is NULL! Ensure Apache Commons FileUpload is installed and configured correctly.");
-    	    item.setPicture(""); // Default if no image uploaded
+    		item.getPicture().setFileName("");// Default if no image uploaded
     	}
 
         
@@ -259,6 +260,8 @@ public class ItemActionAjax extends ActionAjaxBase {
             itemDAO.executeUpdate(item);
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
+            	
+            	// Delete and add new Image in the directory
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
             }
@@ -273,9 +276,13 @@ public class ItemActionAjax extends ActionAjaxBase {
             itemMediaDAO.executeDelete(itemMedia);
             
             
+            
+            
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
+                
+                //Delete the image in directory
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Deleted");
             }
         }

@@ -1,5 +1,6 @@
 package com.laponhcet.item;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
+import com.laponhcet.itemmedia.ItemMediaDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.util.StringUtil;
@@ -19,7 +20,7 @@ public class ItemDTO extends DTOBase {
 	private Double unitPrice;
 	private Double quantity;
 	private Double reorderPoint;
-	private String picture;
+	private ItemMediaDTO picture;
 
 	public ItemDTO() {
 		super();
@@ -32,7 +33,7 @@ public class ItemDTO extends DTOBase {
 		this.unitPrice = 0.0;
 		this.quantity= 0.0;
 		this.reorderPoint=0.0;
-		this.picture = "";
+		this.picture = new ItemMediaDTO();
 	}
 	
 	public ItemDTO getItem() { 
@@ -117,13 +118,15 @@ public class ItemDTO extends DTOBase {
 		this.unitPrice = unitPrice;
 	}
 	
-	public String getPicture() {
+	public ItemMediaDTO getPicture() {
 		return picture;
 	}
 
-	public void setPicture(String picture) {
+	public void setPicture(ItemMediaDTO  picture) {
 		this.picture = picture;
 	}
+	
+	
 
 
 	

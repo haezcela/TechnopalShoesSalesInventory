@@ -50,14 +50,17 @@ public class ItemDAO extends DAOBase {
         List<PreparedStatement> prepStmntList = new ArrayList<>();
         try {
             conn = daoConnectorUtil.getConnection();
-            ItemDTO  Item= (ItemDTO) obj;
+            ItemDTO  item= (ItemDTO) obj;
 
             String generatedCode = getGeneratedCode(qryItemLast);
-            Item.setCode(generatedCode);
+            item.setCode(generatedCode);
 
-            Item.setBaseDataOnInsert();
+            item.setBaseDataOnInsert();
          
-            add(conn, prepStmntList, Item);
+            //ItemMedia
+            add(conn, prepStmntList, item);
+            
+            new ItemMediaDAO().add( conn, prepStmntList, item.getPicture());
             result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
         } finally {
             closeDB(prepStmntList, conn);
