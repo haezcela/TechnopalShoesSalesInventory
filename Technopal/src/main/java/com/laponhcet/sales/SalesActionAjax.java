@@ -90,7 +90,6 @@ public class SalesActionAjax extends ActionAjaxBase {
         return ""; // Optional case if amountPaid > total
     }
 
-   
     protected void setInput(String action) {
     	SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
     	String item5 = getRequestString("txtHiddenItems");
@@ -100,6 +99,12 @@ public class SalesActionAjax extends ActionAjaxBase {
        	double amountPaid = getRequestDouble("txtAmountPaid");
        	String paymentStatus = getPaymentStatus(total, amountPaid);
       	String date = getRequestString("txtDate");
+      	
+      	
+      	//2d array of the sales details from the table
+      	String[] itemCode = getRequestArr("txtHiddenItems");
+      	
+      	
 
       	SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
        	if (paymentStatus.equals("ERROR")) {
@@ -178,7 +183,7 @@ public class SalesActionAjax extends ActionAjaxBase {
         	sales.setItem(item);
 		}
     	System.out.println("adddddddddddddddddddd set input");
-        System.out.println("usercode: usercode: "+sales.getUser().getCode());
+        System.out.println("usercode: "+sales.getUser().getCode());
         sales.setCustomerCode(sales.getUser().getCode());
     }
     protected void validateInput(String action) {
@@ -236,6 +241,9 @@ public class SalesActionAjax extends ActionAjaxBase {
             sales.getUser().setCode(String.valueOf(randomNumber));
             salesDAO.executeAdd(sales);
         	System.out.println("adddddddddddddddddddd add savee");
+        	
+        	
+        	
             actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");

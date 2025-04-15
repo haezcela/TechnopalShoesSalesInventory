@@ -20,20 +20,23 @@ public class ItemDTO extends DTOBase {
 	private Double unitPrice;
 	private Double quantity;
 	private Double reorderPoint;
+	//private String picture;
 	private ItemMediaDTO picture;
+	private ItemMediaDTO itemMedia;
 
 	public ItemDTO() {
 		super();
-//		itemCategory = new ItemCategoryDTO();
-//		itemUnit = new ItemUnitDTO();
 		this.itemCategory = new ItemCategoryDTO();
-		this.itemUnit = new ItemUnitDTO();
 		this.name = "";
 		this.description = "";
+		this.itemUnit = new ItemUnitDTO();
 		this.unitPrice = 0.0;
 		this.quantity= 0.0;
 		this.reorderPoint=0.0;
 		this.picture = new ItemMediaDTO();
+		//this.picture = ""; // Assuming picture is a String path or URL";
+		
+		//this.itemMedia = new ItemMediaDTO();
 	}
 	
 	public ItemDTO getItem() { 
@@ -117,7 +120,7 @@ public class ItemDTO extends DTOBase {
 	public void setUnitPrice(Double unitPrice) {
 		this.unitPrice = unitPrice;
 	}
-	
+	//public String getPicture() {
 	public ItemMediaDTO getPicture() {
 		return picture;
 	}
@@ -126,6 +129,18 @@ public class ItemDTO extends DTOBase {
 		this.picture = picture;
 	}
 	
+
+		public ItemMediaDTO getItemMedia() {
+		    if (this.itemMedia == null) {
+		        this.itemMedia = new ItemMediaDTO();  // ✅ On-demand init
+		    }
+		    return this.itemMedia;
+		}
+	
+
+	public void setItemMedia(ItemMediaDTO itemMedia) {
+	    this.itemMedia = itemMedia;
+	}
 	
 
 

@@ -46,9 +46,9 @@ public class SalesPaymentDAO extends DAOBase {
     public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
   		SalesPaymentDTO salesPayment = (SalesPaymentDTO) obj;
   		PreparedStatement prepStmnt = null;
-  		Random random = new Random();
-  		int code = 100 + random.nextInt(900); // Ensures a 3-digit number (100-999)
-  		String codeString = String.valueOf(code);
+//  		Random random = new Random();
+//  		int code = 100 + random.nextInt(900); // Ensures a 3-digit number (100-999)
+//  		String codeString = String.valueOf(code);
   		try {
   			prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesPaymentAdd), Statement.RETURN_GENERATED_KEYS);
   			prepStmnt.setString(1, salesPayment.getCode());

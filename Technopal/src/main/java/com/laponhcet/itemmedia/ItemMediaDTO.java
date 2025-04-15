@@ -38,7 +38,6 @@ public class ItemMediaDTO extends DTOBase {
 	public ItemMediaDTO() {
 		
 		super(); 
-		this.item = new ItemDTO();
 		this.mediaType = new MediaTypeDTO();
 		this.media = new MediaDTO();
 		this.fileName = ""; 
@@ -50,9 +49,11 @@ public ItemMediaDTO getItemMedia() {
 	ItemMediaDTO itemMedia = new ItemMediaDTO();
 	itemMedia.setId(super.getId());
 	itemMedia.setItem(this.item);
+	
+	itemMedia.setFileName(this.fileName);
+	itemMedia.setBase64Data(this.base64Data);
+	
 	itemMedia.setMedia(this.media);
-	
-	
 	itemMedia.setAddedBy(this.getAddedBy());
     itemMedia.setAddedTimestamp(this.getAddedTimestamp());
     itemMedia.setUpdatedBy(this.getUpdatedBy());
@@ -63,8 +64,10 @@ public ItemMediaDTO getItemMedia() {
 
 	
 public ItemDTO getItem() {
+
+    
     if (this.item == null) {
-        this.item = new ItemDTO(); // Prevent null issues
+        this.item = new ItemDTO();  // ✅ Safe, on-demand init
     }
     return this.item;
  }
@@ -111,27 +114,31 @@ public String getBase64Data() {
 
 }
 
-public void setBase64Data(File file) {
+public void setBase64Data(String filePath) {
+    File file = new File(filePath);
+    if (!file.exists()) {
+        System.err.println("❌ File does not exist at: " + file.getAbsolutePath());
+        this.base64Data = "";
+        return;
+    }
 
-    	// Read file bytes
-        byte[] fileContent = null;
-		try {
-			fileContent = Files.readAllBytes(file.toPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-        // Convert to Base64 and print
+    try {
+        byte[] fileContent = Files.readAllBytes(file.toPath());
         String base64 = Base64.getEncoder().encodeToString(fileContent);
-        System.out.println("\n📦 Base64 Encoded Image:\n");
-        System.out.println(base64);
-        
+
+        System.out.println("\n📦 Base64 Encoded Image from path:\n" + filePath);
+        System.out.println(base64); // Optional: truncate for safety in production
+
         this.base64Data = base64;
-
-
+    } catch (IOException e) {
+        System.err.println("❌ Error reading file to Base64 from: " + filePath);
+        e.printStackTrace();
+        this.base64Data = "";
+    }
 }
+
+
+
 
 //
 //    public static void main(String[] args) {

@@ -61,6 +61,8 @@ public class SalesDetailsDAO extends DAOBase {
 		}
 		prepStmntList.add(prepStmnt);
 	}
+    
+    
     public void add(Connection conn, List<PreparedStatement> prepStmntList, List<SalesDetailsDTO> salesDetailsList) {
     	System.out.println("adddddddddddddddddddd");
         if (salesDetailsList == null || salesDetailsList.isEmpty()) {

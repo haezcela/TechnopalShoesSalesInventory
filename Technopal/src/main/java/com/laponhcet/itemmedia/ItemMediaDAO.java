@@ -64,13 +64,12 @@ public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase 
     try {
         prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaAdd), Statement.RETURN_GENERATED_KEYS);
         prepStmnt.setString(1, itemMedia.getItem().getCode());
+      
         prepStmnt.setString(2, itemMedia.getFileName());
         prepStmnt.setString(3, itemMedia.getBase64Data());
         //prepStmnt.setString(4, itemMedia.getMediaType().getCode());
         //prepStmnt.setString(4, itemMedia.getItem().getCode());
-
-prepStmnt.setString(4, String.valueOf(itemMedia.getItem().getId()));
-
+        prepStmnt.setString(4, String.valueOf(itemMedia.getItem().getId()));
         prepStmnt.setString(5, itemMedia.getAddedBy());
         prepStmnt.setTimestamp(6, itemMedia.getAddedTimestamp());
         prepStmnt.setString(7, itemMedia.getUpdatedBy());
@@ -117,6 +116,8 @@ public void deleteByItem(ItemDTO item, Connection conn, List<PreparedStatement> 
  }
 }
 
+
+
 //General-purpose delete by ID
 public void deleteMediaById(int id, Connection conn, List<PreparedStatement> prepStmntList) {
  PreparedStatement prepStmnt = null;
@@ -151,8 +152,9 @@ public void update(Connection conn, List<PreparedStatement> prepStmntList, DTOBa
     try {
         prepStmnt = conn.prepareStatement(getQueryStatement(qryItemMediaUpdate), Statement.RETURN_GENERATED_KEYS);
         prepStmnt.setString(1, itemMedia.getItem().getCode());
-        prepStmnt.setString(2, itemMedia.getMedia().getFilename());
-        prepStmnt.setString(3, itemMedia.getMedia().getBase64Data());
+        prepStmnt.setString(2, itemMedia.getFileName());
+
+        prepStmnt.setString(3, itemMedia.getBase64Data());
         //prepStmnt.setString(4, itemMedia.getMediaType().getCode());
 
         prepStmnt.setString(4, String.valueOf(itemMedia.getItem().getId()));

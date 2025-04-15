@@ -133,7 +133,7 @@ public class ItemUtil implements Serializable {
 	    strBuff.append("<p>Picture:</p>");
 	    if (itemMedia != null && itemMedia.getFileName() != null && !itemMedia.getFileName().isEmpty()) {
 	        // Print filename to console
-	        System.out.println("Item Media File Name: " + itemMedia.getFileName());
+	        //System.out.println("Item Media File Name: " + itemMedia.getFileName());
 
 	        strBuff.append("<img src='/static/" + sessionInfo.getSettings().getCode() + "/media/item/" + itemMedia.getFileName() + "' style='width: 300px; height: auto;'>");
 	    } else {

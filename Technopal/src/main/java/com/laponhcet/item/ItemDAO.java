@@ -1,5 +1,6 @@
 package com.laponhcet.item;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +10,7 @@ import java.util.List;
 
 import com.laponhcet.itemcategory.ItemCategoryDTO;
 import com.laponhcet.itemmedia.ItemMediaDAO;
+import com.laponhcet.itemmedia.ItemMediaDTO;
 import com.laponhcet.itemunit.ItemUnitDTO;
 import com.mysql.jdbc.Statement;
 import com.mytechnopal.ActionResponse;
@@ -44,28 +46,80 @@ public class ItemDAO extends DAOBase {
         return baseCode;
     }
     
+//    @Override
+//    public void executeAdd(DTOBase obj) {
+//        Connection conn = null;
+//        List<PreparedStatement> prepStmntList = new ArrayList<>();
+//        try {
+//            conn = daoConnectorUtil.getConnection();
+//            ItemDTO  item= (ItemDTO) obj;
+//
+//            String generatedCode = getGeneratedCode(qryItemLast);
+//            item.setCode(generatedCode);
+//
+//            item.setBaseDataOnInsert();
+//         
+//            //ItemMedia
+//            add(conn, prepStmntList, item);
+//            
+//            new ItemMediaDAO().add( conn, prepStmntList, item.getPicture());
+//            result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+//        } finally {
+//            closeDB(prepStmntList, conn);
+//        }
+//    }
+    
     @Override
     public void executeAdd(DTOBase obj) {
         Connection conn = null;
         List<PreparedStatement> prepStmntList = new ArrayList<>();
+
         try {
             conn = daoConnectorUtil.getConnection();
-            ItemDTO  item= (ItemDTO) obj;
+            System.out.println("DEBUG: Connection obtained.");
 
-            String generatedCode = getGeneratedCode(qryItemLast);
-            item.setCode(generatedCode);
-
-            item.setBaseDataOnInsert();
-         
-            //ItemMedia
-            add(conn, prepStmntList, item);
+            ItemDTO item = (ItemDTO) obj;
+            System.out.println("DEBUG: Adding Item: " + item);
             
-            new ItemMediaDAO().add( conn, prepStmntList, item.getPicture());
+            item.setBaseDataOnInsert();
+            System.out.println("DEBUG: Base data set on item: " + item);
+
+            // 1. Save the Item
+            add(conn, prepStmntList, item);
+            System.out.println("DEBUG: Item saved successfully.");
+
+            // 2. Save ItemMedia (if available)
+            if (item.getItemMedia() != null) {
+                ItemMediaDTO itemMedia = item.getItemMedia();
+                System.out.println("DEBUG: Found ItemMedia: " + itemMedia);
+                
+                itemMedia.setItem(item); // Link item to media
+                System.out.println("DEBUG: Linked item to itemMedia: " + itemMedia);
+                
+                itemMedia.setBaseDataOnInsert();
+                System.out.println("DEBUG: Base data set on itemMedia: " + itemMedia);
+
+                ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+                itemMediaDAO.add(conn, prepStmntList, itemMedia);
+                System.out.println("DEBUG: ItemMedia saved successfully.");
+            } else {
+                System.out.println("DEBUG: No ItemMedia provided for item.");
+            }
+
+            
             result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+            
+        } catch (Exception ex) {
+            System.err.println("ERROR in executeAdd: " + ex);
+            ex.printStackTrace();
+            // Optionally, put an error result into the response map
         } finally {
             closeDB(prepStmntList, conn);
+            System.out.println("DEBUG: Database resources closed.");
         }
     }
+
+
 
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
 		// TODO Auto-generated method stub
@@ -135,6 +189,22 @@ public class ItemDAO extends DAOBase {
         Connection conn = daoConnectorUtil.getConnection();
         List<PreparedStatement> prepStmntList = new ArrayList<>();
         update(conn, prepStmntList, item);
+        
+        // 2. Save ItemMedia (if available)
+        if (item.getItemMedia() != null) {
+            ItemMediaDTO itemMedia = item.getItemMedia();
+            //System.out.println("DEBUG ITEM DAO GET ITEM MEDIA UPDATE: Found ItemMedia: " + itemMedia);
+            
+            itemMedia.setItem(item); // Link item to media
+           //System.out.println("DEBUG: Linked item to itemMedia: " + itemMedia);
+            
+            itemMedia.setBaseDataOnInsert();
+            //System.out.println("DEBUG: Base data set on itemMedia: " + itemMedia);
+
+            ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
+            itemMediaDAO.update(conn, prepStmntList, itemMedia);
+            //System.out.println("DEBUG: ItemMedia saved successfully.");
+        }
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
 
@@ -219,9 +289,10 @@ public String getCodeById(Connection conn, int id) {
     }
     
         public static void main(String[] args) {
-            ItemDAO itemDAO = new ItemDAO();
-            itemDAO.testAddItem();
-            System.out.println("Item added successfully.");
+//            ItemDAO itemDAO = new ItemDAO();
+//            itemDAO.testAddItem();
+//            System.out.println("Item added successfully.");
+        	testDeletePic();
         }
 
 public void testAddItem() {
@@ -238,5 +309,25 @@ public void testAddItem() {
     executeAdd(item);
 }
 
+public static void testDeletePic() {
+	
+    String imagePath = "\"C:\\Users\\User\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps\\ROOT\\static\\CONTEST\\media\\item\\CONTEST_airMax_296 - Copy.jpg\""; // Replace with the actual image path;
+    System.out.println("Image Path: " + imagePath);
+    
+    File imageFile = new File(imagePath);
+    System.out.println("⚠️ DELETE FILE");
+    if (imageFile.exists()) {
+        if (imageFile.delete()) {
+            System.out.println("✅ Image file deleted: " + imagePath);
+        } else {
+            System.err.println("❌ Failed to delete image file: " + imagePath);
+        }
+    } else {
+        System.out.println("⚠️ File not found: " + imagePath);
+    }
+
+
+
+}
 
 }

@@ -127,6 +127,7 @@ public class SalesDAO extends DAOBase {
     @Override
     public void executeAddList(List<DTOBase> arg0) {
         // TODO Auto-generated method stub
+    	
     }
 
     @Override
