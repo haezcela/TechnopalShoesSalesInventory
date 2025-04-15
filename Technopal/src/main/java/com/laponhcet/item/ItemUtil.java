@@ -1,8 +1,12 @@
 package com.laponhcet.item;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import com.laponhcet.itemcategory.ItemCategoryDAO;
 import com.laponhcet.itemcategory.ItemCategoryDTO;
@@ -18,6 +22,7 @@ import com.mytechnopal.base.DTOBase;
 import com.mytechnopal.base.WebControlBase;
 import com.mytechnopal.dto.UserDTO;
 import com.mytechnopal.util.DTOUtil;
+import com.mytechnopal.util.FileUtil;
 import com.mytechnopal.webcontrol.DataTableWebControl;
 import com.mytechnopal.webcontrol.FileInputWebControl;
 import com.mytechnopal.webcontrol.SelectWebControl;
@@ -142,6 +147,59 @@ public class ItemUtil implements Serializable {
 	    strBuff.append("</div>");
 	    return strBuff.toString();
 	}
+	
+	public static boolean deleteImageFile(String imagePath, boolean verbose) {
+	    File imageFile = new File(imagePath);
+
+	    if (verbose) {
+	        System.out.println("🧹 Attempting to delete image file: " + imagePath);
+	    }
+
+	    if (imageFile.exists()) {
+	        if (imageFile.delete()) {
+	            if (verbose) {
+	                System.out.println("✅ Image file deleted: " + imagePath);
+	            }
+	            return true;
+	        } else {
+	            if (verbose) {
+	                System.err.println("❌ Failed to delete image file: " + imagePath);
+	            }
+	        }
+	    } else {
+	        if (verbose) {
+	            System.out.println("⚠️ Image file not found: " + imagePath);
+	        }
+	    }
+	    return false;
+	}
+
+	public static boolean uploadItemImageFile(SessionInfo sessionInfo, UploadedFile uploadedFile) {
+	    if (uploadedFile == null || uploadedFile.getFile() == null) {
+	        System.out.println("⚠️ No uploaded file to process.");
+	        return false;
+	    }
+
+	    File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
+	    File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/item/" + uploadedFile.getFile().getName());
+
+	    System.out.println("=== DEBUG: Uploading New Image ===");
+	    System.out.println("From: " + fileFrom.getAbsolutePath());
+	    System.out.println("To: " + fileTo.getAbsolutePath());
+
+	    try {
+	        FileUtils.copyFile(fileFrom, fileTo);
+	        FileUtil.setFileAccessRights(fileTo);
+	        if (fileFrom.delete()) {
+	            System.out.println("🗑️ Temp file deleted: " + fileFrom.getAbsolutePath());
+	        }
+	        return true;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
 
 	public static void searchByItemName(DataTable dataTable, String searchValue, List<DTOBase> itemList) {
     	System.out.println("Search Value" + searchValue);

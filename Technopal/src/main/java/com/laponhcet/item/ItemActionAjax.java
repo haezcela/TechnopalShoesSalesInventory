@@ -75,19 +75,7 @@ public class ItemActionAjax extends ActionAjaxBase {
         item.setUnitPrice(getRequestDouble("txtUnitPrice"));
         item.setQuantity(getRequestDouble("txtQuantity"));
         item.setReorderpoint(getRequestDouble("txtReorderpoint"));
-        
-
-
-//        // Build final saved path (after move)
-//        File finalPath = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/item/" + file.getName());
-//
-//        System.out.println("Trying to read final path: " + finalPath.getAbsolutePath());
-//
-//            item.getItemMedia().setBase64Data(finalPath.getAbsolutePath());
-//            System.out.println("✅ Base64 successfully set.");
-//            System.out.println("Base64 Preview: " + item.getItemMedia().getBase64Data().substring(0, 50));
     }
-
 
     protected void validateInput(String action) {
     	ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
@@ -156,40 +144,38 @@ public class ItemActionAjax extends ActionAjaxBase {
             setSessionAttribute(ItemDTO.SESSION_ITEM, item);
         
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE)) {
-            ItemDAO itemDAO = new ItemDAO();
             ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
-            
-        	UploadedFile uploadedFile = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
-            File file = uploadedFile.getFile();
+            UploadedFile uploadedFile = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
 
-            System.out.println("DEBUG: Uploaded file absolute path: " + file.getAbsolutePath());
-            item.getItemMedia().setFileName(file.getName());
-            System.out.println("FILENAME: " + item.getItemMedia().getFileName());
-            
+            ItemDAO itemDAO = new ItemDAO();
+
+            // Set image filename if available
+            if (uploadedFile != null && uploadedFile.getFile() != null) {
+                File file = uploadedFile.getFile();
+                System.out.println("DEBUG: Uploaded file absolute path: " + file.getAbsolutePath());
+
+                item.getItemMedia().setFileName(file.getName());
+                System.out.println("FILENAME: " + item.getItemMedia().getFileName());
+            }
+
             // Save to database
             itemDAO.executeAdd(item);
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
 
-            // File system move and response
             if (StringUtil.isEmpty(actionResponse.getType())) {
-                if (uploadedFile != null && uploadedFile.getFile() != null) {
-                    File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
-                    File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/item/" + uploadedFile.getFile().getName());
-
-                    try {
-                        FileUtils.copyFile(fileFrom, fileTo);
-                        FileUtil.setFileAccessRights(fileTo);
-                        fileFrom.delete();
-                    } catch (IOException e) {
-                        actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was saved but image upload failed.");
-                    }
+                // Upload image to final location
+                boolean uploadSuccess = ItemUtil.uploadItemImageFile(sessionInfo, uploadedFile);
+                if (!uploadSuccess) {
+                    actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was saved but image upload failed.");
                 }
-                // Final response + refresh
-                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
+
+                // Refresh data + response
                 setSessionAttribute(BannerDTO.SESSION_BANNER_LIST, new BannerDAO().getBannerList());
                 setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
+                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
             }
         }
+
         else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_VIEW)) {
             ItemDTO itemUpdate = (ItemDTO) dataTable.getSelectedRecord();
             List<DTOBase> itemCategoryListUpdate = (List<DTOBase>) getSessionAttribute(ItemCategoryDTO.SESSION_ITEM_CATEGORY_LIST);
@@ -202,8 +188,7 @@ public class ItemActionAjax extends ActionAjaxBase {
             uploadedFileUpdate.setMaxSize(3072000); // 3MB
             setSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0", uploadedFileUpdate);
 
-
-         // 💡 Make sure to manually attach the media
+         // Make sure to manually attach the media
          ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
          ItemMediaDTO itemMedia = itemMediaDAO.getByItemCode(itemUpdate.getCode());
          itemUpdate.setItemMedia(itemMedia);
@@ -215,8 +200,6 @@ public class ItemActionAjax extends ActionAjaxBase {
          } else {
              System.out.println("ACTION_UPDATE_VIEW ⚠️ No item media or filename found.");
          }
-
-
             // Generate data entry UI
             try {
                 jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(
@@ -230,84 +213,57 @@ public class ItemActionAjax extends ActionAjaxBase {
             setSessionAttribute(ItemDTO.SESSION_ITEM, itemUpdate);
         }
 
-else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
-    UploadedFile uploadedFile = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
+        else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
+            UploadedFile uploadedFile = (UploadedFile) getSessionAttribute(UploadedFile.SESSION_UPLOADED_FILE + "_0");
+            ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
+            ItemDAO itemDAO = new ItemDAO();
 
-    ItemDAO itemDAO = new ItemDAO();
-    ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
+            // Set audit info
+            item.setUpdatedBy(sessionInfo.getCurrentUser().getCode());
 
-    
-    item.setUpdatedBy(sessionInfo.getCurrentUser().getCode());
-    
-    File file = uploadedFile.getFile();
+            // Set new image filename
+            if (uploadedFile != null && uploadedFile.getFile() != null) {
+                File file = uploadedFile.getFile();
+                System.out.println("ACTION_UPDATE_SAVE DEBUG: Uploaded file TMP path: " + file.getAbsolutePath());
 
-    System.out.println("ACTION_UPDATE_SAVE DEBUG: Uploaded file TMP path: " + file.getAbsolutePath());
-    item.getItemMedia().setFileName(file.getName());
-    System.out.println("NEW UPLOAD FILENAME: " + item.getItemMedia().getFileName());
-    
-    itemDAO.executeUpdate(item);
-    
+                item.getItemMedia().setFileName(file.getName());
+                System.out.println("NEW UPLOAD FILENAME: " + item.getItemMedia().getFileName());
+            }
 
-    // ✅ Get the old image filename stored during ACTION_UPDATE_VIEW
-       String oldImageFileName = (String) getSessionAttribute("SESSION_OLD_IMAGE_FILENAME");
-       System.out.println("🔁 Retrieved old image filename from session: " + oldImageFileName);
+            // Save to database
+            itemDAO.executeUpdate(item);
 
-       if (oldImageFileName != null && !oldImageFileName.isEmpty()) {
-           String imagePath = sessionInfo.getSettings().getStaticDir(true)
-               .replace("/", "\\\\") + "\\" + sessionInfo.getSettings().getCode()
-               + "\\media\\item\\" + oldImageFileName;
+            // If update succeeded
+            if (StringUtil.isEmpty(actionResponse.getType())) {
+                actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
 
-           System.out.println("Image Path (old file): " + imagePath);
+                //Delete old image if exists
+                String oldImageFileName = (String) getSessionAttribute("SESSION_OLD_IMAGE_FILENAME");
+                if (!StringUtil.isEmpty(oldImageFileName)) {
+                    String imagePath = sessionInfo.getSettings().getStaticDir(true)
+                        .replace("/", "\\\\") + "\\" + sessionInfo.getSettings().getCode()
+                        + "\\media\\item\\" + oldImageFileName;
 
-           File imageFile = new File(imagePath);
-           if (imageFile.exists()) {
-               if (imageFile.delete()) {
-                   System.out.println("✅ Old image file deleted: " + imagePath);
-               } else {
-                   System.err.println("❌ Failed to delete old image file: " + imagePath);
-               }
-           } else {
-               System.out.println("⚠️ Old image file not found: " + imagePath);
-           }
-       } else {
-           System.out.println("⚠️ No old image filename stored in session.");
-       }
+                    System.out.println("Retrieved old image filename: " + oldImageFileName);
+                    ItemUtil.deleteImageFile(imagePath, true);
+                } else {
+                    System.out.println("No old image filename stored in session.");
+                }
 
+                // Upload new image
+                boolean uploadSuccess = ItemUtil.uploadItemImageFile(sessionInfo, uploadedFile);
+                if (!uploadSuccess) {
+                    actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was saved but image upload failed.");
+                }
 
-       // ADD NEW IMAGE
-       if (uploadedFile != null && uploadedFile.getFile() != null) {
-           File fileFrom = new File(sessionInfo.getSettings().getStaticDir(true) + "/tmp/" + uploadedFile.getFile().getName());
-           File fileTo = new File(sessionInfo.getSettings().getStaticDir(true) + "/" + sessionInfo.getSettings().getCode() + "/media/item/" + uploadedFile.getFile().getName());
-
-           System.out.println("=== DEBUG: Uploading New Image ===");
-           System.out.println("From: " + fileFrom.getAbsolutePath());
-           System.out.println("To: " + fileTo.getAbsolutePath());
-
-           try {
-               FileUtils.copyFile(fileFrom, fileTo);
-               FileUtil.setFileAccessRights(fileTo);
-               if (fileFrom.delete()) {
-               }
-           } catch (IOException e) {
-               e.printStackTrace();
-               actionResponse.constructMessage(ActionResponse.TYPE_INFO, "Record was saved but image upload failed.");
-           }
-       } else {
-           System.out.println("⚠️ No new uploaded file to process.");
-       }
-    
-    if (StringUtil.isEmpty(actionResponse.getType())) {
-    actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-
-        // Final response + refresh
-        setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
-        actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
-    } else {
-        System.err.println("❌ ActionResponse Type: " + actionResponse.getType());
-    }
-
-
-        }else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
+                // Refresh list + success response
+                setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, new ItemDAO().getItemList());
+                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Updated");
+            } else {
+                System.err.println("❌ ActionResponse Type: " + actionResponse.getType());
+            }
+        }
+else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
         	ItemDAO itemDAO = new ItemDAO();
         	ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
         	
@@ -323,21 +279,17 @@ else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
                     + "\\media\\item\\" + itemMedia.getFileName();
 
             System.out.println("Image Path: " + imagePath);
+            
+            
 
             File imageFile = new File(imagePath);
             System.out.println("⚠️ DELETE FILE");
 
-            if (imageFile.exists()) {
-                if (imageFile.delete()) {
-                    System.out.println("✅ Image file deleted: " + imagePath);
-                    // ✅ Always delete item from database
-                    itemDAO.executeDelete(item);
-                } else {
-                    System.err.println("❌ Failed to delete image file: " + imagePath);
-                }
-            } else {
-                System.out.println("⚠️ File not found: " + imagePath);
+         // Delete image and DB record
+            if (ItemUtil.deleteImageFile(imagePath, true)) {
+                itemDAO.executeDelete(item);
             }
+
 
             actionResponse = (ActionResponse) itemDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
@@ -390,12 +342,10 @@ else if (action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
             ItemDTO item = (ItemDTO) dataTable.getRecordListCurrentPage().get(row);
             
             //System.out.println(" Inside ITEM itemCategory: " + item.getItemCategory().getCode());
-            
             ItemCategoryDTO itemCategory = (ItemCategoryDTO) DTOUtil.getObjByCode(itemCategoryList, item.getItemCategory().getCode());
             item.setItemCategory(itemCategory);
             
             //System.out.println("itemCategory: " + itemCategory);
-            
             ItemUnitDTO itemUnit = (ItemUnitDTO) DTOUtil.getObjByCode(itemUnitList, item.getItemUnit().getCode());
             item.setItemUnit(itemUnit);
             //System.out.println("itemUnit: " + itemUnit);
