@@ -157,41 +157,60 @@ public class SalesUtil implements Serializable {
 
 		strBuff.append("<script>");
 		strBuff.append("$(document).ready(function() {");
-		strBuff.append("    $('#btnAddToTable').click(function() {");
-		strBuff.append("        let selected = $('#selectItem option:selected');");
-		strBuff.append("        let itemName = selected.data('name');");
-		strBuff.append("        let unitPrice = parseFloat(selected.data('price'));");
-		strBuff.append("        let quantity = parseInt($('#inputQuantity').val());");
-		strBuff.append("        if (!selected.val() || quantity <= 0) {");
-		strBuff.append("            alert('Please select an item and enter a valid quantity.');");
-		strBuff.append("            return;");
-		strBuff.append("        }");
-		strBuff.append("        let subtotal = unitPrice * quantity;");
-		strBuff.append("        let newRow = \"<tr>\" +");
-		strBuff.append("            \"<td>\" + itemName + \"</td>\" +");
-		strBuff.append("            \"<td class='unit-price'>\" + unitPrice.toFixed(2) + \"</td>\" +");
-		strBuff.append("            \"<td class='quantity'>\" + quantity + \"</td>\" +");
-		strBuff.append("            \"<td class='subtotal'>\" + subtotal.toFixed(2) + \"</td>\" +");
-		strBuff.append("            \"<td><button class='btn btn-danger btn-sm btnRemoveRow'>Remove</button></td>\" +");
-		strBuff.append("        \"</tr>\";");
-		strBuff.append("        $('#itemTable tbody').append(newRow);");
-		strBuff.append("        updateTotal();");
-		strBuff.append("    });");
-		strBuff.append("    $(document).on('click', '.btnRemoveRow', function() {");
-		strBuff.append("        $(this).closest('tr').remove();");
-		strBuff.append("        updateTotal();");
-		strBuff.append("    });");
 		strBuff.append("    function updateTotal() {");
 		strBuff.append("        let total = 0;");
 		strBuff.append("        $('#itemTable tbody tr').each(function() {");
 		strBuff.append("            let subtotal = parseFloat($(this).find('.subtotal').text()) || 0;");
 		strBuff.append("            total += subtotal;");
 		strBuff.append("        });");
+		strBuff.append("        total = Math.round((total + Number.EPSILON) * 100) / 100;");
 		strBuff.append("        $('.dynamic-total').val(total.toFixed(2));");
 		strBuff.append("        $('#txtHiddenTotal').val(total.toFixed(2));");
 		strBuff.append("    }");
+
+		strBuff.append("    $('#btnAddToTable').click(function() {");
+		strBuff.append("        let selected = $('#selectItem option:selected');");
+		strBuff.append("        let itemCode = selected.val();");
+		strBuff.append("        let itemName = selected.data('name');");
+		strBuff.append("        let unitPrice = parseFloat(selected.data('price'));");
+		strBuff.append("        let quantity = parseInt($('#inputQuantity').val());");
+
+		strBuff.append("        if (!itemCode || quantity <= 0 || isNaN(unitPrice)) {");
+		strBuff.append("            alert('Please select a valid item and quantity.');");
+		strBuff.append("            return;");
+		strBuff.append("        }");
+
+		// Check if item already exists
+		strBuff.append("        let existingRow = $('#itemTable tbody tr[data-code=\"' + itemCode + '\"]');");
+		strBuff.append("        if (existingRow.length > 0) {");
+		strBuff.append("            let existingQty = parseInt(existingRow.find('.quantity').text());");
+		strBuff.append("            let newQty = existingQty + quantity;");
+		strBuff.append("            let newSubtotal = unitPrice * newQty;");
+		strBuff.append("            existingRow.find('.quantity').text(newQty);");
+		strBuff.append("            existingRow.find('.subtotal').text(newSubtotal.toFixed(2));");
+		strBuff.append("        } else {");
+		strBuff.append("            let subtotal = unitPrice * quantity;");
+		strBuff.append("            let newRow = \"<tr data-code='\" + itemCode + \"'>\" +");
+		strBuff.append("                \"<td>\" + itemName + \"</td>\" +");
+		strBuff.append("                \"<td class='unit-price'>\" + unitPrice.toFixed(2) + \"</td>\" +");
+		strBuff.append("                \"<td class='quantity'>\" + quantity + \"</td>\" +");
+		strBuff.append("                \"<td class='subtotal'>\" + subtotal.toFixed(2) + \"</td>\" +");
+		strBuff.append("                \"<td><button class='btn btn-danger btn-sm btnRemoveRow'>Remove</button></td>\" +");
+		strBuff.append("            \"</tr>\";");
+		strBuff.append("            $('#itemTable tbody').append(newRow);");
+		strBuff.append("        }");
+
+		strBuff.append("        updateTotal();");
+		strBuff.append("    });");
+
+		strBuff.append("    $(document).on('click', '.btnRemoveRow', function() {");
+		strBuff.append("        $(this).closest('tr').remove();");
+		strBuff.append("        updateTotal();");
+		strBuff.append("    });");
+
 		strBuff.append("});");
 		strBuff.append("</script>");
+
 
 
 		// Hidden Fields
