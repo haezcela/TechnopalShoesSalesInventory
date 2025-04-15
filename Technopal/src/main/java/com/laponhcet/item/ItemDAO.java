@@ -46,29 +46,6 @@ public class ItemDAO extends DAOBase {
         return baseCode;
     }
     
-//    @Override
-//    public void executeAdd(DTOBase obj) {
-//        Connection conn = null;
-//        List<PreparedStatement> prepStmntList = new ArrayList<>();
-//        try {
-//            conn = daoConnectorUtil.getConnection();
-//            ItemDTO  item= (ItemDTO) obj;
-//
-//            String generatedCode = getGeneratedCode(qryItemLast);
-//            item.setCode(generatedCode);
-//
-//            item.setBaseDataOnInsert();
-//         
-//            //ItemMedia
-//            add(conn, prepStmntList, item);
-//            
-//            new ItemMediaDAO().add( conn, prepStmntList, item.getPicture());
-//            result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
-//        } finally {
-//            closeDB(prepStmntList, conn);
-//        }
-//    }
-    
     @Override
     public void executeAdd(DTOBase obj) {
         Connection conn = null;
@@ -80,7 +57,6 @@ public class ItemDAO extends DAOBase {
 
             ItemDTO item = (ItemDTO) obj;
             System.out.println("DEBUG: Adding Item: " + item);
-            
             item.setBaseDataOnInsert();
             System.out.println("DEBUG: Base data set on item: " + item);
 
@@ -88,25 +64,9 @@ public class ItemDAO extends DAOBase {
             add(conn, prepStmntList, item);
             System.out.println("DEBUG: Item saved successfully.");
 
-            // 2. Save ItemMedia (if available)
-            if (item.getItemMedia() != null) {
-                ItemMediaDTO itemMedia = item.getItemMedia();
-                System.out.println("DEBUG: Found ItemMedia: " + itemMedia);
-                
-                itemMedia.setItem(item); // Link item to media
-                System.out.println("DEBUG: Linked item to itemMedia: " + itemMedia);
-                
-                itemMedia.setBaseDataOnInsert();
-                System.out.println("DEBUG: Base data set on itemMedia: " + itemMedia);
+            // 2. Save ItemMedia
+            new ItemMediaDAO().saveByItem(item, conn, prepStmntList);
 
-                ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
-                itemMediaDAO.add(conn, prepStmntList, itemMedia);
-                System.out.println("DEBUG: ItemMedia saved successfully.");
-            } else {
-                System.out.println("DEBUG: No ItemMedia provided for item.");
-            }
-
-            
             result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
             
         } catch (Exception ex) {
@@ -190,21 +150,9 @@ public class ItemDAO extends DAOBase {
         List<PreparedStatement> prepStmntList = new ArrayList<>();
         update(conn, prepStmntList, item);
         
-        // 2. Save ItemMedia (if available)
-        if (item.getItemMedia() != null) {
-            ItemMediaDTO itemMedia = item.getItemMedia();
-            //System.out.println("DEBUG ITEM DAO GET ITEM MEDIA UPDATE: Found ItemMedia: " + itemMedia);
-            
-            itemMedia.setItem(item); // Link item to media
-           //System.out.println("DEBUG: Linked item to itemMedia: " + itemMedia);
-            
-            itemMedia.setBaseDataOnInsert();
-            //System.out.println("DEBUG: Base data set on itemMedia: " + itemMedia);
+     //  Save ItemMedia
+        new ItemMediaDAO().saveByItem(item, conn, prepStmntList);
 
-            ItemMediaDAO itemMediaDAO = new ItemMediaDAO();
-            itemMediaDAO.update(conn, prepStmntList, itemMedia);
-            //System.out.println("DEBUG: ItemMedia saved successfully.");
-        }
         result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
     }
 

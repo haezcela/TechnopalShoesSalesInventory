@@ -152,23 +152,23 @@ public class ItemUtil implements Serializable {
 	    File imageFile = new File(imagePath);
 
 	    if (verbose) {
-	        System.out.println("🧹 Attempting to delete image file: " + imagePath);
+	        System.out.println("Attempting to delete image file: " + imagePath);
 	    }
 
 	    if (imageFile.exists()) {
 	        if (imageFile.delete()) {
 	            if (verbose) {
-	                System.out.println("✅ Image file deleted: " + imagePath);
+	                System.out.println("Image file deleted: " + imagePath);
 	            }
 	            return true;
 	        } else {
 	            if (verbose) {
-	                System.err.println("❌ Failed to delete image file: " + imagePath);
+	                System.err.println("Failed to delete image file: " + imagePath);
 	            }
 	        }
 	    } else {
 	        if (verbose) {
-	            System.out.println("⚠️ Image file not found: " + imagePath);
+	            System.out.println("Image file not found: " + imagePath);
 	        }
 	    }
 	    return false;
@@ -176,7 +176,7 @@ public class ItemUtil implements Serializable {
 
 	public static boolean uploadItemImageFile(SessionInfo sessionInfo, UploadedFile uploadedFile) {
 	    if (uploadedFile == null || uploadedFile.getFile() == null) {
-	        System.out.println("⚠️ No uploaded file to process.");
+	        System.out.println("No uploaded file to process.");
 	        return false;
 	    }
 
@@ -191,7 +191,7 @@ public class ItemUtil implements Serializable {
 	        FileUtils.copyFile(fileFrom, fileTo);
 	        FileUtil.setFileAccessRights(fileTo);
 	        if (fileFrom.delete()) {
-	            System.out.println("🗑️ Temp file deleted: " + fileFrom.getAbsolutePath());
+	            System.out.println("Temp file deleted: " + fileFrom.getAbsolutePath());
 	        }
 	        return true;
 	    } catch (IOException e) {

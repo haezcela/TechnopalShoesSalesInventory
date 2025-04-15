@@ -116,6 +116,25 @@ public void deleteByItem(ItemDTO item, Connection conn, List<PreparedStatement> 
  }
 }
 
+public void saveByItem(ItemDTO item, Connection conn, List<PreparedStatement> prepStmntList) {
+    if (item.getItemMedia() != null) {
+        ItemMediaDTO itemMedia = item.getItemMedia();
+        itemMedia.setItem(item);
+        itemMedia.setBaseDataOnInsert();
+        // Decide whether to add or update based on presence of ID
+        if(itemMedia.getId() == 0) {
+            this.add(conn, prepStmntList, itemMedia);
+            System.out.println("DEBUG: ItemMedia added successfully.");
+        } else {
+            this.update(conn, prepStmntList, itemMedia);
+            System.out.println("DEBUG: ItemMedia updated successfully.");
+        }
+    } else {
+        System.out.println("DEBUG: No ItemMedia provided for item.");
+    }
+}
+
+
 
 
 //General-purpose delete by ID
