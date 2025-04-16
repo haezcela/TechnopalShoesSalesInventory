@@ -52,6 +52,7 @@ public class SalesActionAjax extends ActionAjaxBase {
     	return String.valueOf(randomNumber);
     	
     }
+    
     public static double[] convertToDoubleArray(String str) {
         String[] strArray = str.split(",\\s*"); // Split by comma and optional space
         double[] values = new double[strArray.length];
@@ -92,7 +93,10 @@ public class SalesActionAjax extends ActionAjaxBase {
 
     protected void setInput(String action) {
     	SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
+    	
     	String item5 = getRequestString("txtHiddenItems");
+    	
+    	
     	String quantity = getRequestString("txtQuantity");
     	String unitPrice = getRequestString("txtUnitPrice");
     	double total = getRequestDouble("txtHiddenTotal");
@@ -104,8 +108,6 @@ public class SalesActionAjax extends ActionAjaxBase {
       	//2d array of the sales details from the table
       	String[] itemCode = getRequestArr("txtHiddenItems");
       	
-      	
-
       	SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
        	if (paymentStatus.equals("ERROR")) {
        		actionResponse.constructMessage(ActionResponse.TYPE_INVALID, "Amount paid cannot be greater than the total amount");

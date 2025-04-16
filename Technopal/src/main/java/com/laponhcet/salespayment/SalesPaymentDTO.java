@@ -16,9 +16,6 @@ public class SalesPaymentDTO extends DTOBase {
     
     public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
 
-	
-    
-
     private String name;
     private Date date;
 

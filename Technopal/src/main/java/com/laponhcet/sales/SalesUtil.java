@@ -129,7 +129,6 @@ public class SalesUtil implements Serializable {
 		strBuff.append("});");
 		strBuff.append("</script>");
 
-
 		// Add Button
 		strBuff.append("<div class='col-lg-2 d-flex align-items-end'>");
 		strBuff.append("<button type='button' class='btn btn-success' id='btnAddToTable'>Add</button>");
@@ -180,7 +179,6 @@ public class SalesUtil implements Serializable {
 		strBuff.append("            return;");
 		strBuff.append("        }");
 
-		// Check if item already exists
 		strBuff.append("        let existingRow = $('#itemTable tbody tr[data-code=\"' + itemCode + '\"]');");
 		strBuff.append("        if (existingRow.length > 0) {");
 		strBuff.append("            let existingQty = parseInt(existingRow.find('.quantity').text());");
@@ -201,6 +199,16 @@ public class SalesUtil implements Serializable {
 		strBuff.append("        }");
 
 		strBuff.append("        updateTotal();");
+
+		strBuff.append("        // Create and log 2D array of table contents");
+		strBuff.append("        let item2DArray = [];");
+		strBuff.append("        $('#itemTable tbody tr').each(function () {");
+		strBuff.append("            let code = $(this).attr('data-code');");
+		strBuff.append("            let qty = parseInt($(this).find('.quantity').text());");
+		strBuff.append("            let price = parseFloat($(this).find('.unit-price').text());");
+		strBuff.append("            item2DArray.push([code, qty, price]);");
+		strBuff.append("        });");
+		strBuff.append("        console.log('2D Array of Items:', item2DArray);");
 		strBuff.append("    });");
 
 		strBuff.append("    $(document).on('click', '.btnRemoveRow', function() {");
@@ -212,26 +220,20 @@ public class SalesUtil implements Serializable {
 		strBuff.append("</script>");
 
 
-
 		// Hidden Fields
 		strBuff.append("<div id='hiddenFields' style='display: none;'>");
-
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "HiddenItems", "HiddenItems", "txtHiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "txtQuantity", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "txtUnitPrice", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
-
 		strBuff.append("</div>");
-
 		
-	    
 	    strBuff.append("<div class='row p-1'>");
+	 	// Total Field with Label and Adjusted Width
+	 	strBuff.append("<div class='col-lg-4'>");
+	 	strBuff.append("<label class='p-0 m-0' style='font-weight: bold;'>Total</label>");
 
-	 // Total Field with Label and Adjusted Width
-	 strBuff.append("<div class='col-lg-4'>");
-	 strBuff.append("<label class='p-0 m-0' style='font-weight: bold;'>Total</label>");
-
-	 strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' readonly />");
-	 strBuff.append("</div>");
+	 	strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' readonly />");
+	 	strBuff.append("</div>");
 	    
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "PaymentMethod", "PaymentMethod", new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, sales.getSalesPayment().getPaymentMethod(), new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, "NA", "", ""));
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
