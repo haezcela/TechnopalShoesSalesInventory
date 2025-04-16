@@ -215,7 +215,7 @@ public class SalesUtil implements Serializable {
 
 		// Hidden Fields
 		strBuff.append("<div id='hiddenFields' style='display: none;'>");
-		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Total", "Total", "HiddenTotal", String.valueOf(sales.getTotal()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "HiddenItems", "HiddenItems", "txtHiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "txtQuantity", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "txtUnitPrice", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
@@ -228,9 +228,9 @@ public class SalesUtil implements Serializable {
 
 	 // Total Field with Label and Adjusted Width
 	 strBuff.append("<div class='col-lg-4'>");
-	 strBuff.append("<label>Total</label>");
-	 strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' />");
+	 strBuff.append("<label class='p-0 m-0' style='font-weight: bold;'>Total</label>");
 
+	 strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' readonly />");
 	 strBuff.append("</div>");
 	    
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "PaymentMethod", "PaymentMethod", new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, sales.getSalesPayment().getPaymentMethod(), new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, "NA", "", ""));
