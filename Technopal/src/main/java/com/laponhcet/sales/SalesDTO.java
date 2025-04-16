@@ -15,9 +15,11 @@ public class SalesDTO extends DTOBase {
 	public static String SESSION_SALES = "SESSION_SALES";
 	public static String SESSION_SALES_LIST = "SESSION_PERSON_LIST";
 	public static String SESSION_SALES_DATA_TABLE = "SESSION_SALES_DATA_TABLE";
-	
+	public static final String ACTION_PREPARE_SALES = "ACTION_PREPARE_SALES";
 	public static String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_LASTNAME";
-	public static String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
+	public static final String ACTION_VIEW_SALES_PAYMENT = "ACTION_VIEW_SALES_PAYMENT";
+	public static final String ACTION_VIEW_SALES_PAYMENT_SAVE = "ACTION_VIEW_SALES_PAYMENT_SAVE";
+	public static final String ACTION_CHANGE_SALES_STATUS = "ACTION_CHANGE_SALES_STATUS";
 	private String code;
 	private String name;
 	private Date date;

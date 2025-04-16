@@ -16,19 +16,27 @@ public class SalesPaymentDTO extends DTOBase {
     
     public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
 
-    private String name;
-    private Date date;
+	
+    
 
-
-	public Date getDate() {
+    public Date getDate() {
 		return date;
 	}
 
 	public void setDate(Date date) {
 		this.date = date;
 	}
+	private double totalAmountPaid;
+	public double getTotalAmountPaid() {
+		return totalAmountPaid;
+	}
 
-	private double amountPaid;
+	public void setTotalAmountPaid(double totalAmountPaid) {
+		this.totalAmountPaid = totalAmountPaid;
+	}
+	private String name;
+    private Date date;
+    private double amountPaid;
     private String paymentMethod;
     private String reference;
     private String salesCode;
@@ -99,6 +107,5 @@ public class SalesPaymentDTO extends DTOBase {
         salesPayment.setUser(this.user);
         return salesPayment;
     }
-
 
 }

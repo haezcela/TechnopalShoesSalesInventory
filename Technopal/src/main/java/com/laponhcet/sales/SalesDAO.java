@@ -1,6 +1,7 @@
 package com.laponhcet.sales;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.laponhcet.sales.SalesDTO;
 import com.laponhcet.sales.SalesDTO;
 import com.laponhcet.salesdetails.SalesDetailsDAO;
 import com.laponhcet.salesdetails.SalesDetailsDTO;
@@ -35,7 +37,9 @@ public class SalesDAO extends DAOBase {
     private String qryGetNameByCodeUnit = "SALES_UNIT_NAME";
     private String qryGetNameByCodeCategory = "SALES_CATEGORY_NAME";
     private String qrySalesLast = "SALES_LAST";
-
+    private String qryPaymentStatusUpdate = "SALES_UPDATE_PAYMENT_STATUS";
+    private String qrySalesStatusUpdate = "SALES_STATUS_UPDATE";
+    
     protected String getGeneratedCode(String qryName) {
         String baseCode = "00001"; 
         DTOBase dto = getLast(qryName); 
@@ -72,7 +76,6 @@ public class SalesDAO extends DAOBase {
         salesPayment.setAddedBy(sales.getAddedBy());
         salesPayment.setAmountPaid(sales.getSalesPayment().getAmountPaid());
         salesPayment.setSalesCode(generatedCodeSales);
-        salesPayment.setCode(generatedCodeSalesPayment);
         salesPayment.setDate(sales.getDate());
  
         List<SalesDetailsDTO> salesDetailsList = sales.getSalesDetails().getSalesDetailsList();
@@ -119,6 +122,7 @@ public class SalesDAO extends DAOBase {
 		prepStmntList.add(prepStmnt);
 	}
     
+
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
 		// TODO Auto-generated method stub
 		
@@ -127,7 +131,6 @@ public class SalesDAO extends DAOBase {
     @Override
     public void executeAddList(List<DTOBase> arg0) {
         // TODO Auto-generated method stub
-    	
     }
 
     @Override
@@ -174,12 +177,51 @@ public class SalesDAO extends DAOBase {
 //    }
 
 
-	@Override
-	public void executeUpdate(DTOBase arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void executeUpdateStatus(DTOBase obj) {
+        SalesDTO sales = (SalesDTO) obj;
+        sales.setBaseDataOnUpdate();
+        Connection conn = daoConnectorUtil.getConnection();
+        List<PreparedStatement> prepStmntList = new ArrayList<>();
+        updateStatus(conn, prepStmntList, sales);
+        result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+    }
+    public void updateStatus(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
+    	   SalesDTO sales = (SalesDTO) obj;
+           PreparedStatement prepStmnt = null;
+           try {
+           	prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesStatusUpdate), Statement.RETURN_GENERATED_KEYS);
+           	prepStmnt.setString(1, sales.getStatus());
+           	prepStmnt.setString(2, sales.getCode());                     
 
+           } catch (SQLException e) {
+               e.printStackTrace();
+           }
+           prepStmntList.add(prepStmnt);
+    }
+    @Override
+    public void executeUpdate(DTOBase obj) {
+        SalesDTO sales = (SalesDTO) obj;
+        sales.setBaseDataOnUpdate();
+        Connection conn = daoConnectorUtil.getConnection();
+        List<PreparedStatement> prepStmntList = new ArrayList<>();
+        new SalesPaymentDAO().add(conn, prepStmntList, sales.getSalesPayment());
+        update(conn, prepStmntList, sales);
+        result.put(ActionResponse.SESSION_ACTION_RESPONSE, executeIUD(conn, prepStmntList));
+    }
+
+    public void update(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
+        SalesDTO sales = (SalesDTO) obj;
+        PreparedStatement prepStmnt = null;
+        try {
+        	prepStmnt = conn.prepareStatement(getQueryStatement(qryPaymentStatusUpdate), Statement.RETURN_GENERATED_KEYS);
+        	prepStmnt.setString(1, sales.getPaymentStatus());
+        	prepStmnt.setInt(2, sales.getId());                     
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        prepStmntList.add(prepStmnt);
+    }
 
 
 	@Override

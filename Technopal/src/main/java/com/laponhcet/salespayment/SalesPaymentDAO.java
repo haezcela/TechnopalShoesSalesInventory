@@ -1,6 +1,7 @@
 package com.laponhcet.salespayment;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,9 +28,10 @@ public class SalesPaymentDAO extends DAOBase {
     private String qryGetNameByCodeUnit = "SALES_PAYMENT_UNIT_NAME";
     private String qryGetNameByCodeCategory = "SALES_PAYMENT_CATEGORY_NAME";
     public static String qrySalesPaymentLast = "SALES_PAYMENT_LAST";
+    private String getAmountPaidBySalesCode = "SALES_PAYMENT_AMOUNTPAID_BY_SALES_CODE";
 
     protected String getGeneratedCode(String qryName) {
-        String baseCode = "00001"; 
+        String baseCode = "00001";
         DTOBase dto = getLast(qryName); 
         
         if (dto != null && dto.getCode() != null) {
@@ -43,28 +45,50 @@ public class SalesPaymentDAO extends DAOBase {
         }
         return baseCode;
     }
+    public void getAmountPaidById(int id) {
+    	
+    }
+    public String executeGetAmountPaidBySalesCode(String code) {
+        Connection conn = daoConnectorUtil.getConnection();
+        return getAmountPaidBySalesCode(conn, code);
+    }
+    public String getAmountPaidBySalesCode(Connection conn, String code) {
+        PreparedStatement prepStmnt = null;
+        try {
+        	prepStmnt = conn.prepareStatement(getQueryStatement(getAmountPaidBySalesCode), Statement.RETURN_GENERATED_KEYS);
+        	prepStmnt.setString(1, code);
+            try (ResultSet rs = prepStmnt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("total_amount_paid"); // Fetching the name
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Log or handle exception properly
+        }
+        return null; // Return null if not found or an error occurs
+    }
     public void add(Connection conn, List<PreparedStatement> prepStmntList, DTOBase obj) {
-  		SalesPaymentDTO salesPayment = (SalesPaymentDTO) obj;
-  		PreparedStatement prepStmnt = null;
-//  		Random random = new Random();
-//  		int code = 100 + random.nextInt(900); // Ensures a 3-digit number (100-999)
-//  		String codeString = String.valueOf(code);
-  		try {
-  			prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesPaymentAdd), Statement.RETURN_GENERATED_KEYS);
-  			prepStmnt.setString(1, salesPayment.getCode());
-  			prepStmnt.setString(2, salesPayment.getSalesCode());
-  			prepStmnt.setDouble(3, salesPayment.getAmountPaid());
-  			prepStmnt.setString(4, salesPayment.getPaymentMethod());
-  			prepStmnt.setString(5, salesPayment.getReference());
-  			prepStmnt.setDate(6, new java.sql.Date(salesPayment.getDate().getTime()));
-  			prepStmnt.setString(7, salesPayment.getAddedBy());
-  ;
-  		} catch (SQLException e) {
-  			e.printStackTrace();
-  		}
-  		prepStmntList.add(prepStmnt);
-  	}
-      
+    	String generatedCodeSalesPayment = getGeneratedCode(qrySalesPaymentLast, 3);
+		SalesPaymentDTO salesPayment = (SalesPaymentDTO) obj;
+		PreparedStatement prepStmnt = null;
+		Random random = new Random();
+		int code = 100 + random.nextInt(900000); // Ensures a 3-digit number (100-999)
+		String codeString = String.valueOf(code);
+		try {
+			prepStmnt = conn.prepareStatement(getQueryStatement(qrySalesPaymentAdd), Statement.RETURN_GENERATED_KEYS);
+			prepStmnt.setString(1, generatedCodeSalesPayment);
+			prepStmnt.setString(2, salesPayment.getSalesCode());
+			prepStmnt.setDouble(3, salesPayment.getAmountPaid());
+			prepStmnt.setString(4, salesPayment.getPaymentMethod());
+			prepStmnt.setString(5, codeString);
+			prepStmnt.setDate(6, new java.sql.Date(salesPayment.getDate().getTime()));
+			prepStmnt.setString(7, salesPayment.getAddedBy());
+;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		prepStmntList.add(prepStmnt);
+	}
     
 
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
@@ -138,6 +162,7 @@ public class SalesPaymentDAO extends DAOBase {
 		salesPaymentPayment.setId(getDBValInt(resultSet, "id"));
 		salesPaymentPayment.setCode(getDBValStr(resultSet, "code"));
 		salesPaymentPayment.setAmountPaid(getDBValDouble(resultSet, "amount_paid"));
+		salesPaymentPayment.setTotalAmountPaid(getDBValDouble(resultSet, "total_amount_paid_per_sales_code"));
 		salesPaymentPayment.setPaymentMethod(getDBValStr(resultSet, "payment_method"));
 		salesPaymentPayment.setReference(getDBValStr(resultSet, "reference"));
 		return salesPaymentPayment;
