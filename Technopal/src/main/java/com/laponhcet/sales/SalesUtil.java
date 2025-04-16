@@ -129,6 +129,7 @@ public class SalesUtil implements Serializable {
 		strBuff.append("});");
 		strBuff.append("</script>");
 
+
 		// Add Button
 		strBuff.append("<div class='col-lg-2 d-flex align-items-end'>");
 		strBuff.append("<button type='button' class='btn btn-success' id='btnAddToTable'>Add</button>");
@@ -156,6 +157,7 @@ public class SalesUtil implements Serializable {
 
 		strBuff.append("<script>");
 		strBuff.append("$(document).ready(function() {");
+
 		strBuff.append("    function updateTotal() {");
 		strBuff.append("        let total = 0;");
 		strBuff.append("        $('#itemTable tbody tr').each(function() {");
@@ -165,6 +167,20 @@ public class SalesUtil implements Serializable {
 		strBuff.append("        total = Math.round((total + Number.EPSILON) * 100) / 100;");
 		strBuff.append("        $('.dynamic-total').val(total.toFixed(2));");
 		strBuff.append("        $('#txtHiddenTotal').val(total.toFixed(2));");
+		strBuff.append("    }");
+
+		strBuff.append("    function updateHiddenFields() {");
+		strBuff.append("        let itemCodes = [];");
+		strBuff.append("        let quantities = [];");
+		strBuff.append("        let unitPrices = [];");
+		strBuff.append("        $('#itemTable tbody tr').each(function() {");
+		strBuff.append("            itemCodes.push($(this).data('code'));");
+		strBuff.append("            quantities.push($(this).find('.quantity').text());");
+		strBuff.append("            unitPrices.push($(this).find('.unit-price').text());");
+		strBuff.append("        });");
+		strBuff.append("        $('#txtHiddenItems').val(itemCodes.join(','));");
+		strBuff.append("        $('#txtQuantity').val(quantities.join(','));");
+		strBuff.append("        $('#txtUnitPrice').val(unitPrices.join(','));");
 		strBuff.append("    }");
 
 		strBuff.append("    $('#btnAddToTable').click(function() {");
@@ -199,40 +215,34 @@ public class SalesUtil implements Serializable {
 		strBuff.append("        }");
 
 		strBuff.append("        updateTotal();");
-
-		strBuff.append("        // Create and log 2D array of table contents");
-		strBuff.append("        let item2DArray = [];");
-		strBuff.append("        $('#itemTable tbody tr').each(function () {");
-		strBuff.append("            let code = $(this).attr('data-code');");
-		strBuff.append("            let qty = parseInt($(this).find('.quantity').text());");
-		strBuff.append("            let price = parseFloat($(this).find('.unit-price').text());");
-		strBuff.append("            item2DArray.push([code, qty, price]);");
-		strBuff.append("        });");
-		strBuff.append("        console.log('2D Array of Items:', item2DArray);");
+		strBuff.append("        updateHiddenFields();");
 		strBuff.append("    });");
 
 		strBuff.append("    $(document).on('click', '.btnRemoveRow', function() {");
 		strBuff.append("        $(this).closest('tr').remove();");
 		strBuff.append("        updateTotal();");
+		strBuff.append("        updateHiddenFields();");
 		strBuff.append("    });");
-
+		
 		strBuff.append("});");
 		strBuff.append("</script>");
 
-
-		// Hidden Fields
+		// Hidden Fields  
 		strBuff.append("<div id='hiddenFields' style='display: none;'>");
-		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "HiddenItems", "HiddenItems", "txtHiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
-		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "txtQuantity", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
-		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "txtUnitPrice", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "HiddenItems", "HiddenItems", "HiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "Quantity", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "UnitPrice", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+
 		strBuff.append("</div>");
-		
+
+	    
 	    strBuff.append("<div class='row p-1'>");
+
 	 	// Total Field with Label and Adjusted Width
 	 	strBuff.append("<div class='col-lg-4'>");
 	 	strBuff.append("<label class='p-0 m-0' style='font-weight: bold;'>Total</label>");
-
-	 	strBuff.append("<input type='text' class='form-control dynamic-total w-100' name='total' placeholder='' readonly />");
+	 	strBuff.append("<input type='text' class='form-control dynamic-total w-100' id='txtHiddenTotal' name='total' placeholder='' readonly />");
 	 	strBuff.append("</div>");
 	    
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "PaymentMethod", "PaymentMethod", new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, sales.getSalesPayment().getPaymentMethod(), new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, "NA", "", ""));
@@ -265,6 +275,3 @@ public class SalesUtil implements Serializable {
 }
 
 }
-
-//TEST PULLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-//TEST PULLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL222222222222222

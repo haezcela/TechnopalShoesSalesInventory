@@ -54,25 +54,61 @@ public class SalesActionAjax extends ActionAjaxBase {
     }
     
     public static double[] convertToDoubleArray(String str) {
-        String[] strArray = str.split(",\\s*"); // Split by comma and optional space
-        double[] values = new double[strArray.length];
-
-        for (int i = 0; i < strArray.length; i++) {
-            values[i] = Double.parseDouble(strArray[i].trim()); // Convert to double
+        if (str == null || str.trim().isEmpty()) {
+            return new double[0];  // return empty array if input is null or empty
         }
+        String[] strArray = str.split(",\\s*");
+        List<Double> valuesList = new ArrayList<>();
+
+        for (String s : strArray) {
+            if (!s.trim().isEmpty()) {
+                try {
+                    valuesList.add(Double.parseDouble(s.trim()));
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format: '" + s + "'");
+                    // Optionally: skip or throw your own exception
+                }
+            }
+        }
+
+        // Convert list to array
+        double[] values = new double[valuesList.size()];
+        for (int i = 0; i < valuesList.size(); i++) {
+            values[i] = valuesList.get(i);
+        }
+
         return values;
     }
+
 
     // Method to convert a comma-separated string to an int array
     public static int[] convertToIntArray(String str) {
-        String[] strArray = str.split(",\\s*"); // Split by comma and optional space
-        int[] values = new int[strArray.length];
-
-        for (int i = 0; i < strArray.length; i++) {
-            values[i] = Integer.parseInt(strArray[i].trim()); // Convert to int
+        if (str == null || str.trim().isEmpty()) {
+            return new int[0]; // return empty array to avoid crash
         }
+
+        String[] strArray = str.split(",\\s*");
+        List<Integer> valuesList = new ArrayList<>();
+
+        for (String s : strArray) {
+            if (!s.trim().isEmpty()) {
+                try {
+                    valuesList.add(Integer.parseInt(s.trim()));
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid int format: '" + s + "'");
+                    // Optionally log or skip the invalid value
+                }
+            }
+        }
+
+        int[] values = new int[valuesList.size()];
+        for (int i = 0; i < valuesList.size(); i++) {
+            values[i] = valuesList.get(i);
+        }
+
         return values;
     }
+
     public static String getPaymentStatus(double total, double amountPaid) {
         double epsilon = 0.00001;
 
@@ -92,102 +128,88 @@ public class SalesActionAjax extends ActionAjaxBase {
     }
 
     protected void setInput(String action) {
-    	SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
-    	
-    	String item5 = getRequestString("txtHiddenItems");
-    	
-    	
-    	String quantity = getRequestString("txtQuantity");
-    	String unitPrice = getRequestString("txtUnitPrice");
-    	double total = getRequestDouble("txtHiddenTotal");
-       	double amountPaid = getRequestDouble("txtAmountPaid");
-       	String paymentStatus = getPaymentStatus(total, amountPaid);
-      	String date = getRequestString("txtDate");
-      	
-      	
-      	//2d array of the sales details from the table
-      	String[] itemCode = getRequestArr("txtHiddenItems");
-      	
-      	SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-       	if (paymentStatus.equals("ERROR")) {
-       		actionResponse.constructMessage(ActionResponse.TYPE_INVALID, "Amount paid cannot be greater than the total amount");
-       	}
-    	double[] quantityValues = convertToDoubleArray(quantity);
-        
-        // Convert unitPrice to double array
-        double[] unitPriceValues = convertToDoubleArray(unitPrice);
-        
-        // Convert item to int array
-        int[] itemValues = convertToIntArray(item5);
+        SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
 
-        // Print to verify
-        System.out.println("Quantity: " + Arrays.toString(quantityValues));
-        System.out.println("Unit Price: " + Arrays.toString(unitPriceValues));
-        System.out.println("Items: " + Arrays.toString(itemValues));
+        // Hidden inputs
+        String itemCodesStr = getRequestString("txtHiddenItems");
+        String quantitiesStr = getRequestString("txtQuantity");
+        String unitPricesStr = getRequestString("txtUnitPrice");
+
+        System.out.println("Raw quantity string: '" + quantitiesStr + "'");
+        System.out.println("Raw unit price string: '" + unitPricesStr + "'");
+
+        // Parse arrays
+        String[] itemCodes = itemCodesStr.split(",");
+        double[] quantities = convertToDoubleArray(quantitiesStr);
+        double[] unitPrices = convertToDoubleArray(unitPricesStr);
+
+        // Get total, payment, and date
+        double total = getRequestDouble("txtHiddenTotal");
+        double amountPaid = getRequestDouble("txtAmountPaid");
+        String dateStr = getRequestString("txtDate");
+        String paymentStatus = getPaymentStatus(total, amountPaid);
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+
+        if (paymentStatus.equals("ERROR")) {
+            actionResponse.constructMessage(ActionResponse.TYPE_INVALID, "Amount paid cannot be greater than the total amount");
+        }
+
+        System.out.println("Items: " + Arrays.toString(itemCodes));
+        System.out.println("Quantities: " + Arrays.toString(quantities));
+        System.out.println("Unit Prices: " + Arrays.toString(unitPrices));
         System.out.println("TOTAL: " + total);
         System.out.println("amountPaid: " + amountPaid);
-        
-        int length = Math.min(Math.min(quantityValues.length, unitPriceValues.length), itemValues.length);
 
+        // Prepare salesDetailsList
         List<SalesDetailsDTO> salesDetailsList = new ArrayList<>();
+        int length = Math.min(Math.min(itemCodes.length, quantities.length), unitPrices.length);
 
         for (int i = 0; i < length; i++) {
-            if (itemValues[i] != 0) {  
-                String codeItem = new ItemDAO().executeGetCodeById(itemValues[i]);
-                SalesDetailsDTO salesDetail = new SalesDetailsDTO();
-                salesDetail.setItemCode(codeItem); // Ensure the itemId is being set
-                salesDetail.setQuantity(quantityValues[i]);
-                salesDetail.setUnitPrice(unitPriceValues[i]);
+            String itemCode = itemCodes[i].trim();
+            if (!itemCode.isEmpty()) {
+                SalesDetailsDTO detail = new SalesDetailsDTO();
+                detail.setItemCode(itemCode);
+                detail.setQuantity(quantities[i]);
+                detail.setUnitPrice(unitPrices[i]);
 
-                final int index = i; // Define a final variable
-
-                // Ensure no duplicate sales details are added
-                boolean exists = salesDetailsList.stream()
-                	    .anyMatch(detail -> detail.getItemCode().equals(codeItem) // Compare as String
-                	                     && detail.getQuantity() == quantityValues[index]
-                	                     && detail.getUnitPrice() == unitPriceValues[index]);
-
-                	if (!exists) { 
-                	    System.out.println("Adding: " + codeItem + ", Quantity: " + quantityValues[index] + ", Price: " + unitPriceValues[index]);
-                	    salesDetailsList.add(salesDetail);
-                	} else {
-                	    System.out.println("Duplicate found, skipping: " + codeItem);
-                	}
-
+                System.out.println("Adding item: " + itemCode + ", qty: " + quantities[i] + ", price: " + unitPrices[i]);
+                salesDetailsList.add(detail);
             }
         }
 
-      	try {
-      	    Date parsedDate = formatter.parse(date);
-      	    sales.setDate(parsedDate); 
-      	} catch (java.text.ParseException e) {
-			e.printStackTrace();
-		}
-    	sales.getSalesDetails().setSalesDetailsList(salesDetailsList);
-    	sales.setTotal(total);
-    	sales.setPaymentStatus(paymentStatus);
-    	sales.setStatus("Pending");
+        // Set parsed date
+        try {
+            Date parsedDate = formatter.parse(dateStr);
+            sales.setDate(parsedDate);
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Set sales details
+        sales.getSalesDetails().setSalesDetailsList(salesDetailsList);
+        sales.setTotal(total);
+        sales.setPaymentStatus(paymentStatus);
+        sales.setStatus("Pending");
+
+        // Payment
         sales.getSalesPayment().setPaymentMethod(getRequestString("cboPaymentMethod"));
         sales.getSalesPayment().setAmountPaid(amountPaid);
-       // sales.getSalesPayment().setReference(getRequestString("txtReference"));
         sales.getSalesPayment().setReference(generateReference());
+
+        // Set customer
         int userId = getRequestInt("cboCustomer");
-        System.out.println("userId: userId: "+userId);
-        if(getRequestInt("cboCustomer") > 0) {
-        	List<DTOBase> userList = (List<DTOBase>) getSessionAttribute(UserDTO.SESSION_USER_LIST);
-        	UserDTO  user = (UserDTO) DTOUtil.getObjById(userList, userId);
-        	sales.setUser(user);
-		}
-        int itemId = getRequestInt("cboItem");
-        if(getRequestInt("cboItem") > 0) {
-        	List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
-        	ItemDTO  item = (ItemDTO) DTOUtil.getObjById(itemList, itemId);
-        	sales.setItem(item);
-		}
-    	System.out.println("adddddddddddddddddddd set input");
-        System.out.println("usercode: "+sales.getUser().getCode());
-        sales.setCustomerCode(sales.getUser().getCode());
+        if (userId > 0) {
+            List<DTOBase> userList = (List<DTOBase>) getSessionAttribute(UserDTO.SESSION_USER_LIST);
+            UserDTO user = (UserDTO) DTOUtil.getObjById(userList, userId);
+            sales.setUser(user);
+            sales.setCustomerCode(user.getCode());
+        }
+
+        // Log
+        System.out.println("✅ setInput completed");
+        System.out.println("Customer code: " + sales.getCustomerCode());
     }
+
     protected void validateInput(String action) {
 //    	SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
 //        if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {       	
