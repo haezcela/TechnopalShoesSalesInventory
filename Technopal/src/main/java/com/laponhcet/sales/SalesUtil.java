@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-
+import com.laponhcet.item.ItemDTO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
 import com.mytechnopal.base.DTOBase;
@@ -97,9 +97,10 @@ public class SalesUtil implements Serializable {
 	}
 	public static String getDataEntryStr(SessionInfo sessionInfo, SalesDTO sales, List<DTOBase> userList, List<DTOBase> itemList) {
 	    StringBuffer strBuff = new StringBuffer();
-
-	    // Date Input
-	    strBuff.append("<div class='col-lg-3'>");
+	    
+	    strBuff.append("<div class='row p-1'>");
+	 // Date Input
+	    strBuff.append("<div class='col-lg-6'>");
 	    strBuff.append("    Date <font color='red' style='font-weight:700'>*</font>");
 	    strBuff.append("    <input type='text' class='form-control' id='txtDate' name='txtDate' value='" + DateTimeUtil.getDateTimeToStr(sales.getDate(), "MM/dd/yyyy") + "'>");
 	    strBuff.append("    <script>");
@@ -110,81 +111,186 @@ public class SalesUtil implements Serializable {
 	    strBuff.append("        });");
 	    strBuff.append("    </script>");
 	    strBuff.append("</div>");
+	    
+	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-6", true, "Customer", "Customer", userList, sales.getUser(), "-Select-", "0", ""));
+	    
+		strBuff.append("</div>");
+		
+		strBuff.append("<div class='row p-1' id='addItemRow'>");
 
-	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "Customer", "Customer", userList, sales.getUser(), "-Select-", "0", ""));
+		// Dropdown for Item
+		strBuff.append("<div class='col-lg-6'>");
+		strBuff.append("<label>Item</label>");
+		strBuff.append("<select class='form-control' id='selectItem'>");
+		strBuff.append("<option value='' data-price='0'>-Select-</option>");
+		for (DTOBase item : itemList) {
+		    ItemDTO itm = (ItemDTO) item;
+		    strBuff.append("<option value='" + itm.getCode() + "' data-name='" + itm.getName() + "' data-price='" + itm.getUnitPrice() + "'>" + itm.getName() + "</option>");
+		}
+		strBuff.append("</select>");
+		strBuff.append("</div>");
 
-	    strBuff.append("<div id='salesEntryContainer' style='display: flex; flex-wrap: wrap; gap: 10px;'>");
+//		// Quantity Input
+//		strBuff.append("<div class='col-lg-3'>");
+//		strBuff.append("<label>Quantity</label>");
+//		strBuff.append("<input type='number' class='form-control' id='inputQuantity' min='1' value='1' />");
+//		strBuff.append("</div>");
+		
+		// Quantity Input with - and + buttons
+		strBuff.append("<div class='col-lg-4'>");
+		strBuff.append("<label>Quantity</label>");
+		strBuff.append("<div class='input-group'>");
+		strBuff.append("  <div class='input-group-prepend'>");
+		strBuff.append("    <button class='btn btn btn-outline-danger' type='button' id='btnDecreaseQty'>-</button>");
+		strBuff.append("  </div>");
+		strBuff.append("  <input type='number' class='form-control text-center' id='inputQuantity' min='1' value='1' />");
+		strBuff.append("  <div class='input-group-append'>");
+		strBuff.append("    <button class='btn btn btn-outline-success' type='button' id='btnIncreaseQty'>+</button>");
+		strBuff.append("  </div>");
+		strBuff.append("</div>");
+		strBuff.append("</div>");
+		
+		strBuff.append("<script>");
+		strBuff.append("$(document).ready(function() {");
 
-	    strBuff.append("<div class='sales-entry' style='display: flex; gap: 10px; align-items: center; width: 100%;'>");
-	    strBuff.append("<div id='hiddenFields' style='display: none;'>");
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Total", "Total", "HiddenTotal", String.valueOf(sales.getTotal()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "hiddenItems", "hiddenItems", "HiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
-	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "Item", "Item", itemList, sales.getItem(), "-Select-", "0", ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "Quantity", String.valueOf(sales.getSalesDetails().getQuantity()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "UnitPrice", String.valueOf(sales.getSalesDetails().getUnitPrice()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
-	    strBuff.append("</div>");	
-	    strBuff.append("<button type='button' id='btnAddItem' class='btn btn-primary' style='width: 150px; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;'>Add Item</button>");
-	    strBuff.append("</div>");
+		strBuff.append("    $('#btnDecreaseQty').click(function() {");
+		strBuff.append("        let qty = parseInt($('#inputQuantity').val()) || 1;");
+		strBuff.append("        if (qty > 1) {");
+		strBuff.append("            $('#inputQuantity').val(qty - 1);");
+		strBuff.append("        }");
+		strBuff.append("    });");
 
-	    strBuff.append("</div>");
+		strBuff.append("    $('#btnIncreaseQty').click(function() {");
+		strBuff.append("        let qty = parseInt($('#inputQuantity').val()) || 1;");
+		strBuff.append("        $('#inputQuantity').val(qty + 1);");
+		strBuff.append("    });");
 
-	    strBuff.append("<script>");
-	    strBuff.append("$(document).ready(function() {");
-	    strBuff.append("    let index = 1;");
-	    strBuff.append("    $('#btnAddItem').click(function() {");
-	    strBuff.append("        let newEntry = $(\"<div class='sales-entry' style='display: flex; gap: 10px; align-items: center; width: 100%;'>\" +");
-	    strBuff.append("            \"<label style='width: 100px;'>Item:</label>\" +");
-	    strBuff.append("            \"<select class='form-control dynamic-item' name='cboItem[]'>\" +");
-	    strBuff.append("                $('#cboItem').html() +");  // Clone options
-	    strBuff.append("            \"</select>\" +");
-	    strBuff.append("            \"<label style='width: 100px;'>Quantity:</label>\" +");
-	    strBuff.append("            \"<input type='text' class='form-control dynamic-quantity' name='txtQuantity[]' placeholder='Quantity' />\" +");
-	    strBuff.append("            \"<label style='width: 100px;'>Unit Price:</label>\" +");
-	    strBuff.append("            \"<input type='text' class='form-control dynamic-unitprice' name='txtUnitPrice[]' placeholder='Unit Price' />\" +");
-	    strBuff.append("            \"<button type='button' class='btn btn-danger btnRemoveItem' style='height: 38px;'>Remove</button>\" +");
-	    strBuff.append("        \"</div>\");");
+		strBuff.append("});");
+		strBuff.append("</script>");
 
-	    strBuff.append("        $('#salesEntryContainer').append(newEntry);");
-	    strBuff.append("        updateMainFields();");
-	    strBuff.append("    });");
 
-	    strBuff.append("    $(document).on('change', '.dynamic-item', function() { updateMainFields(); });");
-	    strBuff.append("    $(document).on('input', '.dynamic-quantity, .dynamic-unitprice', function() { updateMainFields(); });");
+		// Add Button
+		strBuff.append("<div class='col-lg-2 d-flex align-items-end'>");
+		strBuff.append("<button type='button' class='btn btn-success' id='btnAddToTable'>Add</button>");
+		strBuff.append("</div>");
 
-	    strBuff.append("    $(document).on('click', '.btnRemoveItem', function() {");
-	    strBuff.append("        $(this).closest('.sales-entry').remove();");
-	    strBuff.append("        updateMainFields();");
-	    strBuff.append("    });");
+		strBuff.append("</div>");
 
-	    strBuff.append("    function updateMainFields() {");
-	    strBuff.append("        let totalPrice = 0;");
-	    strBuff.append("        $('.sales-entry').each(function() {");
-	    strBuff.append("            let quantity = parseFloat($(this).find('.dynamic-quantity').val()) || 0;");
-	    strBuff.append("            let unitPrice = parseFloat($(this).find('.dynamic-unitprice').val()) || 0;");
-	    strBuff.append("            totalPrice += quantity * unitPrice;");
-	    strBuff.append("        });");
-	    strBuff.append("        $('#txtHiddenTotal').val(totalPrice.toFixed(2));"); // Hidden total field
-	    strBuff.append("        $('.dynamic-total').val(totalPrice.toFixed(2));"); 
-	    strBuff.append("        let allItems = $('.dynamic-item').map(function() { return $(this).val(); }).get().filter(q => q.trim() !== '');");
-	    strBuff.append("        let allQuantities = $('.dynamic-quantity').map(function() { return $(this).val(); }).get().filter(q => q.trim() !== '');");
-	    strBuff.append("        let allUnitPrices = $('.dynamic-unitprice').map(function() { return $(this).val(); }).get().filter(q => q.trim() !== '');");
+		// Table to display the added items
+		strBuff.append("<div class='row mt-3'>");
+		strBuff.append("<div class='col-lg-12'>");
+		strBuff.append("<table class='table table-bordered' id='itemTable'>");
+		strBuff.append("<thead>");
+		strBuff.append("<tr>");
+		strBuff.append("<th>Item</th>");
+		strBuff.append("<th>Unit Price</th>");
+		strBuff.append("<th>Quantity</th>");
+		strBuff.append("<th>Subtotal</th>");
+		strBuff.append("<th></th>");
+		strBuff.append("</tr>");
+		strBuff.append("</thead>");
+		strBuff.append("<tbody></tbody>");
+		strBuff.append("</table>");
+		strBuff.append("</div>");
+		strBuff.append("</div>");
 
-	    strBuff.append("        $('#txtHiddenItems').val(allItems.join(', '));");
-	    strBuff.append("        $('#txtQuantity').val(allQuantities.join(', '));");
-	    strBuff.append("        $('#txtUnitPrice').val(allUnitPrices.join(', '));");
-	    strBuff.append("    }");
-	    strBuff.append("});");
-	    strBuff.append("</script>");
+		strBuff.append("<script>");
+		strBuff.append("$(document).ready(function() {");
 
-	    // Total Field with Label and Adjusted Width
-	    strBuff.append("<label>Total:</label>");
-	    strBuff.append("<input type='text' class='form-control col-lg-3 dynamic-total' name='total' placeholder='' style='width: 150px;' />");
+		strBuff.append("    function updateTotal() {");
+		strBuff.append("        let total = 0;");
+		strBuff.append("        $('#itemTable tbody tr').each(function() {");
+		strBuff.append("            let subtotal = parseFloat($(this).find('.subtotal').text()) || 0;");
+		strBuff.append("            total += subtotal;");
+		strBuff.append("        });");
+		strBuff.append("        total = Math.round((total + Number.EPSILON) * 100) / 100;");
+		strBuff.append("        $('.dynamic-total').val(total.toFixed(2));");
+		strBuff.append("        $('#txtHiddenTotal').val(total.toFixed(2));");
+		strBuff.append("    }");
+
+		strBuff.append("    function updateHiddenFields() {");
+		strBuff.append("        let itemCodes = [];");
+		strBuff.append("        let quantities = [];");
+		strBuff.append("        let unitPrices = [];");
+		strBuff.append("        $('#itemTable tbody tr').each(function() {");
+		strBuff.append("            itemCodes.push($(this).data('code'));");
+		strBuff.append("            quantities.push($(this).find('.quantity').text());");
+		strBuff.append("            unitPrices.push($(this).find('.unit-price').text());");
+		strBuff.append("        });");
+		strBuff.append("        $('#txtHiddenItems').val(itemCodes.join(','));");
+		strBuff.append("        $('#txtQuantity').val(quantities.join(','));");
+		strBuff.append("        $('#txtUnitPrice').val(unitPrices.join(','));");
+		strBuff.append("    }");
+
+		strBuff.append("    $('#btnAddToTable').click(function() {");
+		strBuff.append("        let selected = $('#selectItem option:selected');");
+		strBuff.append("        let itemCode = selected.val();");
+		strBuff.append("        let itemName = selected.data('name');");
+		strBuff.append("        let unitPrice = parseFloat(selected.data('price'));");
+		strBuff.append("        let quantity = parseInt($('#inputQuantity').val());");
+
+		strBuff.append("        if (!itemCode || quantity <= 0 || isNaN(unitPrice)) {");
+		strBuff.append("            alert('Please select a valid item and quantity.');");
+		strBuff.append("            return;");
+		strBuff.append("        }");
+
+		strBuff.append("        let existingRow = $('#itemTable tbody tr[data-code=\"' + itemCode + '\"]');");
+		strBuff.append("        if (existingRow.length > 0) {");
+		strBuff.append("            let existingQty = parseInt(existingRow.find('.quantity').text());");
+		strBuff.append("            let newQty = existingQty + quantity;");
+		strBuff.append("            let newSubtotal = unitPrice * newQty;");
+		strBuff.append("            existingRow.find('.quantity').text(newQty);");
+		strBuff.append("            existingRow.find('.subtotal').text(newSubtotal.toFixed(2));");
+		strBuff.append("        } else {");
+		strBuff.append("            let subtotal = unitPrice * quantity;");
+		strBuff.append("            let newRow = \"<tr data-code='\" + itemCode + \"'>\" +");
+		strBuff.append("                \"<td>\" + itemName + \"</td>\" +");
+		strBuff.append("                \"<td class='unit-price'>\" + unitPrice.toFixed(2) + \"</td>\" +");
+		strBuff.append("                \"<td class='quantity'>\" + quantity + \"</td>\" +");
+		strBuff.append("                \"<td class='subtotal'>\" + subtotal.toFixed(2) + \"</td>\" +");
+		strBuff.append("                \"<td><button class='btn btn-danger btn-sm btnRemoveRow'>Remove</button></td>\" +");
+		strBuff.append("            \"</tr>\";");
+		strBuff.append("            $('#itemTable tbody').append(newRow);");
+		strBuff.append("        }");
+
+		strBuff.append("        updateTotal();");
+		strBuff.append("        updateHiddenFields();");
+		strBuff.append("    });");
+
+		strBuff.append("    $(document).on('click', '.btnRemoveRow', function() {");
+		strBuff.append("        $(this).closest('tr').remove();");
+		strBuff.append("        updateTotal();");
+		strBuff.append("        updateHiddenFields();");
+		strBuff.append("    });");
+		
+		strBuff.append("});");
+		strBuff.append("</script>");
+
+		// Hidden Fields  
+		strBuff.append("<div id='hiddenFields' style='display: none;'>");
+
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "HiddenItems", "HiddenItems", "HiddenItems", "", 255, WebControlBase.DATA_TYPE_STRING, ""));
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "Quantity", "Quantity", "Quantity", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+		strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "UnitPrice", "UnitPrice", "UnitPrice", "", 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+
+		strBuff.append("</div>");
 
 	    
+	    strBuff.append("<div class='row p-1'>");
+
+	 	// Total Field with Label and Adjusted Width
+	 	strBuff.append("<div class='col-lg-4'>");
+	 	strBuff.append("<label class='p-0 m-0' style='font-weight: bold;'>Total</label>");
+	 	strBuff.append("<input type='text' class='form-control dynamic-total w-100' id='txtHiddenTotal' name='total' placeholder='' readonly />");
+	 	strBuff.append("</div>");
+	    
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-4", true, "PaymentMethod", "PaymentMethod", new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, sales.getSalesPayment().getPaymentMethod(), new String[]{"Cash", "Credit Card", "Bank Transfer", "Online Payment"}, "NA", "", ""));
-	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-4", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
+		strBuff.append("</div>");
+	    
 	    return strBuff.toString();
 	}
+
 
 	public static String getDataViewStr(SessionInfo sessionInfo, SalesDTO sales) {
 		StringBuffer strBuff = new StringBuffer();
