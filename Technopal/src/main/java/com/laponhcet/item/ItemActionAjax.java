@@ -78,7 +78,6 @@ public class ItemActionAjax extends ActionAjaxBase {
     }
 
     protected void validateInput(String action) {
-    	ItemDTO item = (ItemDTO) getSessionAttribute(ItemDTO.SESSION_ITEM);
         if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE) || action.equalsIgnoreCase(DataTable.ACTION_UPDATE_SAVE)) {
         	        	
         	if(StringUtil.isEmpty(getRequestString("cboItemCategory"))) {
@@ -92,8 +91,6 @@ public class ItemActionAjax extends ActionAjaxBase {
         	if (StringUtil.isEmpty(getRequestString("txtDescription"))) {
                 actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Description");
             }
-          String unit = getRequestString("txtUnitPrice");
-        	System.out.println("UnitPrice VAlidate : " + unit);
         	if(StringUtil.isEmpty(getRequestString("cboItemUnit"))) {
 				actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "Unit");
 			}
@@ -209,7 +206,6 @@ public class ItemActionAjax extends ActionAjaxBase {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
             setSessionAttribute(ItemDTO.SESSION_ITEM, itemUpdate);
         }
 
@@ -350,7 +346,5 @@ else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE)) {
             item.setItemUnit(itemUnit);
             //System.out.println("itemUnit: " + itemUnit);
         }
-		
-		
 	}
-    }
+ }
