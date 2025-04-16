@@ -1,5 +1,6 @@
 package com.laponhcet.sales;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +49,7 @@ import com.mytechnopal.usermedia.UserMediaUtil;
 import com.mytechnopal.util.DTOUtil;
 import com.mytechnopal.util.PageUtil;
 import com.mytechnopal.util.StringUtil;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
+
 
 public class SalesActionAjax extends ActionAjaxBase {
     private static final long serialVersionUID = 1L;
@@ -163,9 +164,7 @@ public class SalesActionAjax extends ActionAjaxBase {
       	    sales.setDate(parsedDate); 
       	} catch (ParseException e) {
       	    e.printStackTrace();
-      	} catch (java.text.ParseException e) {
-			e.printStackTrace();
-		}
+      	}
     	sales.getSalesDetails().setSalesDetailsList(salesDetailsList);
     	sales.setTotal(total);
     	sales.setPaymentStatus(paymentStatus);
@@ -218,10 +217,10 @@ public class SalesActionAjax extends ActionAjaxBase {
 //        }
     }
     protected void customAction(JSONObject jsonObj, String action) {
-		
+    
     	
     	if(action.equalsIgnoreCase(SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE)) {
-    		SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
+    		SalesDTO sales = new SalesDTO();
         	SalesDAO salesDAO = new SalesDAO();
         	double amount = getRequestInt("amount");
         	//String strAmount = String.valueOf(amount);
@@ -282,6 +281,7 @@ public class SalesActionAjax extends ActionAjaxBase {
                 setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
                 setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
                 setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
+                
             }
 		}
     	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {
@@ -317,14 +317,14 @@ public class SalesActionAjax extends ActionAjaxBase {
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
             SalesDTO salesSelected = (SalesDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW)) {
             SalesDTO sales = new SalesDTO();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, SalesUtil.getDataEntryStr(sessionInfo, sales, userList, itemList)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataEntryPage(sessionInfo, SalesUtil.getDataEntryStr(sessionInfo, sales, userList, itemList),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -350,7 +350,7 @@ public class SalesActionAjax extends ActionAjaxBase {
         } else if (action.equalsIgnoreCase(DataTable.ACTION_DELETE_VIEW)) {
             SalesDTO salesSelected = (SalesDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT,  PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT,  PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected),""));
 //                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, EventCriteriaUtil.getDataViewStr(sessionInfo, criteriaSelected), ""));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -394,9 +394,9 @@ public class SalesActionAjax extends ActionAjaxBase {
    		for(int row=0; row < dataTable.getRecordListCurrentPage().size(); row++) {			
    			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
    			sales.setSalesPayment((SalesPaymentDTO) DTOUtil.getObjByCode(salesPaymentList, sales.getSalesPayment().getCode()));
-   			sales.setSalesDetails((SalesDetailsDTO) DTOUtil.getObjByCode(salesDetailsList, sales.getSalesDetails().getCode()));
+   			//sales.setSalesDetails((SalesDetailsDTO) DTOUtil.getObjByCode(salesDetailsList, sales.getSalesDetails().getCode()));
    			sales.setUser((UserDTO) DTOUtil.getObjByCode(userList, sales.getUser().getCode()));
-   			sales.getSalesDetails().setItem((ItemDTO) DTOUtil.getObjByCode(itemList, sales.getSalesDetails().getItem().getCode()));
+   			//sales.getSalesDetails().setItem((ItemDTO) DTOUtil.getObjByCode(itemList, sales.getSalesDetails().getItem().getCode()));
    		}
       }
    }

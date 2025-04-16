@@ -75,7 +75,7 @@ public class SalesDetailsActionAjax extends ActionAjaxBase {
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
             SalesDetailsDTO salesDetailsSelected = (SalesDetailsDTO) dataTable.getSelectedRecord();
             try {
-                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesDetailsUtil.getDataViewStr(sessionInfo, salesDetailsSelected)));
+                jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesDetailsUtil.getDataViewStr(sessionInfo, salesDetailsSelected),""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
