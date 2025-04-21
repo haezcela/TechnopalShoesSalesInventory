@@ -1,4 +1,5 @@
 package com.laponhcet.sales;
+
 import java.util.Date;
 
 import com.laponhcet.item.ItemDTO;
@@ -12,19 +13,20 @@ import com.mytechnopal.util.StringUtil;
 public class SalesDTO extends DTOBase {
 	private static final long serialVersionUID = 1L;
 
-	public static String SESSION_SALES = "SESSION_SALES";
-	public static String SESSION_SALES_LIST = "SESSION_PERSON_LIST";
-	public static String SESSION_SALES_DATA_TABLE = "SESSION_SALES_DATA_TABLE";
+	public static final String SESSION_SALES = "SESSION_SALES";
+	public static final String SESSION_SALES_LIST = "SESSION_PERSON_LIST";
+	public static final String SESSION_SALES_DATA_TABLE = "SESSION_SALES_DATA_TABLE";
 	public static final String ACTION_PREPARE_SALES = "ACTION_PREPARE_SALES";
-	public static String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_LASTNAME";
+	public static final String ACTION_SEARCH_BY_NAME = "ACTION_SEARCH_BY_LASTNAME";
 	public static final String ACTION_VIEW_SALES_PAYMENT = "ACTION_VIEW_SALES_PAYMENT";
 	public static final String ACTION_VIEW_SALES_PAYMENT_SAVE = "ACTION_VIEW_SALES_PAYMENT_SAVE";
 	public static final String ACTION_CHANGE_SALES_STATUS = "ACTION_CHANGE_SALES_STATUS";
+	
 	private String code;
-	private String name;
 	private Date date;
 	private double total;
 	private String paymentStatus;
+	private String status;
 	private String customerCode;
 
 	public String getCustomerCode() {
@@ -35,11 +37,11 @@ public class SalesDTO extends DTOBase {
 		this.customerCode = customerCode;
 	}
 
-	private String status;
 	private SalesPaymentDTO salesPaymentDTO;
 
 	private UserDTO user;
 	private SalesDetailsDTO salesDetails;
+
 	public SalesDetailsDTO getSalesDetails() {
 		return salesDetails;
 	}
@@ -55,7 +57,9 @@ public class SalesDTO extends DTOBase {
 	public void setUser(UserDTO user) {
 		this.user = user;
 	}
+
 	private ItemDTO item;
+
 	public ItemDTO getItem() {
 		return item;
 	}
@@ -64,16 +68,6 @@ public class SalesDTO extends DTOBase {
 		this.item = item;
 	}
 
-	public SalesDTO() {
-		super();
-		code = "";
-		name = "";
-		salesPaymentDTO = new SalesPaymentDTO();
-		user = new UserDTO();
-		item = new ItemDTO();
-		salesDetails = new SalesDetailsDTO();
-	}
-	
 	public SalesPaymentDTO getSalesPayment() {
 		return salesPaymentDTO;
 	}
@@ -86,50 +80,33 @@ public class SalesDTO extends DTOBase {
 		return date;
 	}
 
-
 	public void setDate(Date date) {
 		this.date = date;
 	}
-
 
 	public double getTotal() {
 		return total;
 	}
 
-
 	public void setTotal(double total) {
 		this.total = total;
 	}
-
 
 	public String getPaymentStatus() {
 		return paymentStatus;
 	}
 
-
 	public void setPaymentStatus(String paymentStatus) {
 		this.paymentStatus = paymentStatus;
 	}
-
 
 	public String getStatus() {
 		return status;
 	}
 
-
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 
 	public String getCode() {
 		return code;
@@ -139,21 +116,28 @@ public class SalesDTO extends DTOBase {
 		this.code = code;
 	}
 
-	  public SalesDTO getSales() {
-		  	SalesDTO sales = new SalesDTO();
-		  	sales.setId(super.getId());
-		  	sales.setName(this.name);
-		  	sales.setDate(this.date);
-		  	sales.setPaymentStatus(this.paymentStatus);
-		  	sales.setTotal(this.total);
-		  	sales.setStatus(this.status);
-		  	sales.setCode(super.getCode());
-		  	sales.setUser(this.user);
-		  	sales.setItem(this.item);
-		  	sales.setSalesDetails(this.salesDetails);
-		  	sales.setCustomerCode(this.customerCode);
-	        return sales;
-	    }
-}
-	
+	public SalesDTO() {
+		super();
+		code = "";
+		salesPaymentDTO = new SalesPaymentDTO();
+		user = new UserDTO();
+		item = new ItemDTO();
+		salesDetails = new SalesDetailsDTO();
+	}
 
+	public SalesDTO getSales() {
+		SalesDTO sales = new SalesDTO();
+		sales.setId(super.getId());
+
+		sales.setDate(this.date);
+		sales.setPaymentStatus(this.paymentStatus);
+		sales.setTotal(this.total);
+		sales.setStatus(this.status);
+		sales.setCode(super.getCode());
+		sales.setUser(this.user);
+		sales.setItem(this.item);
+		sales.setSalesDetails(this.salesDetails);
+		sales.setCustomerCode(this.customerCode);
+		return sales;
+	}
+}

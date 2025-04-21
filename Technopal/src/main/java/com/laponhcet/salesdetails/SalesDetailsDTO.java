@@ -10,27 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SalesDetailsDTO extends DTOBase {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final String SESSION_SALES_DETAILS = "SESSION_SALES_DETAILS";
-    public static final String SESSION_SALES_DETAILS_LIST = "SESSION_SALES_DETAILS_LIST";
-    public static final String SESSION_SALES_DETAILS_DATA_TABLE = "SESSION_SALES_DETAILS_DATA_TABLE";
-    
-    public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
+	public static final String SESSION_SALES_DETAILS = "SESSION_SALES_DETAILS";
+	public static final String SESSION_SALES_DETAILS_LIST = "SESSION_SALES_DETAILS_LIST";
+	public static final String SESSION_SALES_DETAILS_DATA_TABLE = "SESSION_SALES_DETAILS_DATA_TABLE";
 
+	public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
 	public static final String ACTION_SEARCH_BY_NAME = null;
 
-
-
+	private double quantity;
+	private double unitPrice;
+	private String itemCode;
+	private String salesCode;
+	private ItemDTO item;
+	private SalesDTO sales;
 	
-    
-
-
-    private double quantity;
-    private double unitPrice;
-    private String itemCode;
-    private String salesCode;
-    public String getItemCode() {
+	public String getItemCode() {
 		return itemCode;
 	}
 
@@ -46,8 +42,6 @@ public class SalesDetailsDTO extends DTOBase {
 		this.salesCode = salesCode;
 	}
 
-	private ItemDTO item;
-    private SalesDTO sales;
 	public double getQuantity() {
 		return quantity;
 	}
@@ -79,35 +73,33 @@ public class SalesDetailsDTO extends DTOBase {
 	public void setSales(SalesDTO sales) {
 		this.sales = sales;
 	}
+
 	private List<SalesDetailsDTO> salesDetailsList = new ArrayList<>(); // Initialize the list
 
-    // Getter for salesDetailsList
-    public List<SalesDetailsDTO> getSalesDetailsList() {
-        return salesDetailsList;
-    }
+	// Getter for salesDetailsList
+	public List<SalesDetailsDTO> getSalesDetailsList() {
+		return salesDetailsList;
+	}
 
-    // Setter for salesDetailsList
-    public void setSalesDetailsList(List<SalesDetailsDTO> salesDetailsList) {
-        this.salesDetailsList = salesDetailsList;
-    }
-
-
+	// Setter for salesDetailsList
+	public void setSalesDetailsList(List<SalesDetailsDTO> salesDetailsList) {
+		this.salesDetailsList = salesDetailsList;
+	}
 
 	public SalesDetailsDTO() {
-        super();
-        this.item = item;
-        this.sales = sales;
-    	item = new ItemDTO();
-    }
+		super();
+		this.item = item;
+		this.sales = sales;
+		item = new ItemDTO();
+	}
 
-    public SalesDetailsDTO getSales_Payment() {
-    	SalesDetailsDTO salesDetails = new SalesDetailsDTO();
-        salesDetails.setId(super.getId());
-        salesDetails.setCode(super.getCode());
-        salesDetails.setItem(this.item);
-        salesDetails.setSales(this.sales);
-        return salesDetails;
-    }
-
+	public SalesDetailsDTO getSales_Payment() {
+		SalesDetailsDTO salesDetails = new SalesDetailsDTO();
+		salesDetails.setId(super.getId());
+		salesDetails.setCode(super.getCode());
+		salesDetails.setItem(this.item);
+		salesDetails.setSales(this.sales);
+		return salesDetails;
+	}
 
 }
