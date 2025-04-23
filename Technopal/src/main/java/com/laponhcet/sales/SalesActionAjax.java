@@ -310,6 +310,9 @@ public class SalesActionAjax extends ActionAjaxBase {
                 setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
                 setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
                 
+                // Refresh table
+                dataTableAction(jsonObj, (DataTable) getSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE));
+                
             }
 		}
     	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {

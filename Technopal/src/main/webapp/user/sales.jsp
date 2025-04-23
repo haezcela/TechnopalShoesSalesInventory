@@ -19,6 +19,7 @@ String dataInput = "changeStatusCode: $('#changeStatusCode').val(), salesCode: $
 <div class="container" id='<%=dataTable.getId()%>'></div>
 <div class='container' id='<%=sessionInfo.getCurrentLink().getPageId()%>'></div>
 
+<!-- Move to Util -->
 <div id="customModal">
   <div class="modal-content">
     <h3>Enter amount of payment</h3>
