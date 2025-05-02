@@ -52,6 +52,21 @@ String dataInput = "txtName: $('#txtName').val(), txtDescription: $('#txtDescrip
             }
         });    
     }
+	
+	function refreshSalesTable() {
+        $.ajax({
+            url: 'SalesActionAjax',
+            type: 'POST',
+            data: { ajax: '1', action: 'DataTable' },
+            success: function(response) {
+                let parsed = JSON.parse(response);
+                $('#<%=dataTable.getId()%>').html(parsed.pageContent); // reload table content
+            },
+            error: function(xhr) {
+                console.error('Failed to refresh table', xhr);
+            }
+        });
+    }
 
     function uploadFile(action, fileId, cFunction, label, fileType) {
         console.log("Debug: uploadFile called");

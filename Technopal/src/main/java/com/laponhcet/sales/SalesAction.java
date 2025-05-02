@@ -33,7 +33,6 @@ public class SalesAction extends ActionBase {
         setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, salesPaymentList);
         setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, salesDetailsList);
         setSessionAttribute(UserDTO.SESSION_USER_LIST, userList);
-        
         setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, itemList);
         
 

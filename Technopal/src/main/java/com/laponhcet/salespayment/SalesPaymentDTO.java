@@ -27,13 +27,16 @@ public class SalesPaymentDTO extends DTOBase {
 		this.date = date;
 	}
 	private double totalAmountPaid;
+	
 	public double getTotalAmountPaid() {
 		return totalAmountPaid;
 	}
 
 	public void setTotalAmountPaid(double totalAmountPaid) {
 		this.totalAmountPaid = totalAmountPaid;
+		System.out.println("Amount Paid set to: " + totalAmountPaid); // Debug output
 	}
+	
 	private String name;
     private Date date;
     private double amountPaid;
@@ -63,6 +66,7 @@ public class SalesPaymentDTO extends DTOBase {
 
 	public void setAmountPaid(double amountPaid) {
 		this.amountPaid = amountPaid;
+		
 	}
 
 	public String getPaymentMethod() {

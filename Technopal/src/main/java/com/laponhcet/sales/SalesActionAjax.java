@@ -312,7 +312,9 @@ public class SalesActionAjax extends ActionAjaxBase {
                 
                 // Refresh table
                 dataTableAction(jsonObj, (DataTable) getSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE));
-                
+
+
+
             }
 		}
     	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {

@@ -15,52 +15,12 @@ SessionInfo sessionInfo = (SessionInfo) session.getAttribute(SessionInfo.SESSION
 DataTable dataTable = (DataTable)session.getAttribute(SalesDTO.SESSION_SALES_DATA_TABLE);
 String dataInput = "changeStatusCode: $('#changeStatusCode').val(), salesCode: $('#salesCode').val(), FormattedDate: $('#FormattedDate').val(), PaymentMethod: $('#PaymentMethod').val(), salesId: $('#salesId').val(), total: $('#total').val(), amount: $('#amount').val(), txtHiddenTotal: $('#txtHiddenTotal').val(), txtHiddenItems: $('#txtHiddenItems').val(), cboItem: $('#cboItem').val(), txtQuantity: $('#txtQuantity').val(), txtUnitPrice: $('#txtUnitPrice').val(), cboPaymentStatus: $('#cboPaymentStatus').val(), cboStatus: $('#cboStatus').val(), txtAmountPaid: $('#txtAmountPaid').val(), cboPaymentMethod: $('#cboPaymentMethod').val(), txtReference: $('#txtReference').val(), cboCustomer: $('#cboCustomer').val(), txtDate: $('#txtDate').val()"; 
 %>
-
-<div class="container" id='<%=dataTable.getId()%>'></div>
 <div class='container' id='<%=sessionInfo.getCurrentLink().getPageId()%>'></div>
+<div class="container" id='<%=dataTable.getId()%>'></div>
 
-<!-- Move to Util -->
-<div id="customModal">
-  <div class="modal-content">
-    <h3>Enter amount of payment</h3>
-    <p>Total: <span id="modalTotal"></span></p>
-	<p>Amount Paid: <span id="modalPaid"></span></p>
-    <!-- Amount input -->
-    <input type="number" id="amount" name="amount" placeholder="Type your payment amount">
 
-    <!-- Dropdown -->
-    <label for="PaymentMethod">Choose an option:</label>
-    <select id="PaymentMethod" name="PaymentMethod">
-      <option value="">-- Please select --</option>
-      <option value="Online Payment">Online Payment</option>
-      <option value="Cash">Cash</option>
-      <option value="Credit Card">Credit Card</option>
-      <option value="Bank Transfer">Bank Transfer</option>
-    </select>
-
-    <!-- Date input -->
-    <div class="col-lg-3" style="margin-top: 10px;">
-      <label for="date">Date:</label>
-		<input type="date" id="FormattedDate" name="FormattedDate">
-    </div>
-
-    <!-- Hidden fields -->
-    <input type="hidden" id="salesId" name="salesId">
-    <input type="hidden" id="salesCode" name="salesCode">
-    <input type="hidden" id="total" name="total">
-
-    <!-- Buttons -->
-    <div style="margin-top: 15px;">
-      <button class="btn-submit" id="saveeeee" onclick="ACTION_VIEW_SALES_PAYMENT_SAVE()">Submit</button>
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-</div>
+<%=SalesUtil.getPaymentModalStr()%>
 <script>
-
-
-
-
 
 setTimeout(function (){
 list<%=sessionInfo.getCurrentLink().getCode()%>();
@@ -95,14 +55,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 function ACTION_VIEW_SALES_PAYMENT(id, total, code, amountPaid) {
-	document.getElementById('modalTotal').textContent = total;
-	document.getElementById('modalPaid').textContent = amountPaid;
+    document.getElementById('modalTotal').textContent = total;
+    document.getElementById('modalPaid').textContent = amountPaid;
     document.getElementById('salesId').value = id;
     document.getElementById('salesCode').value = code;
     document.getElementById('total').value = total;
     document.getElementById('customModal').style.display = 'flex';
-  }
-
+    
+    // Remove the duplicate table container if it exists
+    const duplicateContainer = document.getElementById('<%=dataTable.getId()%>');
+    if (duplicateContainer) {
+        duplicateContainer.remove();
+    }
+}
 
 <%=WebUtil.getJSList(sessionInfo, dataTable)%>
 <%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
