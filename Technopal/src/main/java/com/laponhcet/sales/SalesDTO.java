@@ -1,5 +1,7 @@
 package com.laponhcet.sales;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.laponhcet.item.ItemDTO;
 import com.laponhcet.sales.SalesDTO;
@@ -20,13 +22,24 @@ public class SalesDTO extends DTOBase {
 	public static final String ACTION_VIEW_SALES_PAYMENT = "ACTION_VIEW_SALES_PAYMENT";
 	public static final String ACTION_VIEW_SALES_PAYMENT_SAVE = "ACTION_VIEW_SALES_PAYMENT_SAVE";
 	public static final String ACTION_CHANGE_SALES_STATUS = "ACTION_CHANGE_SALES_STATUS";
+	public static final String ACTION_ADD_VIEW_PAYMENT = "ACTION_ADD_VIEW_PAYMENT";
+	public static final String ACTION_ADD_SAVE_PAYMENT = "ACTION_ADD_SAVE_PAYMENT";
+	
 	private String code;
-	private String name;
 	private Date date;
+	private String customerCode;
 	private double total;
 	private String paymentStatus;
-	private String customerCode;
+	private String status;
+	
+	private String name;
 
+	private SalesDetailsDTO salesDetails;
+	private SalesPaymentDTO salesPaymentDTO;
+	private UserDTO user;
+	
+	
+	
 	public String getCustomerCode() {
 		return customerCode;
 	}
@@ -34,12 +47,16 @@ public class SalesDTO extends DTOBase {
 	public void setCustomerCode(String customerCode) {
 		this.customerCode = customerCode;
 	}
+	
+	public Date getDate() {
+		return date;
+	}
 
-	private String status;
-	private SalesPaymentDTO salesPaymentDTO;
+	public void setDate(Date date) {
+		this.date = date;
+	}
 
-	private UserDTO user;
-	private SalesDetailsDTO salesDetails;
+
 	public SalesDetailsDTO getSalesDetails() {
 		return salesDetails;
 	}
@@ -81,15 +98,20 @@ public class SalesDTO extends DTOBase {
 	public void setSalesPayment(SalesPaymentDTO salesPaymentDTO) {
 		this.salesPaymentDTO = salesPaymentDTO;
 	}
-
-	public Date getDate() {
-		return date;
-	}
+	
+	
 
 
-	public void setDate(Date date) {
-		this.date = date;
-	}
+private Map<String, Double> totalAmountPaidBySalesCode = new HashMap<>();
+
+public Map<String, Double> getTotalAmountPaidBySalesCode() {
+    return totalAmountPaidBySalesCode;
+}
+
+public void setTotalAmountPaidBySalesCode(Map<String, Double> totalAmountPaidBySalesCode) {
+    this.totalAmountPaidBySalesCode = totalAmountPaidBySalesCode;
+}
+
 
 
 	public double getTotal() {
@@ -100,7 +122,6 @@ public class SalesDTO extends DTOBase {
 	public void setTotal(double total) {
 		this.total = total;
 	}
-
 
 	public String getPaymentStatus() {
 		return paymentStatus;

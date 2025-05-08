@@ -4,9 +4,15 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import com.laponhcet.item.ItemDTO;
+import com.laponhcet.salespayment.SalesPaymentDAO;
+import com.laponhcet.salespayment.SalesPaymentDTO;
 import com.mytechnopal.DataTable;
 import com.mytechnopal.SessionInfo;
 import com.mytechnopal.base.DTOBase;
@@ -33,69 +39,97 @@ public class SalesUtil implements Serializable {
 		}
 		return strBuff.toString();
 	}
+	
+	public static List<Double> getTotalPaymentsPerSalesCode() {
+        SalesDAO salesDAO = new SalesDAO();
+        List<SalesPaymentDTO> salesPaymentList = salesDAO.getSalesPaymentList();
+
+        // Group payments by sales_code
+        Map<String, Double> salesCodeTotals = new HashMap<>();
+        for (SalesPaymentDTO payment : salesPaymentList) {
+            String salesCode = payment.getSalesCode();
+            double amountPaid = payment.getAmountPaid();
+
+            salesCodeTotals.put(salesCode, salesCodeTotals.getOrDefault(salesCode, 0.0) + amountPaid);
+        }
+
+        // Collect totals into a list
+        List<Double> totalAmountPaid = new ArrayList<>(salesCodeTotals.values());
+        return totalAmountPaid;
+    }
 
 
-	private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
-		String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
-		int row1 = 0;
-		 DecimalFormat df = new DecimalFormat("0.##");
-		 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-		 
-		for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
-			row1++;
-			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
-			String statusIconClass =
-				    sales.getStatus().equals("PENDING") ? "fa-clock" :
-				    sales.getStatus().equals("PROCESSING") ? "fa-spinner fa-spin" :
-				    sales.getStatus().equals("SHIPPED") ? "fa-truck" :
-				    sales.getStatus().equals("DELIVERED") ? "fa-check-circle" :
-				    sales.getStatus().equals("CANCELLED") ? "fa-times-circle text-danger" :
-				    "fa-question-circle text-secondary";
-			strArr[row][0] = sales.getCode();
-			strArr[row][1] = sales.getUser().getFirstName()+" "+sales.getUser().getLastName();
-			strArr[row][2] = String.valueOf(sales.getTotal());
-			strArr[row][3] = String.valueOf(sales.getPaymentStatus());
-			// Determine icon class based on status
+	
+	
 
+private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
+    String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
+    DecimalFormat df = new DecimalFormat("0.##");
+    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
-			strArr[row][4] = sales.getStatus();
+    // Retrieve total payments per sales code
+    List<Double> totalPaymentsList = getTotalPaymentsPerSalesCode();
+    Map<String, Double> totalPaymentsMap = new HashMap<>();
+    SalesDAO salesDAO = new SalesDAO();
+    List<DTOBase> salesList = salesDAO.getSalesList();
 
-			strArr[row][5] = String.valueOf(sales.getSalesPayment().getTotalAmountPaid());
-			strArr[row][6] = formatter.format(sales.getDate());
+    // Map sales codes to total payments
+    for (int i = 0; i < salesList.size(); i++) {
+        totalPaymentsMap.put(salesList.get(i).getCode(), totalPaymentsList.get(i));
+    }
 
-			// Build the buttons
-			strArr[row][7] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode()) +
+    for (int row = 0; row < dataTable.getRecordListCurrentPage().size(); row++) {
+        SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
+        String statusIconClass =
+            sales.getStatus().equals("PENDING") ? "fa-clock" :
+            sales.getStatus().equals("PROCESSING") ? "fa-spinner fa-spin" :
+            sales.getStatus().equals("SHIPPED") ? "fa-truck" :
+            sales.getStatus().equals("DELIVERED") ? "fa-check-circle" :
+            sales.getStatus().equals("CANCELLED") ? "fa-times-circle text-danger" :
+            "fa-question-circle text-secondary";
 
-			    // View Payment button
-			    "<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"View Payment\" " +
-			    "onclick=\"" + SalesDTO.ACTION_VIEW_SALES_PAYMENT + "(" + sales.getId() + ", '" + sales.getTotal() + "', '" + sales.getCode() + "', '" + sales.getSalesPayment().getTotalAmountPaid() + "')\">" +
-			    "<i class=\"fa fa-money-bill\"></i></button> " +
+        strArr[row][0] = sales.getCode();
+        strArr[row][1] = sales.getUser().getFirstName() + " " + sales.getUser().getLastName();
+        strArr[row][2] = String.valueOf(sales.getTotal());
+        strArr[row][3] = String.valueOf(sales.getPaymentStatus());
+        strArr[row][4] = sales.getStatus();
 
-"<div class='dropdown-wrapper' style='display: inline-block; position: relative;'>" +
-"<label style='display: flex; align-items: center; gap: 6px; background-color: #ffc107; color: black; padding: 6px 12px; border-radius: 4px; cursor: pointer;'>" +
-    "<i class='fa " + statusIconClass + "' style='color: black;'></i>" +
-    "<select name='changeStatusCode' onchange=\"handleStatusChange('" + sales.getCode() + "', this.value)\"" +
-        " style='background: transparent; border: none; color: black; font-weight: bold; margin-left: 5px; appearance: none; outline: none; cursor: pointer;'>" +
-        "<option value='"+sales.getCode()+", Pending'" + ("PENDING".equals(sales.getStatus()) ? " selected" : "") + ">Pending</option>" +
-        "<option value='"+sales.getCode()+", Processing'" + ("PROCESSING".equals(sales.getStatus()) ? " selected" : "") + ">Processing</option>" +
-        "<option value='"+sales.getCode()+", Shipped'" + ("SHIPPED".equals(sales.getStatus()) ? " selected" : "") + ">Shipped</option>" +
-        "<option value='"+sales.getCode()+", Delivered'" + ("DELIVERED".equals(sales.getStatus()) ? " selected" : "") + ">Delivered</option>" +
-        "<option value='"+sales.getCode()+", Cancelled'" + ("CANCELLED".equals(sales.getStatus()) ? " selected" : "") + ">Cancelled</option>" +
-    "</select>" +
-"</label>" +
-"</div>";
+        strArr[row][5] = String.valueOf(totalPaymentsMap.get(sales.getCode()));
+        
 
+        strArr[row][6] = formatter.format(sales.getDate());
 
+        // Build the buttons
+        strArr[row][7] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode()) +
+            "<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"View Payment\" " +
+            "onclick=\"showPaymentModal(" + sales.getId() + ", '" + sales.getTotal() + "', '" + sales.getCode() + "', '" + totalPaymentsMap.get(sales.getCode()) + "')\">" +
+            "<i class=\"fa fa-money-bill\"></i></button> " +
+            "<div class='dropdown-wrapper' style='display: inline-block; position: relative;'>" +
+            "<label style='display: flex; align-items: center; gap: 6px; background-color: #ffc107; color: black; padding: 6px 12px; border-radius: 4px; cursor: pointer;'>" +
+            "<i class='fa " + statusIconClass + "' style='color: black;'></i>" +
+            "<select name='changeStatusCode' id='changeStatusCode' onchange=\"" + SalesDTO.ACTION_CHANGE_SALES_STATUS + "(" + sales.getId() + ", '" + sales.getCode() + "', this.value)\"" +
+            " style='background: transparent; border: none; color: black; font-weight: bold; margin-left: 5px; appearance: none; outline: none; cursor: pointer;'>" +
+            "<option value='" + sales.getCode() + ", Pending'" + ("PENDING".equals(sales.getStatus()) ? " selected" : "") + ">Pending</option>" +
+            "<option value='" + sales.getCode() + ", Processing'" + ("PROCESSING".equals(sales.getStatus()) ? " selected" : "") + ">Processing</option>" +
+            "<option value='" + sales.getCode() + ", Shipped'" + ("SHIPPED".equals(sales.getStatus()) ? " selected" : "") + ">Shipped</option>" +
+            "<option value='" + sales.getCode() + ", Delivered'" + ("DELIVERED".equals(sales.getStatus()) ? " selected" : "") + ">Delivered</option>" +
+            "<option value='" + sales.getCode() + ", Cancelled'" + ("CANCELLED".equals(sales.getStatus()) ? " selected" : "") + ">Cancelled</option>" +
+            "</select>" +
+            "</label>" +
+            "</div>";
+    }
 
-			
-		}
-		return strArr;
-	}
+    return strArr;
+}
+
+	
+	
 	public static String getPaymentEntrySts(SessionInfo sessionInfo, SalesDTO sales) {
 	    StringBuffer strBuff = new StringBuffer();
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
 	    return strBuff.toString();
 	}
+	
 	public static String getDataEntryStr(SessionInfo sessionInfo, SalesDTO sales, List<DTOBase> userList, List<DTOBase> itemList) {
 	    StringBuffer strBuff = new StringBuffer();
 	    strBuff.append("<div class='row p-1'>");
@@ -115,7 +149,7 @@ public class SalesUtil implements Serializable {
 	    strBuff.append(new SelectWebControl().getSelectWebControl("col-lg-6", true, "Customer", "Customer", userList, sales.getUser(), "-Select-", "0", ""));
 	    
 		strBuff.append("</div>");
-		
+
 		strBuff.append("<div class='row p-1' id='addItemRow'>");
 
 		// Dropdown for Item
@@ -129,12 +163,6 @@ public class SalesUtil implements Serializable {
 		}
 		strBuff.append("</select>");
 		strBuff.append("</div>");
-
-//		// Quantity Input
-//		strBuff.append("<div class='col-lg-3'>");
-//		strBuff.append("<label>Quantity</label>");
-//		strBuff.append("<input type='number' class='form-control' id='inputQuantity' min='1' value='1' />");
-//		strBuff.append("</div>");
 		
 		// Quantity Input with - and + buttons
 		strBuff.append("<div class='col-lg-4'>");
@@ -292,52 +320,10 @@ public class SalesUtil implements Serializable {
 	}
 
 	
-	public static String getPaymentModalStr() {
-	    StringBuffer strBuff = new StringBuffer();
-	    strBuff.append("<!-- Payment Modal -->");
-	    strBuff.append("<div id=\"customModal\">");
-	    strBuff.append("  <div class=\"modal-content\">");
-	    strBuff.append("    <h3>Enter amount of payment</h3>");
-	    strBuff.append("    <p>Total: <span id=\"modalTotal\"></span></p>");
-	    strBuff.append("    <p>Amount Paid: <span id=\"modalPaid\"></span></p>");
-	    strBuff.append("    <!-- Amount input -->");
-	    strBuff.append("    <input type=\"number\" id=\"amount\" name=\"amount\" placeholder=\"Type your payment amount\">");
-	    strBuff.append("");
-	    strBuff.append("    <!-- Dropdown -->");
-	    strBuff.append("    <label for=\"PaymentMethod\">Choose an option:</label>");
-	    strBuff.append("    <select id=\"PaymentMethod\" name=\"PaymentMethod\">");
-	    strBuff.append("      <option value=\"\">-- Please select --</option>");
-	    strBuff.append("      <option value=\"Online Payment\">Online Payment</option>");
-	    strBuff.append("      <option value=\"Cash\">Cash</option>");
-	    strBuff.append("      <option value=\"Credit Card\">Credit Card</option>");
-	    strBuff.append("      <option value=\"Bank Transfer\">Bank Transfer</option>");
-	    strBuff.append("    </select>");
-	    strBuff.append("");
-	    strBuff.append("    <!-- Date input -->");
-	    strBuff.append("    <div class=\"col-lg-3\" style=\"margin-top: 10px;\">");
-	    strBuff.append("      <label for=\"date\">Date:</label>");
-	    strBuff.append("        <input type=\"date\" id=\"FormattedDate\" name=\"FormattedDate\">");
-	    strBuff.append("    </div>");
-	    strBuff.append("");
-	    strBuff.append("    <!-- Hidden fields -->");
-	    strBuff.append("    <input type=\"hidden\" id=\"salesId\" name=\"salesId\">");
-	    strBuff.append("    <input type=\"hidden\" id=\"salesCode\" name=\"salesCode\">");
-	    strBuff.append("    <input type=\"hidden\" id=\"total\" name=\"total\">");
-	    strBuff.append("");
-	    strBuff.append("    <!-- Buttons -->");
-	    strBuff.append("    <div style=\"margin-top: 15px;\">");
-	    strBuff.append("      <button class=\"btn-submit\" id=\"saveeeee\" onclick=\"ACTION_VIEW_SALES_PAYMENT_SAVE()\">Submit</button>");
-	    strBuff.append("      <button class=\"btn-cancel\" onclick=\"closeModal()\">Cancel</button>");
-	    strBuff.append("    </div>");
-	    strBuff.append("  </div>");
-	    strBuff.append("</div>");
-	    
-	    return strBuff.toString();
-	}
-	
-	
-	public static String getPaymentModalStyles() {
-	    StringBuffer strBuff = new StringBuffer();
+	public static String showPaymentModal() {
+	    StringBuilder strBuff = new StringBuilder();
+
+	    // Modal Styles
 	    strBuff.append("<style>");
 	    strBuff.append("  #customModal {");
 	    strBuff.append("    display: none;");
@@ -349,22 +335,6 @@ public class SalesUtil implements Serializable {
 	    strBuff.append("    justify-content: center;");
 	    strBuff.append("    align-items: center;");
 	    strBuff.append("  }");
-	    
-	    strBuff.append("</style>");
-	    
-
-	    strBuff.append("<style>");
-	    strBuff.append("  #customModal {");
-	    strBuff.append("    display: none;");
-	    strBuff.append("    position: fixed;");
-	    strBuff.append("    z-index: 9999;");
-	    strBuff.append("    left: 0; top: 0;");
-	    strBuff.append("    width: 100%; height: 100%;");
-	    strBuff.append("    background-color: rgba(0,0,0,0.5);");
-	    strBuff.append("    justify-content: center;");
-	    strBuff.append("    align-items: center;");
-	    strBuff.append("  }");
-
 	    strBuff.append("  .modal-content {");
 	    strBuff.append("    background-color: #fff;");
 	    strBuff.append("    padding: 20px;");
@@ -373,80 +343,72 @@ public class SalesUtil implements Serializable {
 	    strBuff.append("    box-shadow: 0 0 10px rgba(0,0,0,0.3);");
 	    strBuff.append("    text-align: center;");
 	    strBuff.append("  }");
-
-	    strBuff.append("  .modal-content h3 {");
-	    strBuff.append("    margin-top: 0;");
+	    strBuff.append("  .modal-content h3 { margin-top: 0; }");
+	    strBuff.append("  .modal-content input, .modal-content select {");
+	    strBuff.append("    width: 100%; padding: 8px; margin: 10px 0;");
 	    strBuff.append("  }");
-
-	    strBuff.append("  .modal-content input,");
-	    strBuff.append("  .modal-content select {");
-	    strBuff.append("    width: 100%;");
-	    strBuff.append("    padding: 8px;");
-	    strBuff.append("    margin: 10px 0;");
-	    strBuff.append("  }");
-
 	    strBuff.append("  .modal-content button {");
-	    strBuff.append("    padding: 8px 12px;");
-	    strBuff.append("    margin: 5px;");
-	    strBuff.append("    border: none;");
-	    strBuff.append("    border-radius: 5px;");
-	    strBuff.append("    cursor: pointer;");
+	    strBuff.append("    padding: 8px 12px; margin: 5px;");
+	    strBuff.append("    border: none; border-radius: 5px; cursor: pointer;");
 	    strBuff.append("  }");
-
-	    strBuff.append("  .btn-submit {");
-	    strBuff.append("    background-color: #3498db;");
-	    strBuff.append("    color: white;");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .btn-cancel {");
-	    strBuff.append("    background-color: #e74c3c;");
-	    strBuff.append("    color: white;");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .dropdown-wrapper {");
-	    strBuff.append("    position: relative;");
-	    strBuff.append("    display: inline-block;");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .dropdown-toggle {");
-	    strBuff.append("    cursor: pointer;");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .dropdown-content {");
-	    strBuff.append("    display: none;");
-	    strBuff.append("    position: absolute;");
-	    strBuff.append("    top: 100%;");
-	    strBuff.append("    left: 0;");
-	    strBuff.append("    margin-top: 5px;");
-	    strBuff.append("    background-color: #fff;");
-	    strBuff.append("    border: 1px solid #ccc;");
-	    strBuff.append("    min-width: 180px;");
-	    strBuff.append("    z-index: 1000;");
-	    strBuff.append("    padding: 8px;");
-	    strBuff.append("    border-radius: 8px;");
-	    strBuff.append("    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .dropdown-content .dropdown-item {");
-	    strBuff.append("    display: block;");
-	    strBuff.append("    width: 100%;");
-	    strBuff.append("    padding: 8px 12px;");
-	    strBuff.append("    background-color: #f8f9fa;");
-	    strBuff.append("    border: none;");
-	    strBuff.append("    border-radius: 5px;");
-	    strBuff.append("    text-align: left;");
-	    strBuff.append("    font-size: 14px;");
-	    strBuff.append("    color: #333;");
-	    strBuff.append("    transition: background-color 0.2s ease;");
-	    strBuff.append("    margin-bottom: 4px;");
-	    strBuff.append("  }");
-
-	    strBuff.append("  .dropdown-content .dropdown-item:hover {");
-	    strBuff.append("    background-color: #e2e6ea;");
-	    strBuff.append("  }");
+	    strBuff.append("  .btn-submit { background-color: #3498db; color: white; }");
+	    strBuff.append("  .btn-cancel { background-color: #e74c3c; color: white; }");
 	    strBuff.append("</style>");
-        return strBuff.toString();
+
+	    // Modal HTML
+	    strBuff.append("<div id=\"customModal\">");
+	    strBuff.append("  <div class=\"modal-content\">");
+	    strBuff.append("    <h3>Enter amount of payment</h3>");
+	    strBuff.append("    <p>Total: <span id=\"modalTotal\"></span></p>");
+	    strBuff.append("    <p>Amount Paid: <span id=\"modalPaid\"></span></p>");
+	    strBuff.append("    <input type=\"number\" id=\"amount\" name=\"amount\" placeholder=\"Type your payment amount\">");
+	    strBuff.append("    <label for=\"PaymentMethod\">Choose an option:</label>");
+	    strBuff.append("    <select id=\"PaymentMethod\" name=\"PaymentMethod\">");
+	    strBuff.append("      <option value=\"\">-- Please select --</option>");
+	    strBuff.append("      <option value=\"Online Payment\">Online Payment</option>");
+	    strBuff.append("      <option value=\"Cash\">Cash</option>");
+	    strBuff.append("      <option value=\"Credit Card\">Credit Card</option>");
+	    strBuff.append("      <option value=\"Bank Transfer\">Bank Transfer</option>");
+	    strBuff.append("    </select>");
+	    strBuff.append("    <div class=\"col-lg-3\" style=\"margin-top: 10px;\">");
+	    strBuff.append("      <label for=\"date\">Date:</label>");
+	    strBuff.append("      <input type=\"date\" id=\"FormattedDate\" name=\"FormattedDate\">");
+	    strBuff.append("    </div>");
+	    strBuff.append("    <input type=\"hidden\" id=\"salesId\" name=\"salesId\">");
+	    strBuff.append("    <input type=\"hidden\" id=\"salesCode\" name=\"salesCode\">");
+	    strBuff.append("    <input type=\"hidden\" id=\"total\" name=\"total\">");
+	    strBuff.append("    <div style=\"margin-top: 15px;\">");
+	    strBuff.append("      <button class=\"btn-submit\" id=\"saveeeee\" onclick=\"ACTION_VIEW_SALES_PAYMENT_SAVE()\">Submit</button>");
+	    strBuff.append("      <button class=\"btn-cancel\" onclick=\"closeModal()\">Cancel</button>");
+	    strBuff.append("    </div>");
+	    strBuff.append("  </div>");
+	    strBuff.append("</div>");
+
+	    
+	    
+	    // JavaScript
+	    strBuff.append("<script type='text/javascript'>");
+	    strBuff.append("  function showPaymentModal(salesId, total, salesCode, amountPaid) {");
+	    strBuff.append("    document.getElementById('modalTotal').textContent = total;");
+	    strBuff.append("    document.getElementById('modalPaid').textContent = amountPaid;");
+	    strBuff.append("    document.getElementById('salesId').value = salesId;");
+	    strBuff.append("    document.getElementById('salesCode').value = salesCode;");
+	    strBuff.append("    document.getElementById('total').value = total;");
+	    strBuff.append("    document.getElementById('customModal').style.display = 'flex';");
+
+
+	    strBuff.append("  }");
+
+	    
+	    
+	    strBuff.append("  function closeModal() {");
+	    strBuff.append("    document.getElementById('customModal').style.display = 'none';");
+	    strBuff.append("  }");
+	    strBuff.append("</script>");
+
+	    return strBuff.toString();
 	}
+
 	
 
 	public static String getDataViewStr(SessionInfo sessionInfo, SalesDTO sales) {
@@ -470,5 +432,94 @@ public class SalesUtil implements Serializable {
 		StringBuffer strBuff = new StringBuffer();
 		return strBuff.toString();
 }
+
+//public static void main(String[] args) {
+//    // Print the total payments per sales code
+//    printTotalPaymentsPerSalesCode();
+//}
+
+	
+    // Transfered to Util
+    static String generateReference() {
+        Random random = new Random();
+        int randomNumber = 100 + random.nextInt(900000);
+    	return String.valueOf(randomNumber);
+    	
+    }
+    
+    public static double[] convertToDoubleArray(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return new double[0];  // return empty array if input is null or empty
+        }
+        String[] strArray = str.split(",\\s*");
+        List<Double> valuesList = new ArrayList<>();
+
+        for (String s : strArray) {
+            if (!s.trim().isEmpty()) {
+                try {
+                    valuesList.add(Double.parseDouble(s.trim()));
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format: '" + s + "'");
+                    // Optionally: skip or throw your own exception
+                }
+            }
+        }
+
+        // Convert list to array
+        double[] values = new double[valuesList.size()];
+        for (int i = 0; i < valuesList.size(); i++) {
+            values[i] = valuesList.get(i);
+        }
+        return values;
+    }
+
+    // Method to convert a comma-separated string to an int array
+    public static int[] convertToIntArray(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return new int[0]; // return empty array to avoid crash
+        }
+
+        String[] strArray = str.split(",\\s*");
+        List<Integer> valuesList = new ArrayList<>();
+
+        for (String s : strArray) {
+            if (!s.trim().isEmpty()) {
+                try {
+                    valuesList.add(Integer.parseInt(s.trim()));
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid int format: '" + s + "'");
+                    // Optionally log or skip the invalid value
+                }
+            }
+        }
+
+        int[] values = new int[valuesList.size()];
+        for (int i = 0; i < valuesList.size(); i++) {
+            values[i] = valuesList.get(i);
+        }
+
+        return values;
+    }
+    
+    public static String getPaymentStatus(double total, double amountPaid) {
+        double epsilon = 0.00001;
+
+        if (amountPaid == 0) {
+            return "UNPAID";
+        }
+        if (Math.abs(total - amountPaid) < epsilon) {
+            return "PAID";
+        }
+        if (amountPaid > 0 && amountPaid < total) {
+            return "PARTIALLY PAID";
+        }
+        if (amountPaid > 0 && amountPaid > total) {
+            return "ERROR";
+        }
+        return ""; // Optional case if amountPaid > total
+    }
+    
+
+
 
 }

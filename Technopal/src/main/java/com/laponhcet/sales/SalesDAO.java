@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.laponhcet.sales.SalesDTO;
@@ -121,7 +122,6 @@ public class SalesDAO extends DAOBase {
 		}
 		prepStmntList.add(prepStmnt);
 	}
-    
 
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
 		// TODO Auto-generated method stub
@@ -156,7 +156,6 @@ public class SalesDAO extends DAOBase {
 		prepStmntList.add(prepStmnt);
 	}
 
-
     @Override
     public void executeDeleteList(List<DTOBase> arg0) {
         // TODO Auto-generated method stub
@@ -171,6 +170,7 @@ public class SalesDAO extends DAOBase {
         return getDTOList(qrySalesList);
         
     }
+    
 //    public List<DTOBase> getSalesList2() {
 //        Connection conn = daoConnectorUtil.getConnection();
 //        return getSalesListMethod(conn);
@@ -222,6 +222,36 @@ public class SalesDAO extends DAOBase {
         }
         prepStmntList.add(prepStmnt);
     }
+    
+
+public List<SalesPaymentDTO> getSalesPaymentList() {
+    SalesPaymentDAO salesPaymentDAO = new SalesPaymentDAO();
+    List<DTOBase> dtoList = salesPaymentDAO.getSalesPaymentList();
+    List<SalesPaymentDTO> salesPaymentList = new ArrayList<>();
+
+    for (DTOBase dto : dtoList) {
+        salesPaymentList.add((SalesPaymentDTO) dto);
+    }
+
+    return salesPaymentList;
+}
+public void printSalesPaymentList() {
+    List<SalesPaymentDTO> dtoList = getSalesPaymentList();
+
+    System.out.println("=== Sales Payment Records ===");
+
+    for (DTOBase dto : dtoList) {
+        SalesPaymentDTO payment = (SalesPaymentDTO) dto;
+        System.out.println(
+            "ID: " + payment.getId() +
+            ", Code: " + payment.getCode() +
+            ", Sales Code: " + payment.getSalesCode() +
+            ", Amount Paid: " + payment.getAmountPaid() +
+            ", Payment Method: " + payment.getPaymentMethod() +
+            ", Reference: " + payment.getReference()
+        );
+    }
+}
 
 
 	@Override
@@ -237,9 +267,17 @@ public class SalesDAO extends DAOBase {
 		sales.setDate(getDBValDate(resultSet, "date"));
 		sales.getSalesPayment().setCode(getDBValStr(resultSet, "code"));
 		sales.getSalesDetails().setCode(getDBValStr(resultSet, "code"));
-		
 		return sales;
 	}
-    
-}
 
+
+
+
+	public static void main(String[] args) {
+
+	    SalesPaymentDAO salesPaymentDAO = new SalesPaymentDAO();
+	    salesPaymentDAO.printSalesPaymentList();
+	
+
+}
+}

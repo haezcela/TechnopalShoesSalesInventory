@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -25,10 +28,12 @@ public class SalesPaymentDAO extends DAOBase {
     private String qrySalesPaymentDelete = "SALES_PAYMENT_DELETE";
     private String qrySalesPaymentUpdate = "SALES_PAYMENT_UPDATE";
     private String qrySalesPaymentList = "SALES_PAYMENT_LIST";
+    private String qrySalesPaymentGroupBySalesCode= "SALES_PAYMENT_GROUP_BY_SALES_CODE ";
     private String qryGetNameByCodeUnit = "SALES_PAYMENT_UNIT_NAME";
     private String qryGetNameByCodeCategory = "SALES_PAYMENT_CATEGORY_NAME";
     public static String qrySalesPaymentLast = "SALES_PAYMENT_LAST";
     private String getAmountPaidBySalesCode = "SALES_PAYMENT_AMOUNTPAID_BY_SALES_CODE";
+    
 
     protected String getGeneratedCode(String qryName) {
         String baseCode = "00001";
@@ -48,6 +53,8 @@ public class SalesPaymentDAO extends DAOBase {
     public void getAmountPaidById(int id) {
     	
     }
+    
+    
     public String executeGetAmountPaidBySalesCode(String code) {
         Connection conn = daoConnectorUtil.getConnection();
         return getAmountPaidBySalesCode(conn, code);
@@ -89,7 +96,6 @@ public class SalesPaymentDAO extends DAOBase {
 		}
 		prepStmntList.add(prepStmnt);
 	}
-    
 
     private void closeDB(List<PreparedStatement> prepStmntList, Connection conn) {
 		// TODO Auto-generated method stub
@@ -136,6 +142,27 @@ public class SalesPaymentDAO extends DAOBase {
         return getDTOList(qrySalesPaymentList);
         
     }
+    public void printSalesPaymentList() {
+        List<DTOBase> dtoList = getSalesPaymentList();
+
+        System.out.println("=== Sales Payment Records ===");
+
+        for (DTOBase dto : dtoList) {
+            SalesPaymentDTO payment = (SalesPaymentDTO) dto;
+            System.out.println(
+                "ID: " + payment.getId() +
+                ", Code: " + payment.getCode() +
+                ", Sales Code: " + payment.getSalesCode() +
+                ", Amount Paid: " + payment.getAmountPaid() +
+                ", Payment Method: " + payment.getPaymentMethod() +
+                ", Reference: " + payment.getReference()
+            );
+        }
+    }
+
+    
+
+
 //    public List<DTOBase> getSalesPaymentList2() {
 //        Connection conn = daoConnectorUtil.getConnection();
 //        return getSalesPaymentListMethod(conn);
@@ -155,18 +182,27 @@ public class SalesPaymentDAO extends DAOBase {
 		
 	}
 
-
 	@Override
 	protected DTOBase rsToObj(ResultSet resultSet) {
 		SalesPaymentDTO salesPaymentPayment = new SalesPaymentDTO();
 		salesPaymentPayment.setId(getDBValInt(resultSet, "id"));
 		salesPaymentPayment.setCode(getDBValStr(resultSet, "code"));
+		salesPaymentPayment.setSalesCode(getDBValStr(resultSet, "sales_code"));
 		salesPaymentPayment.setAmountPaid(getDBValDouble(resultSet, "amount_paid"));
 		salesPaymentPayment.setTotalAmountPaid(getDBValDouble(resultSet, "total_amount_paid_per_sales_code"));
 		salesPaymentPayment.setPaymentMethod(getDBValStr(resultSet, "payment_method"));
 		salesPaymentPayment.setReference(getDBValStr(resultSet, "reference"));
 		return salesPaymentPayment;
 	}
-    
+	
 
+	
+	public static void main(String[] args) {
+
+		    SalesPaymentDAO salesPaymentDAO = new SalesPaymentDAO();
+		    salesPaymentDAO.printSalesPaymentList();
+		
+
+	}
+	 
 }

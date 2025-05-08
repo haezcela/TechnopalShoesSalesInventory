@@ -13,11 +13,15 @@ public class SalesPaymentDTO extends DTOBase {
     public static final String SESSION_SALES_PAYMENT = "SESSION_SALES_PAYMENT";
     public static final String SESSION_SALES_PAYMENT_LIST = "SESSION_SALES_PAYMENT_LIST";
     public static final String SESSION_SALES_PAYMENT_DATA_TABLE = "SESSION_SALES_PAYMENT_DATA_TABLE";
-    
     public static final String ACTION_SEARCH_BY_CODE = "ACTION_SEARCH_BY_CODE";
-
-	
     
+	private String name;
+    private Date date;
+    private double amountPaid;
+    private String paymentMethod;
+    private String reference;
+    private String salesCode;
+    private UserDTO user;
 
     public Date getDate() {
 		return date;
@@ -34,16 +38,9 @@ public class SalesPaymentDTO extends DTOBase {
 
 	public void setTotalAmountPaid(double totalAmountPaid) {
 		this.totalAmountPaid = totalAmountPaid;
-		System.out.println("Amount Paid set to: " + totalAmountPaid); // Debug output
 	}
 	
-	private String name;
-    private Date date;
-    private double amountPaid;
-    private String paymentMethod;
-    private String reference;
-    private String salesCode;
-    private UserDTO user;
+
 	public UserDTO getUser() {
 		return user;
 	}

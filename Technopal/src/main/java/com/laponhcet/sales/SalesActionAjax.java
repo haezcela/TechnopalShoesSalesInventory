@@ -18,7 +18,7 @@ import org.json.JSONObject;
 
 import com.laponhcet.academicprogram.AcademicProgramDTO;
 import com.laponhcet.academicsection.AcademicSectionDTO;
-
+import com.laponhcet.admissionapplication.AdmissionApplicationUtil;
 import com.laponhcet.sales.SalesDAO;
 import com.laponhcet.sales.SalesDTO;
 import com.laponhcet.salesdetails.SalesDetailsDAO;
@@ -54,86 +54,7 @@ import com.mytechnopal.util.StringUtil;
 public class SalesActionAjax extends ActionAjaxBase {
     private static final long serialVersionUID = 1L;
     
-    private String generateReference() {
-        Random random = new Random();
-        int randomNumber = 100 + random.nextInt(900000);
-    	return String.valueOf(randomNumber);
-    	
-    }
-    
-    public static double[] convertToDoubleArray(String str) {
-        if (str == null || str.trim().isEmpty()) {
-            return new double[0];  // return empty array if input is null or empty
-        }
-        String[] strArray = str.split(",\\s*");
-        List<Double> valuesList = new ArrayList<>();
 
-        for (String s : strArray) {
-            if (!s.trim().isEmpty()) {
-                try {
-                    valuesList.add(Double.parseDouble(s.trim()));
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid number format: '" + s + "'");
-                    // Optionally: skip or throw your own exception
-                }
-            }
-        }
-
-        // Convert list to array
-        double[] values = new double[valuesList.size()];
-        for (int i = 0; i < valuesList.size(); i++) {
-            values[i] = valuesList.get(i);
-        }
-
-        return values;
-    }
-
-
-    // Method to convert a comma-separated string to an int array
-    public static int[] convertToIntArray(String str) {
-        if (str == null || str.trim().isEmpty()) {
-            return new int[0]; // return empty array to avoid crash
-        }
-
-        String[] strArray = str.split(",\\s*");
-        List<Integer> valuesList = new ArrayList<>();
-
-        for (String s : strArray) {
-            if (!s.trim().isEmpty()) {
-                try {
-                    valuesList.add(Integer.parseInt(s.trim()));
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid int format: '" + s + "'");
-                    // Optionally log or skip the invalid value
-                }
-            }
-        }
-
-        int[] values = new int[valuesList.size()];
-        for (int i = 0; i < valuesList.size(); i++) {
-            values[i] = valuesList.get(i);
-        }
-
-        return values;
-    }
-
-    public static String getPaymentStatus(double total, double amountPaid) {
-        double epsilon = 0.00001;
-
-        if (amountPaid == 0) {
-            return "UNPAID";
-        }
-        if (Math.abs(total - amountPaid) < epsilon) {
-            return "PAID";
-        }
-        if (amountPaid > 0 && amountPaid < total) {
-            return "PARTIALLY PAID";
-        }
-        if (amountPaid > 0 && amountPaid > total) {
-            return "ERROR";
-        }
-        return ""; // Optional case if amountPaid > total
-    }
 
     protected void setInput(String action) {
         SalesDTO sales = (SalesDTO) getSessionAttribute(SalesDTO.SESSION_SALES);
@@ -148,14 +69,14 @@ public class SalesActionAjax extends ActionAjaxBase {
 
         // Parse arrays
         String[] itemCodes = itemCodesStr.split(",");
-        double[] quantities = convertToDoubleArray(quantitiesStr);
-        double[] unitPrices = convertToDoubleArray(unitPricesStr);
+        double[] quantities = SalesUtil.convertToDoubleArray(quantitiesStr);
+        double[] unitPrices = SalesUtil.convertToDoubleArray(unitPricesStr);
 
         // Get total, payment, and date
         double total = getRequestDouble("txtHiddenTotal");
         double amountPaid = getRequestDouble("txtAmountPaid");
         String dateStr = getRequestString("txtDate");
-        String paymentStatus = getPaymentStatus(total, amountPaid);
+        String paymentStatus = SalesUtil.getPaymentStatus(total, amountPaid);
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
         if (paymentStatus.equals("ERROR")) {
@@ -202,7 +123,7 @@ public class SalesActionAjax extends ActionAjaxBase {
         // Payment
         sales.getSalesPayment().setPaymentMethod(getRequestString("cboPaymentMethod"));
         sales.getSalesPayment().setAmountPaid(amountPaid);
-        sales.getSalesPayment().setReference(generateReference());
+        sales.getSalesPayment().setReference(SalesUtil.generateReference());
 
         // Set customer
         int userId = getRequestInt("cboCustomer");
@@ -244,10 +165,13 @@ public class SalesActionAjax extends ActionAjaxBase {
 //
 //        }
     }
-    protected void customAction(JSONObject jsonObj, String action) {
     
-    	
+    protected void customAction(JSONObject jsonObj,  String action) {
+    
     	if(action.equalsIgnoreCase(SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE)) {
+    		
+    		
+    		System.out.println("INSIDE ACTION_VIEW_SALES_PAYMENT_SAVE");
     		SalesDTO sales = new SalesDTO();
         	SalesDAO salesDAO = new SalesDAO();
         	double amount = getRequestInt("amount");
@@ -287,7 +211,7 @@ public class SalesActionAjax extends ActionAjaxBase {
         	SalesPaymentDAO sdao = new SalesPaymentDAO();
         	String recentAmount = sdao.executeGetAmountPaidBySalesCode(salesCode);
         	double currentAmount = Double.parseDouble(recentAmount) + amount;
-        	String paymentStatus = getPaymentStatus(total, currentAmount);
+        	String paymentStatus = SalesUtil.getPaymentStatus(total, currentAmount);
             if (paymentStatus.equals("ERROR")) {
             	actionResponse.constructMessage(ActionResponse.TYPE_FAIL, "amout paid has exceed the total");
             	return;
@@ -304,19 +228,40 @@ public class SalesActionAjax extends ActionAjaxBase {
             
         	actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
             if (StringUtil.isEmpty(actionResponse.getType())) {
-                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Added");
-                setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
-                setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
-                setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
-                setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
-                
+            	actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Payment saved successfully");
+
+               
+           	 List<DTOBase> salesList = new SalesDAO().getSalesList();
+             List<DTOBase> salesPaymentList = new SalesPaymentDAO().getSalesPaymentList();
+             List<DTOBase> salesDetailsList = new SalesDetailsDAO().getSalesDetailsList();
+             List<DTOBase> userList = new UserDAO().getUserList();
+             List<DTOBase> itemList = new ItemDAO().getItemList();
+
+
+             setSessionAttribute(SalesDTO.SESSION_SALES_LIST, salesList);
+             setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, salesPaymentList);
+             setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, salesDetailsList);
+             setSessionAttribute(UserDTO.SESSION_USER_LIST, userList);
+             setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, itemList);
+             
+          // Debugging print statement for TotalAmountPaid
+             double updatedTotalAmountPaid = sales.getSalesPayment().getAmountPaid();
+             System.out.println("Updated TotalAmountPaid for Sales Code " + sales.getCode() + ": " + updatedTotalAmountPaid);
+        	
+            	
+//                setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
+//                setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
+//                setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
+//                setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
+//                
+//                
                 // Refresh table
                 dataTableAction(jsonObj, (DataTable) getSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE));
 
 
-
             }
 		}
+    	
     	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {
     		SalesDTO sales = new SalesDTO();
         	SalesDAO salesDAO = new SalesDAO();
@@ -342,6 +287,13 @@ public class SalesActionAjax extends ActionAjaxBase {
             }
     	
     	}
+    	else if(action.equalsIgnoreCase(SalesDTO.ACTION_VIEW_SALES_PAYMENT )) {
+    		// Highlight the selected row
+    		
+    		
+    		
+    		
+    	}
     }
 
     protected void executeLogic(JSONObject jsonObj, DataTable dataTable, String action) {
@@ -349,6 +301,7 @@ public class SalesActionAjax extends ActionAjaxBase {
 		List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
         if (action.equalsIgnoreCase(DataTable.ACTION_VIEW)) {
             SalesDTO salesSelected = (SalesDTO) dataTable.getSelectedRecord();
+            
             try {
                 jsonObj.put(LinkDTO.PAGE_CONTENT, PageUtil.getDataViewPage(sessionInfo, SalesUtil.getDataViewStr(sessionInfo, salesSelected),""));
             } catch (JSONException e) {
@@ -400,11 +353,142 @@ public class SalesActionAjax extends ActionAjaxBase {
                 setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
                 actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Deleted");
             }
-        }else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW+"_PAYMENT")) {
-            System.out.println("ayyyyy");
-
-
         }
+        else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_VIEW + "_PAYMENT")) {
+            System.out.println("ADD PAYMENT ");
+            
+            
+            
+            
+        }
+        else if (action.equalsIgnoreCase(DataTable.ACTION_ADD_SAVE + "_PAYMENT")) {
+            System.out.println("ADD PAYMENT NOT IN CUSTOM ACTION");
+            SalesDTO sales = new SalesDTO();
+        	SalesDAO salesDAO = new SalesDAO();
+        	double amount = getRequestInt("amount");
+        	//String strAmount = String.valueOf(amount);
+        	int id = getRequestInt("salesId");
+        	String salesCode = getRequestString("salesCode");
+        	double total = getRequestDouble("total");
+        	String date = getRequestString("FormattedDate");
+        	if (date.equals("") || date == "" || date == null) {
+        		actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "date");
+        		return;
+        	}
+        	if (amount == 0 || amount < 1) {
+        		actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "amount");
+        		return;
+        	}
+        	SimpleDateFormat formatter1 = new SimpleDateFormat("MM/dd/yyyy");
+        	try {
+        	 
+        	    LocalDate parsedDate1 = LocalDate.parse(date); 
+        	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        	    String formattedDate = parsedDate1.format(formatter); 
+        	     
+        	    Date parsedDate = formatter1.parse(formattedDate);
+        	    sales.getSalesPayment().setDate(parsedDate);
+        	    System.out.println(formattedDate);
+        	} catch (DateTimeParseException e) {
+        	
+        	    e.printStackTrace();
+        	} catch (java.text.ParseException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+          	String paymentMethod = getRequestString("PaymentMethod");
+          
+        	System.out.println("FormattedDateFormattedDateFormattedDateFormattedDate"+date);
+        	SalesPaymentDAO sdao = new SalesPaymentDAO();
+        	String recentAmount = sdao.executeGetAmountPaidBySalesCode(salesCode);
+        	double currentAmount = Double.parseDouble(recentAmount) + amount;
+        	String paymentStatus = SalesUtil.getPaymentStatus(total, currentAmount);
+            if (paymentStatus.equals("ERROR")) {
+            	actionResponse.constructMessage(ActionResponse.TYPE_FAIL, "amout paid has exceed the total");
+            	return;
+            }
+     
+            sales.getSalesPayment().setPaymentMethod(paymentMethod);
+            sales.getSalesPayment().setAmountPaid(amount);
+            sales.getSalesPayment().setSalesCode(salesCode);
+            sales.getSalesPayment().setAddedBy(sessionInfo.getCurrentUser().getCode());
+        	sales.setPaymentStatus(paymentStatus);
+        	sales.setId(id);
+        	System.out.println("adddddddddddddddddddd add savee"+amount+total+id);
+        	salesDAO.executeUpdate(sales);
+            
+        	actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+            if (StringUtil.isEmpty(actionResponse.getType())) {
+            	actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Payment saved successfully");
+
+               
+                
+                setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
+                setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
+                setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
+                setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
+            
+            }
+            
+            }
+        
+
+    }
+    
+
+
+protected void setPaymentInput(String action) {
+    if (action.equalsIgnoreCase(SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE)) {
+        // Retrieve values from the request
+        int salesId = getRequestInt("salesId");
+        String salesCode = getRequestString("salesCode");
+        double total = getRequestDouble("total");
+        double amountPaid = getRequestDouble("amount");
+        String paymentMethod = getRequestString("PaymentMethod");
+        String formattedDate = getRequestString("FormattedDate");
+
+        // Log the retrieved values (optional)
+        System.out.println("Sales ID: " + salesId);
+        System.out.println("Sales Code: " + salesCode);
+        System.out.println("Total: " + total);
+        System.out.println("Amount Paid: " + amountPaid);
+        System.out.println("Payment Method: " + paymentMethod);
+        System.out.println("Formatted Date: " + formattedDate);
+
+        // Set the values in the SalesDTO or other relevant objects
+        SalesDTO sales = new SalesDTO();
+        sales.setId(salesId);
+        sales.setCode(salesCode);
+        sales.setTotal(total);
+        sales.getSalesPayment().setAmountPaid(amountPaid);
+        sales.getSalesPayment().setPaymentMethod(paymentMethod);
+
+        // Parse and set the date
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            Date parsedDate = formatter.parse(formattedDate);
+            sales.getSalesPayment().setDate(parsedDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Store the SalesDTO in the session or process it further
+        setSessionAttribute(SalesDTO.SESSION_SALES, sales);
+    }
+}
+
+
+    
+    protected void saveSalesPayment() {
+		SalesPaymentDTO salesPayment = new SalesPaymentDTO();
+		salesPayment.setDate(new Date());
+		salesPayment.setAmountPaid(getRequestDouble("txtAmountPaid"));
+		salesPayment.setReference(getRequestString("txtReference"));
+		salesPayment.setSalesCode(getRequestString("txtSalesCode"));
+		salesPayment.setUser((UserDTO) getSessionAttribute(UserDTO.SESSION_USER));
+		salesPayment.setAddedBy(sessionInfo.getCurrentUser().getCode());
+		salesPayment.setTotalAmountPaid(0);
+		setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT, salesPayment);
     }
 
     protected void dataTableAction(JSONObject jsonObj, DataTable dataTable) {
@@ -424,6 +508,8 @@ public class SalesActionAjax extends ActionAjaxBase {
        List<DTOBase> itemList = (List<DTOBase>) getSessionAttribute(ItemDTO.SESSION_ITEM_LIST);
        dataTable.setRecordList(salesList);
        dataTable.setCurrentPageRecordList();	
+       
+       
    		for(int row=0; row < dataTable.getRecordListCurrentPage().size(); row++) {			
    			SalesDTO sales = (SalesDTO) dataTable.getRecordListCurrentPage().get(row);
    			sales.setSalesPayment((SalesPaymentDTO) DTOUtil.getObjByCode(salesPaymentList, sales.getSalesPayment().getCode()));

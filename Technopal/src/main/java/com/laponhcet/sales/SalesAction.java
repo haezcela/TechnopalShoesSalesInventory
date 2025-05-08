@@ -17,7 +17,6 @@ import com.mytechnopal.dto.UserDTO;
 public class SalesAction extends ActionBase {
 
     private static final long serialVersionUID = 1L;
-
     protected void setSessionVars() {
         List<DTOBase> salesList = new SalesDAO().getSalesList();
         List<DTOBase> salesPaymentList = new SalesPaymentDAO().getSalesPaymentList();
@@ -35,7 +34,6 @@ public class SalesAction extends ActionBase {
         setSessionAttribute(UserDTO.SESSION_USER_LIST, userList);
         setSessionAttribute(ItemDTO.SESSION_ITEM_LIST, itemList);
         
-
     }
 }
 

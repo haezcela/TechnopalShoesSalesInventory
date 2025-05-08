@@ -7,24 +7,63 @@
 <%@ page import="com.mytechnopal.util.*"%>
 <%@ page import="com.mytechnopal.dao.*"%>
 <%@ page import="com.mytechnopal.webcontrol.*" %>
-
 <%@ page import="com.laponhcet.sales.*" %>
 
 <%
 SessionInfo sessionInfo = (SessionInfo) session.getAttribute(SessionInfo.SESSION_INFO);
 DataTable dataTable = (DataTable)session.getAttribute(SalesDTO.SESSION_SALES_DATA_TABLE);
 String dataInput = "changeStatusCode: $('#changeStatusCode').val(), salesCode: $('#salesCode').val(), FormattedDate: $('#FormattedDate').val(), PaymentMethod: $('#PaymentMethod').val(), salesId: $('#salesId').val(), total: $('#total').val(), amount: $('#amount').val(), txtHiddenTotal: $('#txtHiddenTotal').val(), txtHiddenItems: $('#txtHiddenItems').val(), cboItem: $('#cboItem').val(), txtQuantity: $('#txtQuantity').val(), txtUnitPrice: $('#txtUnitPrice').val(), cboPaymentStatus: $('#cboPaymentStatus').val(), cboStatus: $('#cboStatus').val(), txtAmountPaid: $('#txtAmountPaid').val(), cboPaymentMethod: $('#cboPaymentMethod').val(), txtReference: $('#txtReference').val(), cboCustomer: $('#cboCustomer').val(), txtDate: $('#txtDate').val()"; 
+
+// Sepate Sales and Sales Payment
+
 %>
-<div class='container' id='<%=sessionInfo.getCurrentLink().getPageId()%>'></div>
 <div class="container" id='<%=dataTable.getId()%>'></div>
 
 
-<%=SalesUtil.getPaymentModalStr()%>
+<%=SalesUtil.showPaymentModal()%>
+
+
+
+
 <script>
 
 setTimeout(function (){
 list<%=sessionInfo.getCurrentLink().getCode()%>();
 }, 100); 
+
+
+function updateTableAfterPayment() {
+    $.ajax({
+        url: 'SalesActionAjax', // Replace with your actual server endpoint
+        type: 'POST',
+        data: {
+            action: 'ACTION_VIEW_SALES_PAYMENT_SAVE',
+            salesId: $('#salesId').val(), // Include necessary data
+            salesCode: $('#salesCode').val(),
+            amount: $('#amount').val(),
+            total: $('#total').val(),
+            PaymentMethod: $('#PaymentMethod').val(),
+            FormattedDate: $('#FormattedDate').val()
+        },
+        success: function(response) {
+        	alert(response);
+            if (response.message) {
+            	
+                alert(response.message); // Display success message
+                
+            }
+
+            // Update the table content
+            if (response.tableContent) {
+                $('#<%=dataTable.getId()%>').html(response.tableContent);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error); // Log the error for debugging
+            alert('An error occurred while processing your request.');
+        }
+    });
+}
 
 
 function toggleDropdown(button) {
@@ -47,14 +86,63 @@ document.addEventListener('click', function(e) {
 function closeModal() {
     document.getElementById('customModal').style.display = 'none';
   }
+function ACTION_VIEW_SALES_PAYMENT_SAVE() {	
+	$.ajax({		url: 'AjaxController?txtSelectedLink=032',		
+			data: {		txtAction: 'ACTION_VIEW_SALES_PAYMENT_SAVE',
+				changeStatusCode: $('#changeStatusCode').val(), 
+				salesCode: $('#salesCode').val(), 
+				FormattedDate: $('#FormattedDate').val(), 
+				PaymentMethod: $('#PaymentMethod').val(), 
+				salesId: $('#salesId').val(), total: $('#total').val(), 
+				amount: $('#amount').val(), 
+				txtHiddenTotal: $('#txtHiddenTotal').val(), 
+				txtHiddenItems: $('#txtHiddenItems').val(), 
+				cboItem: $('#cboItem').val(), 
+				txtQuantity: $('#txtQuantity').val(), 
+				txtUnitPrice: $('#txtUnitPrice').val(), 
+				cboPaymentStatus: $('#cboPaymentStatus').val(), 
+				cboStatus: $('#cboStatus').val(), 
+				txtAmountPaid: $('#txtAmountPaid').val(), 
+				cboPaymentMethod: $('#cboPaymentMethod').val(), 
+				txtReference: $('#txtReference').val(), 
+				cboCustomer: $('#cboCustomer').val(), 
+				txtDate: $('#txtDate').val()		},		
+				method: 'POST',		
+				dataType: 'JSON',		
+
+				success: function(response) {
+				    if (response.MESSAGE_TYPE != '') {
+				        Swal.fire({
+				            title: response.MESSAGE_TITLE,
+				            text: response.MESSAGE_STR,
+				            icon: response.MESSAGE_TYPE
+				        });
+				    }
+
+				    // Update the table content
+				    if (response.PAGE_CONTENT) {
+				        document.getElementById('<%=dataTable.getId()%>').innerHTML = response.PAGE_CONTENT;
+				    }
+
+				    console.log("Updated Table Content:", response.PAGE_CONTENT);
+				}
+
+				
+	});}
+
+  
+  
 document.addEventListener('DOMContentLoaded', function () {
 	  document.getElementById('saveeeee').addEventListener('click', function () {
 		  console.log("sasdasdsadsadsa");
 			 document.getElementById('customModal').style.display = 'none';
 	  });
 	});
-
-function ACTION_VIEW_SALES_PAYMENT(id, total, code, amountPaid) {
+	
+// Transfer to ActionAjax
+<%-- function ACTION_VIEW_SALES_PAYMENT(id, total, code, amountPaid) {
+	
+	//Transfer to Util
     document.getElementById('modalTotal').textContent = total;
     document.getElementById('modalPaid').textContent = amountPaid;
     document.getElementById('salesId').value = id;
@@ -67,19 +155,18 @@ function ACTION_VIEW_SALES_PAYMENT(id, total, code, amountPaid) {
     if (duplicateContainer) {
         duplicateContainer.remove();
     }
-}
+} --%>
 
 <%=WebUtil.getJSList(sessionInfo, dataTable)%>
 <%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
 <%=WebUtil.getJSAddSave(sessionInfo, dataTable, dataInput)%>
 <%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
 <%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
-<%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%>
+<%-- <%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%> --%>
 <%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_CHANGE_SALES_STATUS, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%>
 function cancel(){
 	alert("cancel");
 }
-
 
 </script> 
 
