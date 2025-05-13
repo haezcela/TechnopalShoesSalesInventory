@@ -261,32 +261,81 @@ public class SalesActionAjax extends ActionAjaxBase {
 
             }
 		}
+
+else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {
+    SalesDTO sales = new SalesDTO();
+    SalesDAO salesDAO = new SalesDAO();
+
+    String statusCodeAndStatus = getRequestString("changeStatusCode");
+    if (statusCodeAndStatus == null || statusCodeAndStatus.isEmpty()) {
+        System.out.println("Error: changeStatusCode is empty or null.");
+        actionResponse.constructMessage(ActionResponse.MESSAGE_STR, "Invalid status code.");
+        return;
+    }
+
+    // Split the value and validate
+    String[] parts = statusCodeAndStatus.split(",\\s*");
+    if (parts.length != 2) {
+        System.out.println("Error: Invalid format for changeStatusCode: " + statusCodeAndStatus);
+        actionResponse.constructMessage(ActionResponse.MESSAGE_STR, "Invalid status code format.");
+        return;
+    }
+
+    String code = parts[0].trim();  // Extract sales code
+    String status = parts[1].trim();  // Extract status
+
+    System.out.println("Parsed Code: " + code + ", Status: " + status);
+
+    // Set the sales code and status
+    sales.setCode(code);
+    sales.setStatus(status);
+
+    // Update the status in the database
+    salesDAO.executeUpdateStatus(sales);
+    actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+
+    if (actionResponse.getMessageStr().isEmpty()) {
+        actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "Status updated successfully");
+        setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
+        setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
+        setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
+        setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
+        dataTableAction(jsonObj, (DataTable) getSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE));
+
+    } else {
+        System.out.println("Failed to update status for Code: " + code);
+    }
+}
+
     	
-    	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {
-    		SalesDTO sales = new SalesDTO();
-        	SalesDAO salesDAO = new SalesDAO();
-    		String statusCodeAndStatus = getRequestString("changeStatusCode");
-    	  	if (statusCodeAndStatus.equals("") || statusCodeAndStatus == "" || statusCodeAndStatus == null) {
-        		actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "status");
-        		return;
-        	}
-    		System.out.println("adddddddddddddasdasdasdasdasdasdasdsadjaskd statusCode"+statusCodeAndStatus);
-    		String[] parts = statusCodeAndStatus.split(",\\s*"); // split by comma and optional space
-    		String code = parts[0];         // "Code001"
-    		String status = parts[1];
-    		sales.setCode(code);
-    		sales.setStatus(status);
-    		salesDAO.executeUpdateStatus(sales);
-         	actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
-            if (StringUtil.isEmpty(actionResponse.getType())) {
-                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "status changed");
-                setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
-                setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
-                setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
-                setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
-            }
-    	
-    	}
+//    	else if (action.equalsIgnoreCase(SalesDTO.ACTION_CHANGE_SALES_STATUS)) {
+//    		SalesDTO sales = new SalesDTO();
+//        	SalesDAO salesDAO = new SalesDAO();
+//    		String statusCodeAndStatus = getRequestString("changeStatusCode");
+//    	  	if (statusCodeAndStatus.equals("") || statusCodeAndStatus == "" || statusCodeAndStatus == null) {
+//        		actionResponse.constructMessage(ActionResponse.TYPE_EMPTY, "status");
+//        		return;
+//        	}
+//    		System.out.println("adddddddddddddasdasdasdasdasdasdasdsadjaskd statusCode"+statusCodeAndStatus);
+//    		String[] parts = statusCodeAndStatus.split(",\\s*"); // split by comma and optional space
+//    		String code = parts[0];         // "Code001"
+//    		String status = parts[1];
+//    		sales.setCode(code);
+//    		sales.setStatus(status);
+//    		salesDAO.executeUpdateStatus(sales);
+//         	actionResponse = (ActionResponse) salesDAO.getResult().get(ActionResponse.SESSION_ACTION_RESPONSE);
+//            if (StringUtil.isEmpty(actionResponse.getType())) {
+//                actionResponse.constructMessage(ActionResponse.TYPE_SUCCESS, "status changed");
+//                setSessionAttribute(SalesDTO.SESSION_SALES_LIST, new SalesDAO().getSalesList());
+//                setSessionAttribute(SalesDetailsDTO.SESSION_SALES_DETAILS_LIST, new SalesDetailsDAO().getSalesDetailsList());
+//                setSessionAttribute(SalesPaymentDTO.SESSION_SALES_PAYMENT_LIST, new SalesPaymentDAO().getSalesPaymentList());
+//                setSessionAttribute(UserDTO.SESSION_USER_LIST, new UserDAO().getUserList());
+//                dataTableAction(jsonObj, (DataTable) getSessionAttribute(SalesDTO.SESSION_SALES_DATA_TABLE));
+//
+//            
+//            }
+//    	
+//    	}
     	else if(action.equalsIgnoreCase(SalesDTO.ACTION_VIEW_SALES_PAYMENT )) {
     		// Highlight the selected row
     		

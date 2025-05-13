@@ -19,52 +19,13 @@ String dataInput = "changeStatusCode: $('#changeStatusCode').val(), salesCode: $
 %>
 <div class="container" id='<%=dataTable.getId()%>'></div>
 
-
 <%=SalesUtil.showPaymentModal()%>
-
-
-
 
 <script>
 
 setTimeout(function (){
 list<%=sessionInfo.getCurrentLink().getCode()%>();
 }, 100); 
-
-
-function updateTableAfterPayment() {
-    $.ajax({
-        url: 'SalesActionAjax', // Replace with your actual server endpoint
-        type: 'POST',
-        data: {
-            action: 'ACTION_VIEW_SALES_PAYMENT_SAVE',
-            salesId: $('#salesId').val(), // Include necessary data
-            salesCode: $('#salesCode').val(),
-            amount: $('#amount').val(),
-            total: $('#total').val(),
-            PaymentMethod: $('#PaymentMethod').val(),
-            FormattedDate: $('#FormattedDate').val()
-        },
-        success: function(response) {
-        	alert(response);
-            if (response.message) {
-            	
-                alert(response.message); // Display success message
-                
-            }
-
-            // Update the table content
-            if (response.tableContent) {
-                $('#<%=dataTable.getId()%>').html(response.tableContent);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error); // Log the error for debugging
-            alert('An error occurred while processing your request.');
-        }
-    });
-}
-
 
 function toggleDropdown(button) {
     const dropdown = button.nextElementSibling;
@@ -86,6 +47,69 @@ document.addEventListener('click', function(e) {
 function closeModal() {
     document.getElementById('customModal').style.display = 'none';
   }
+  
+
+
+function highlightUpdatedPaymentRow(salesCode) {
+    // Log the salesCode for debugging
+    console.log("Highlighting row for salesCode:", salesCode);
+
+    // Find the row by sales code
+    const row = document.querySelector(`tr[data-sales-code="${salesCode}"]`);
+    if (row) {
+        // Add the highlight class
+        row.classList.add('highlight-row');
+
+        // Optionally, remove the highlight after a few seconds
+        setTimeout(() => {
+            row.classList.remove('highlight-row');
+        }, 3000); // Remove after 3 seconds
+    } else {
+        console.error("Row not found for salesCode:", salesCode);
+    }
+}
+
+
+  
+
+function ACTION_CHANGE_SALES_STATUS(salesId, salesCode, status) {
+    console.log("Updating Sales ID:", salesId, "Sales Code:", salesCode, "Status:", status); // Debugging log
+
+    $.ajax({
+        url: 'AjaxController?txtSelectedLink=032',
+        data: {
+            txtAction: 'ACTION_CHANGE_SALES_STATUS',
+            salesId: salesId,
+            salesCode: salesCode,
+            changeStatusCode: status
+        },
+        method: 'POST',
+        dataType: 'JSON',
+        success: function(response) {
+            if (response.MESSAGE_TYPE != '') {
+                Swal.fire({
+                    title: response.MESSAGE_TITLE,
+                    text: response.MESSAGE_STR,
+                    icon: response.MESSAGE_TYPE
+                });
+            }
+
+            if (response.PAGE_CONTENT) {
+                document.getElementById('<%=dataTable.getId()%>').innerHTML = response.PAGE_CONTENT;
+            }
+         // Highlight the updated payment row
+            highlightUpdatedPaymentRow(salesCode);
+
+            console.log("Updated Table Content:", response.PAGE_CONTENT);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error in AJAX call:", error);
+        }
+    });
+}
+
+
+
 function ACTION_VIEW_SALES_PAYMENT_SAVE() {	
 	$.ajax({		url: 'AjaxController?txtSelectedLink=032',		
 			data: {		txtAction: 'ACTION_VIEW_SALES_PAYMENT_SAVE',
@@ -123,12 +147,15 @@ function ACTION_VIEW_SALES_PAYMENT_SAVE() {
 				    if (response.PAGE_CONTENT) {
 				        document.getElementById('<%=dataTable.getId()%>').innerHTML = response.PAGE_CONTENT;
 				    }
+				    
+				 // Highlight the updated payment row
+		            highlightUpdatedPaymentRow(salesCode);
 
 				    console.log("Updated Table Content:", response.PAGE_CONTENT);
 				}
-
-				
-	});}
+	});
+	
+	}
 
   
   
@@ -138,24 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			 document.getElementById('customModal').style.display = 'none';
 	  });
 	});
-	
-// Transfer to ActionAjax
-<%-- function ACTION_VIEW_SALES_PAYMENT(id, total, code, amountPaid) {
-	
-	//Transfer to Util
-    document.getElementById('modalTotal').textContent = total;
-    document.getElementById('modalPaid').textContent = amountPaid;
-    document.getElementById('salesId').value = id;
-    document.getElementById('salesCode').value = code;
-    document.getElementById('total').value = total;
-    document.getElementById('customModal').style.display = 'flex';
-    
-    // Remove the duplicate table container if it exists
-    const duplicateContainer = document.getElementById('<%=dataTable.getId()%>');
-    if (duplicateContainer) {
-        duplicateContainer.remove();
-    }
-} --%>
 
 <%=WebUtil.getJSList(sessionInfo, dataTable)%>
 <%=WebUtil.getJSAddView(sessionInfo, dataTable, dataTable.getId())%>
@@ -163,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <%=WebUtil.getJSUpdate(sessionInfo, dataTable, dataInput)%>
 <%=WebUtil.getJSDelete(sessionInfo, dataTable)%>
 <%-- <%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_VIEW_SALES_PAYMENT_SAVE, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%> --%>
-<%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_CHANGE_SALES_STATUS, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%>
+<%-- <%=WebUtil.getJSCustom(sessionInfo, SalesDTO.ACTION_CHANGE_SALES_STATUS, dataInput, sessionInfo.getCurrentLink().getPageId(), ActionResponse.DIALOG_TYPE_SWAL)%> --%>
 function cancel(){
 	alert("cancel");
 }
@@ -261,4 +270,11 @@ function cancel(){
 .dropdown-content .dropdown-item:hover {
     background-color: #e2e6ea;
 }
+
+.highlight-row {
+    background-color: 
+#ccebff; /* Light blue */
+    transition: background-color 1s ease; /* Smooth transition */
+}
+
 </style>

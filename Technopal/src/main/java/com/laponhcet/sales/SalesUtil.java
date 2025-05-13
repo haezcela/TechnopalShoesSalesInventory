@@ -58,10 +58,6 @@ public class SalesUtil implements Serializable {
         return totalAmountPaid;
     }
 
-
-	
-	
-
 private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionInfo, DataTable dataTable) {
     String[][] strArr = new String[dataTable.getRecordListCurrentPage().size()][dataTable.getColumnNameArr().length];
     DecimalFormat df = new DecimalFormat("0.##");
@@ -93,12 +89,8 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
         strArr[row][2] = String.valueOf(sales.getTotal());
         strArr[row][3] = String.valueOf(sales.getPaymentStatus());
         strArr[row][4] = sales.getStatus();
-
         strArr[row][5] = String.valueOf(totalPaymentsMap.get(sales.getCode()));
-        
-
         strArr[row][6] = formatter.format(sales.getDate());
-
         // Build the buttons
         strArr[row][7] = dataTable.getRecordButtonStr(sessionInfo, sales.getCode()) +
             "<button type=\"button\" class=\"btn btn-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"View Payment\" " +
@@ -118,12 +110,9 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
             "</label>" +
             "</div>";
     }
-
     return strArr;
 }
 
-	
-	
 	public static String getPaymentEntrySts(SessionInfo sessionInfo, SalesDTO sales) {
 	    StringBuffer strBuff = new StringBuffer();
 	    strBuff.append(new TextBoxWebControl().getTextBoxWebControl("col-lg-3", true, "AmountPaid", "AmountPaid", "AmountPaid", String.valueOf(sales.getSalesPayment().getAmountPaid()), 45, WebControlBase.DATA_TYPE_INTEGER, ""));
@@ -318,7 +307,6 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
 	    
 	    return strBuff.toString();
 	}
-
 	
 	public static String showPaymentModal() {
 	    StringBuilder strBuff = new StringBuilder();
@@ -370,10 +358,17 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
 	    strBuff.append("      <option value=\"Credit Card\">Credit Card</option>");
 	    strBuff.append("      <option value=\"Bank Transfer\">Bank Transfer</option>");
 	    strBuff.append("    </select>");
-	    strBuff.append("    <div class=\"col-lg-3\" style=\"margin-top: 10px;\">");
+	    strBuff.append("    <div class=\"col-lg-12\" style=\"margin-top: 5px;\">");
 	    strBuff.append("      <label for=\"date\">Date:</label>");
 	    strBuff.append("      <input type=\"date\" id=\"FormattedDate\" name=\"FormattedDate\">");
 	    strBuff.append("    </div>");
+	    strBuff.append("    <script>");
+	    strBuff.append("      document.addEventListener('DOMContentLoaded', function() {");
+	    strBuff.append("        const today = new Date().toISOString().split('T')[0];");
+	    strBuff.append("        document.getElementById('FormattedDate').value = today;");
+	    strBuff.append("      });");
+	    strBuff.append("    </script>");
+
 	    strBuff.append("    <input type=\"hidden\" id=\"salesId\" name=\"salesId\">");
 	    strBuff.append("    <input type=\"hidden\" id=\"salesCode\" name=\"salesCode\">");
 	    strBuff.append("    <input type=\"hidden\" id=\"total\" name=\"total\">");
@@ -383,8 +378,6 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
 	    strBuff.append("    </div>");
 	    strBuff.append("  </div>");
 	    strBuff.append("</div>");
-
-	    
 	    
 	    // JavaScript
 	    strBuff.append("<script type='text/javascript'>");
@@ -414,7 +407,7 @@ private static String[][] getDataTableCurrentPageRecordArr(SessionInfo sessionIn
 	public static String getDataViewStr(SessionInfo sessionInfo, SalesDTO sales) {
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("<p>Code: " + sales.getCode() + "</p>");
-		strBuff.append("<p>Item: </p>");
+		strBuff.append("<p>Item: "+ sales.getItem().getName() + "</p>");
 		strBuff.append("<p>Customer:"+sales.getUser().getFirstName()+" "+sales.getUser().getLastName()+" </p>");
 		strBuff.append("<p>Quantity: " + sales.getSalesDetails().getQuantity() + "</p>");
 		strBuff.append("<p>Unit Price: " + sales.getSalesDetails().getUnitPrice() + "</p>");
